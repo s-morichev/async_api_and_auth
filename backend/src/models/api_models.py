@@ -1,3 +1,4 @@
+import uuid
 from mixins import BaseMixin
 
 
@@ -11,7 +12,7 @@ class Person(BaseMixin):
 
 class ExtendedPerson(Person):
     role: str
-    film_ids: list[str]
+    film_ids: list[uuid.UUID]
 
 
 class Film(BaseMixin):
