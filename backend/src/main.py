@@ -1,28 +1,31 @@
-import uvicorn
+import aioredis
+from api.v1 import films
+from core import config
+from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from src.core import config
+from db import elastic, redis
 
 app = FastAPI(
-    # Конфигурируем название проекта. Оно будет отображаться в документации
     title=config.PROJECT_NAME,
-    # Адрес документации в красивом интерфейсе
-    docs_url='/api/openapi',
-    # Адрес документации в формате OpenAPI
-    openapi_url='/api/openapi.json',
-    # Можно сразу сделать небольшую оптимизацию сервиса
-        # и заменить стандартный JSON-сереализатор на более шуструю версию, написанную на Rust
+    docs_url="/api/openapi",
+    openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
 )
 
-if __name__ == '__main__':
-    # Приложение может запускаться командой
-    # `uvicorn main:app --host 0.0.0.0 --port 8000`
-    # но чтобы не терять возможность использовать дебагер,
-    # запустим uvicorn сервер через python
-    uvicorn.run(
-        'main:app',
-        host='0.0.0.0',
-        port=8000,
-    )
+
+@app.on_event("startup")
+async def startup():
+    redis.redis = aioredis.Redis(connection_pool=aioredis.ConnectionPool.from_url(config.REDIS_DSN))
+    elastic.es = AsyncElasticsearch(hosts=config.ELK_DSN)
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await elastic.es.close()
+
+
+# Подключаем роутер к серверу, указав префикс /v1/films
+# Теги указываем для удобства навигации по документации
+app.include_router(films.router, prefix="/api/v1/films", tags=["films"])

@@ -1,4 +1,5 @@
 import uuid
+
 import orjson
 from pydantic import BaseModel, Field
 
@@ -10,7 +11,7 @@ def orjson_dumps(v, *, default):
 
 # TODO: uuid can be str or must be uuid?
 class BaseMixin(BaseModel):
-    uuid: uuid.UUID = Field(alias="_id")
+    id: uuid.UUID = Field(alias="_id")
 
     class Config:
         # Заменяем стандартную работу с json на более быструю
