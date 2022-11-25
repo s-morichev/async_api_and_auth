@@ -42,6 +42,9 @@
   "mappings": {
     "dynamic": "strict",
     "properties": {
+      "id": {
+        "type": "keyword"
+      },
       "imdb_rating": {
         "type": "float"
       },

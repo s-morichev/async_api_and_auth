@@ -4,12 +4,6 @@
     "properties": {
       "full_name": {
         "type": "text"
-      },
-      "role": {
-        "type": "keyword"
-      },
-      "movies": {
-        "type": "keyword"
       }
     }
   }
