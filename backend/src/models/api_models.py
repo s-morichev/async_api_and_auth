@@ -1,5 +1,6 @@
 import uuid
-from mixins import BaseMixin
+
+from models.mixins import BaseMixin
 
 
 class Genre(BaseMixin):
