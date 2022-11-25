@@ -47,7 +47,7 @@ WORKDIR /opt/${APP_NAME}
 COPY ./${APP_NAME}/src .
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 # 'production' образ
 FROM python-base as production

@@ -44,14 +44,11 @@ services:
       - elasticsearch
 
   redis:
-    image: redis:7.0.5-alpine
+    image: redis:7.0.5
     container_name: redis
-    command: redis-server --save 20 1 --loglevel warning --user ${REDIS_USER} on >${REDIS_PASSWORD} ~* &* +@all --requirepass ${REDIS_PASSWORD}
-    environment:
-      REDIS_USER: ${REDIS_USER}
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory ${REDIS_MAXMEMORY} --maxmemory-policy allkeys-lru
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
 
   postgres:
     build:
@@ -62,7 +59,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "5432:5432"
+      - "${PG_PORT}:5432"
     environment:
       - POSTGRES_USER=${PG_USER}
       - POSTGRES_PASSWORD=${PG_PASSWORD}
@@ -74,7 +71,7 @@ services:
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     ports:
-      - "9200:9200"
+      - "${ELK_PORT}:9200"
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
