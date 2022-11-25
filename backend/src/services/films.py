@@ -12,12 +12,22 @@ FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
 
 class FilmService:
+    """Сервис для поиска информации, связанной с фильмами"""
+
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
         self.elastic = elastic
 
     # get_by_id возвращает объект фильма. Он опционален, так как фильм может отсутствовать в базе
     async def get_by_id(self, film_id: str) -> Optional[ExtendedFilm]:
+        """Получить полную информацию о конкретном фильме по id.
+
+        Args:
+            film_id: id фильма
+
+        Returns:
+            Расширенная модель фильма либо None, если фильм с таким id не найден.
+        """
         # Пытаемся получить данные из кеша, потому что оно работает быстрее
         film = await self._film_from_cache(film_id)
         if not film:
@@ -33,7 +43,7 @@ class FilmService:
 
     async def _get_film_from_elastic(self, film_id: str) -> Optional[ExtendedFilm]:
         try:
-            doc = await self.elastic.get("movies", film_id)
+            doc = await self.elastic.get(index="movies", id=film_id)
         except NotFoundError:
             return None
         return ExtendedFilm(**doc["_source"])
@@ -62,4 +72,8 @@ def get_film_service(
     redis: Redis = Depends(get_redis),
     elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> FilmService:
+    """Получить экземпляр FilmService.
+
+    При каждом вызове возвращается один и тот же экземпляр за счет кеширования.
+    """
     return FilmService(redis, elastic)

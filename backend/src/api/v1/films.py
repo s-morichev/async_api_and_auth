@@ -15,6 +15,10 @@ class Film(BaseModel):
 # Внедряем FilmService с помощью Depends(get_film_service)
 @router.get("/{film_id}", response_model=Film)
 async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> Film:
+    """Получить полную информацию о фильме.
+
+    - **film_id**: идентификатор фильма
+    """
     film = await film_service.get_by_id(film_id)
     if not film:
         # Если фильм не найден, отдаём 404 статус
@@ -28,4 +32,4 @@ async def film_details(film_id: str, film_service: FilmService = Depends(get_fil
     # Если бы использовалась общая модель для бизнес-логики и формирования ответов API
     # вы бы предоставляли клиентам данные, которые им не нужны
     # и, возможно, данные, которые опасно возвращать
-    return Film(id=film.id, title=film.title)
+    return Film(id=film.uuid, title=film.title)
