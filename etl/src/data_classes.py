@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, Field, validator
 
 from etl_pipeline import ETLData
 
@@ -15,14 +15,16 @@ class Person(IdNameMixin):
 
 
 class FPerson(BaseModel, ETLData):
-    """ class for load persons directly"""
+    """class for load persons directly"""
+
     id: str
     full_name: str
     modified: datetime
 
 
 class FGenre(BaseModel, ETLData):
-    """ class for load genres directly"""
+    """class for load genres directly"""
+
     id: str
     name: str
     modified: datetime
@@ -39,7 +41,7 @@ class PersonWithRole(IdNameMixin):
 class BaseETLData(BaseModel, ETLData):
     id: str
     fw_type: str
-    rars_rating: int = Field(alias='age_limit')
+    rars_rating: int = Field(alias="age_limit")
     title: str
     description: str | None
     imdb_rating: float | None
@@ -65,8 +67,7 @@ class ESData(BaseETLData):
     writers: list[Person]
     directors: list[Person]
 
-
-    @validator('imdb_rating')
+    @validator("imdb_rating")
     def validate_rating(cls, v):
         if v is None:
             return 0.0
@@ -74,9 +75,9 @@ class ESData(BaseETLData):
             # imdb rating only one digit in fractional
             return round(v, 1)
 
-    @validator('description')
+    @validator("description")
     def validate_string_data(cls, v):
         if v:
             return v
         else:
-            return ''
+            return ""

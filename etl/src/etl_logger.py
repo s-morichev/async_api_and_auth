@@ -1,15 +1,15 @@
 import logging
 
-from settings import settings, LOG_FILE
+from settings import LOG_FILE, settings
 
 if settings.DEBUG:
-    _log_format = '%(asctime)s - [%(levelname)s] - %(name)s - %(message)s -- (%(filename)s).%(funcName)s(%(lineno)d)'
+    _log_format = "%(asctime)s - [%(levelname)s] - %(name)s - %(message)s -- (%(filename)s).%(funcName)s(%(lineno)d)"
     FILE_LOG_LEVEL = logging.DEBUG
     STREAM_LOG_LEVEL = logging.DEBUG
 else:
     FILE_LOG_LEVEL = logging.WARNING
     STREAM_LOG_LEVEL = logging.INFO
-    _log_format = '%(asctime)s - [%(levelname)s] - %(name)s - %(message)s'
+    _log_format = "%(asctime)s - [%(levelname)s] - %(name)s - %(message)s"
 
 
 def _get_file_handler() -> logging.FileHandler:

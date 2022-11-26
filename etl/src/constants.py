@@ -1,26 +1,26 @@
 class RoleType:
-    ACTOR = 'actor'
-    WRITER = 'writer'
-    DIRECTOR = 'director'
+    ACTOR = "actor"
+    WRITER = "writer"
+    DIRECTOR = "director"
 
 
-FW_UPDATE_KEY = 'fw_date'
-PERSONS_UPDATE_KEY = 'p_date'
-GENRES_UPDATE_KEY = 'g_date'
-EX_PERSON_UPDATE_KEY = 'persons_date'
-EX_GENRE_UPDATE_KEY = 'genres_date'
+FW_UPDATE_KEY = "fw_date"
+PERSONS_UPDATE_KEY = "p_date"
+GENRES_UPDATE_KEY = "g_date"
+EX_PERSON_UPDATE_KEY = "persons_date"
+EX_GENRE_UPDATE_KEY = "genres_date"
 
-DATA_COUNT_KEY = 'data_count'
+DATA_COUNT_KEY = "data_count"
 
 
-FILMWORK_SQL = '''
+FILMWORK_SQL = """
    SELECT fw.id as f_id, fw.modified
         FROM content.film_work fw
         WHERE (fw.modified >= '{0}')
         ORDER BY fw.modified, fw.id
-        '''
+        """
 
-ENRICH_SQL = '''
+ENRICH_SQL = """
             SELECT
                fw.id,
                fw.title,
@@ -56,18 +56,18 @@ ENRICH_SQL = '''
             WHERE fw.id IN %s
             GROUP BY fw.id
             ORDER BY fw.id
-        '''
+        """
 
-PERSON_SQL = '''
+PERSON_SQL = """
         SELECT fw.id as f_id, p.modified, p.id
         FROM content.person p
         left join content.person_film_work pfw ON pfw.person_id = p.id
         left join content.film_work fw on pfw.film_work_id = fw.id
         WHERE (p.modified >= '{0}') and (fw.modified < '{1}') and (p.modified > fw.modified)
         ORDER BY p.modified, p.id
-        '''
+        """
 
-GENRE_SQL = '''
+GENRE_SQL = """
            SELECT
                fw.id as f_id, g.modified, g.id
            FROM content.genre g
@@ -75,17 +75,17 @@ GENRE_SQL = '''
            LEFT JOIN content.film_work fw ON gfw.film_work_id = fw.id
            WHERE (g.modified >= '{0}') AND (fw.modified < '{1}') AND (g.modified > fw.modified)
            ORDER BY g.modified, g.id
-       '''
+       """
 
-EX_PERSONS_SQL = '''
+EX_PERSONS_SQL = """
             SELECT p.id, p.full_name, p.modified 
             FROM content.person p 
             WHERE p.modified >='{0}' 
             ORDER by p.modified, p.id;
-        '''
-EX_GENRES_SQL = '''            
+        """
+EX_GENRES_SQL = """            
             SELECT g.id, g.name, g.modified 
             FROM content.genre g 
             WHERE g.modified >='{0}' 
             ORDER by g.modified, g.id;
-        '''
+        """

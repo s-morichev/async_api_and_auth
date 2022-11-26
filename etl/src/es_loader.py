@@ -1,20 +1,20 @@
 from typing import Any, Iterator
 
-from elasticsearch import Elasticsearch
 from elastic_transport import ConnectionError
+from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
-from data_classes import ESData
+import etl_logger
 from backoff import backoff
 from constants import DATA_COUNT_KEY
+from data_classes import ESData
 from etl_pipeline import ETLPipelineError, Loader
-import etl_logger
 
 logger = etl_logger.get_logger(__name__)
 
 
 class ESLoader(Loader):
-    def __init__(self, url: str, index_name: str, batch_size: int = 1000, exclude={'modified'}):
+    def __init__(self, url: str, index_name: str, batch_size: int = 1000, exclude={"modified"}):
         self.url = url
         self.index_name = index_name
         self.batch_size = batch_size
@@ -36,7 +36,7 @@ class ESLoader(Loader):
 
     def load_data(self, transform_data: Iterator[ESData]) -> Iterator[dict]:
         def make_portion_for_es(es_data: Iterator[ESData]) -> Iterator[list[dict[str, Any]]]:
-            """ split all data in portion size of butch_size"""
+            """split all data in portion size of butch_size"""
             result = []
             for row in es_data:
                 doc = {"_index": self.index_name, "_id": row.id, "_source": row.dict(exclude=self.exclude)}
@@ -54,14 +54,14 @@ class ESLoader(Loader):
             es_data_count = resp[0]
 
             if data_count != es_data_count:
-                raise ETLPipelineError(f'Error load to ES. Send rows:{data_count} loaded:{es_data_count}')
+                raise ETLPipelineError(f"Error load to ES. Send rows:{data_count} loaded:{es_data_count}")
 
-            logger.debug(f'es load data count:{es_data_count}')
+            logger.debug(f"es load data count:{es_data_count}")
 
             # just for info
             self.state[DATA_COUNT_KEY] += data_count
             self.row_count += data_count
-            yield {'loaded': data_count}
+            yield {"loaded": data_count}
 
     def _index_exists(self, index_name: str):
         es = self._get_connection()
@@ -74,18 +74,17 @@ class ESLoader(Loader):
     def pre_check(self) -> None:
         try:
             if not self.ping():
-                raise ETLPipelineError(' Ping to Elasticsearch failed')
-            logger.debug('Elasticsearch ping is OK')
+                raise ETLPipelineError(" Ping to Elasticsearch failed")
+            logger.debug("Elasticsearch ping is OK")
 
             if not self._index_exists(self.index_name):
-                raise ETLPipelineError(f'Elasticsearch index {self.index_name} not exists')
+                raise ETLPipelineError(f"Elasticsearch index {self.index_name} not exists")
 
         except ElasticsearchException as e:
-            raise ETLPipelineError(f'Elasticsearch pre_check error:{e}') from e
+            raise ETLPipelineError(f"Elasticsearch pre_check error:{e}") from e
 
-        logger.debug(f'Elasticsearch index: {self.index_name} exist')
-        logger.info('Elasticsearch pre_check OK')
+        logger.debug(f"Elasticsearch index: {self.index_name} exist")
+        logger.info("Elasticsearch pre_check OK")
 
         # counter for data loaded
         self.state[DATA_COUNT_KEY] = 0
-

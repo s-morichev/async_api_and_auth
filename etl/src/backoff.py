@@ -2,11 +2,9 @@ from functools import wraps
 from time import sleep
 
 
-def backoff(exceptions,
-            start_sleep_time: float = 0.1,
-            factor: float = 2,
-            border_sleep_time: float = 30,
-            logger_func=None):
+def backoff(
+    exceptions, start_sleep_time: float = 0.1, factor: float = 2, border_sleep_time: float = 30, logger_func=None
+):
     """
     Функция для повторного выполнения функции через некоторое время, если возникла ошибка.
     Использует наивный экспоненциальный рост времени повтора (factor) до граничного времени ожидания (border_sleep_time)
@@ -34,8 +32,8 @@ def backoff(exceptions,
                 except exceptions as e:
                     count += 1
                     if logger_func:
-                        logger_func(f'Error ({count}):[{e}]')
-                        logger_func(f' Wait for {sleep_time}s for repeat')
+                        logger_func(f"Error ({count}):[{e}]")
+                        logger_func(f" Wait for {sleep_time}s for repeat")
 
                     sleep(sleep_time)
                     # increase sleep time
@@ -49,11 +47,9 @@ def backoff(exceptions,
     return func_wrapper
 
 
-def backoff_gen(exceptions,
-                start_sleep_time: float = 0.1,
-                factor: float = 2,
-                border_sleep_time: float = 30,
-                logger_func=None):
+def backoff_gen(
+    exceptions, start_sleep_time: float = 0.1, factor: float = 2, border_sleep_time: float = 30, logger_func=None
+):
     """
     Декоратор для генератора
     Использует наивный экспоненциальный рост времени повтора (factor) до граничного времени ожидания (border_sleep_time)
@@ -82,8 +78,8 @@ def backoff_gen(exceptions,
                 except exceptions as e:
                     count += 1
                     if logger_func:
-                        logger_func(f'Error ({count}):[{e}]')
-                        logger_func(f' Wait for {sleep_time}s for repeat')
+                        logger_func(f"Error ({count}):[{e}]")
+                        logger_func(f" Wait for {sleep_time}s for repeat")
 
                     sleep(sleep_time)
                     # increase sleep time
@@ -93,5 +89,5 @@ def backoff_gen(exceptions,
                         sleep_time = border_sleep_time
 
         return inner
-    return func_wrapper
 
+    return func_wrapper

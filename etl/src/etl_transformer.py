@@ -12,8 +12,8 @@ class ETLTransformer(Transformer):
     def transform_data(self, db_data: Iterator[PGData]) -> Iterator[ESData]:
         def filter_persons(lst_persons: list[PersonWithRole], role: RoleType) -> (list[Person], list[str]):
             """
-                function return list of Person and list with persons names
-                all persons of the role
+            function return list of Person and list with persons names
+            all persons of the role
             """
             persons_with_role = [
                 Person(id=person.id, name=person.name) for person in lst_persons if person.role == role
@@ -24,10 +24,10 @@ class ETLTransformer(Transformer):
         for row in db_data:
             persons = row.persons
             ex_data = {}
-            ex_data['genre'] = [genre.name for genre in row.genres]
-            ex_data['actors'], ex_data['actors_names'] = filter_persons(persons, RoleType.ACTOR)
-            ex_data['writers'], ex_data['writers_names'] = filter_persons(persons, RoleType.WRITER)
-            ex_data['directors'], ex_data['directors_names'] = filter_persons(persons, RoleType.DIRECTOR)
+            ex_data["genre"] = [genre.name for genre in row.genres]
+            ex_data["actors"], ex_data["actors_names"] = filter_persons(persons, RoleType.ACTOR)
+            ex_data["writers"], ex_data["writers_names"] = filter_persons(persons, RoleType.WRITER)
+            ex_data["directors"], ex_data["directors_names"] = filter_persons(persons, RoleType.DIRECTOR)
 
             es_data = ESData(**(row.dict() | ex_data))
             yield es_data

@@ -1,15 +1,17 @@
-from pg_extractor import BaseExtractorWorker, FWExtractor
-from etl_pipeline import Transformer, ETLData
-from constants import EX_PERSON_UPDATE_KEY, EX_PERSONS_SQL, EX_GENRE_UPDATE_KEY, EX_GENRES_SQL
 from typing import Iterator
+
+from constants import EX_GENRE_UPDATE_KEY, EX_GENRES_SQL, EX_PERSON_UPDATE_KEY, EX_PERSONS_SQL
 from data_classes import FGenre, FPerson
+from etl_pipeline import ETLData, Transformer
+from pg_extractor import BaseExtractorWorker, FWExtractor
 
 
 class PersonsExtractorWorker(BaseExtractorWorker):
-    """ class for Person table extract"""
+    """class for Person table extract"""
+
     DATA_CLASS = FPerson
     STATE_KEY = EX_PERSON_UPDATE_KEY
-    NAME = 'Persons Extractor'
+    NAME = "Persons Extractor"
 
     def _get_sql_string(self):
         person_date = self._get_state_date()
@@ -21,10 +23,11 @@ class PersonsExtractorWorker(BaseExtractorWorker):
 
 
 class GenresExtractorWorker(BaseExtractorWorker):
-    """ class for Genre table extract"""
+    """class for Genre table extract"""
+
     DATA_CLASS = FGenre
     STATE_KEY = EX_GENRE_UPDATE_KEY
-    NAME = 'Genres Extractor'
+    NAME = "Genres Extractor"
 
     def _get_sql_string(self):
         person_date = self._get_state_date()
@@ -50,4 +53,3 @@ class GenreExtractor(FWExtractor):
     def __init__(self, dsn: str, batch_size: int = 100):
         super().__init__(dsn, batch_size)
         self.workers = [GenresExtractorWorker()]
-

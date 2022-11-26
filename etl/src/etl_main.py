@@ -1,18 +1,18 @@
-from threading import Event
 from datetime import datetime
+from threading import Event
 
 import etl_logger
+from backoff import backoff
 from es_loader import ESLoader
 from etl_pipeline import ETLPipeline, ETLPipelineError
 from etl_transformer import ETLTransformer
 from etl_utils import check_or_create_indexes
 from pg_extractor import FWExtractor
-from settings import settings, STATE_FILE
-from storage import JsonFileStorage, DictState
-from backoff import backoff
-from plane_pipelines import PersonExtractor, GenreExtractor, DummyTransformer
+from plane_pipelines import DummyTransformer, GenreExtractor, PersonExtractor
+from settings import STATE_FILE, settings
+from storage import DictState, JsonFileStorage
 
-logger = etl_logger.get_logger('ETL')
+logger = etl_logger.get_logger("ETL")
 ev_exit = Event()
 
 
@@ -27,21 +27,21 @@ def all_ready_for_etl() -> bool:
 def run(pipelines: list[ETLPipeline]):
     while not ev_exit.is_set():
         loaded = 0
-        logger.info('Start working...')
+        logger.info("Start working...")
         start_time = datetime.now()
 
         for pipeline in pipelines:
-            logger.info('-------------------------------------------------')
+            logger.info("-------------------------------------------------")
             pipeline.execute()
-            logger.info(f'record loaded:{pipeline.records_loaded}')
+            logger.info(f"record loaded:{pipeline.records_loaded}")
             loaded += pipeline.records_loaded
         end_time = datetime.now()
 
-        logger.info('-------------------------------------------------')
-        logger.info(f'ETL executed. Time elapsed:{end_time - start_time}')
-        logger.info(f'Amount record loaded:{loaded}')
+        logger.info("-------------------------------------------------")
+        logger.info(f"ETL executed. Time elapsed:{end_time - start_time}")
+        logger.info(f"Amount record loaded:{loaded}")
 
-        logger.info(f'wait for {settings.ETL_SLEEP_TIME}s')
+        logger.info(f"wait for {settings.ETL_SLEEP_TIME}s")
         ev_exit.wait(settings.ETL_SLEEP_TIME)
 
 
@@ -63,7 +63,7 @@ def create_fw_pipeline(state_storage: DictState) -> ETLPipeline:
     url = settings.ES_URI
     es = ESLoader(url, settings.ES_INDEX_MOVIES, settings.ES_BATCH_SIZE)
 
-    return ETLPipeline(pg, ETLTransformer(), es, state_storage, 'Filmworks pipeline')
+    return ETLPipeline(pg, ETLTransformer(), es, state_storage, "Filmworks pipeline")
 
 
 def create_person_pipeline(state_storage: DictState) -> ETLPipeline:
@@ -71,9 +71,9 @@ def create_person_pipeline(state_storage: DictState) -> ETLPipeline:
     pg = PersonExtractor(dsn, settings.PG_BATCH_SIZE)
 
     url = settings.ES_URI
-    es = ESLoader(url, settings.ES_INDEX_PERSONS, settings.ES_BATCH_SIZE, exclude={'modified', 'id'})
+    es = ESLoader(url, settings.ES_INDEX_PERSONS, settings.ES_BATCH_SIZE, exclude={"modified", "id"})
 
-    return ETLPipeline(pg, DummyTransformer(), es, state_storage, 'Persons pipeline')
+    return ETLPipeline(pg, DummyTransformer(), es, state_storage, "Persons pipeline")
 
 
 def create_genre_pipeline(state_storage: DictState) -> ETLPipeline:
@@ -81,16 +81,16 @@ def create_genre_pipeline(state_storage: DictState) -> ETLPipeline:
     pg = GenreExtractor(dsn, settings.PG_BATCH_SIZE)
 
     url = settings.ES_URI
-    es = ESLoader(url, settings.ES_INDEX_GENRES, settings.ES_BATCH_SIZE, exclude={'modified', 'id'})
+    es = ESLoader(url, settings.ES_INDEX_GENRES, settings.ES_BATCH_SIZE, exclude={"modified", "id"})
 
-    return ETLPipeline(pg, DummyTransformer(), es, state_storage, 'Genres pipeline')
+    return ETLPipeline(pg, DummyTransformer(), es, state_storage, "Genres pipeline")
 
 
 def main():
-    logger.info('Start ETL')
+    logger.info("Start ETL")
 
     if not all_ready_for_etl():
-        panic_exit('Error while check system')
+        panic_exit("Error while check system")
 
     storage = JsonFileStorage(STATE_FILE)
     state = DictState(storage, save_on_set=False)
@@ -101,10 +101,10 @@ def main():
 
     pipelines = [fw_pipeline, p_pipeline, g_pipeline]
 
-    logger.info('check conditions for ETL pipelines')
+    logger.info("check conditions for ETL pipelines")
     pre_check(pipelines)
 
-    logger.info('start pipelines')
+    logger.info("start pipelines")
 
     try:
         run(pipelines)
@@ -114,7 +114,7 @@ def main():
         logger.exception(e)
         raise
 
-    logger.info('ETL stop')
+    logger.info("ETL stop")
 
 
 def on_quit(sig_no: int, *args):
@@ -122,11 +122,11 @@ def on_quit(sig_no: int, *args):
     ev_exit.set()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     import signal
 
-    for sig in ('TERM', 'HUP', 'INT'):
-        signal.signal(getattr(signal, 'SIG' + sig), on_quit)
+    for sig in ("TERM", "HUP", "INT"):
+        signal.signal(getattr(signal, "SIG" + sig), on_quit)
 
     main()

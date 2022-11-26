@@ -8,11 +8,12 @@ logger = etl_logger.get_logger(__name__)
 
 
 class ETLData(ABC):
-    """ abstract data class for ETL"""
+    """abstract data class for ETL"""
 
 
 class PipelineItem(ABC):
-    """ Abstract class for pipeline items"""
+    """Abstract class for pipeline items"""
+
     row_count: int = 0
 
     # dict object from Pipeline
@@ -21,11 +22,11 @@ class PipelineItem(ABC):
 
     # это не абстрактный метод, а минимальная реализация:)
     def pre_check(self) -> None:
-        """ Check conditions for further work """
+        """Check conditions for further work"""
 
 
 class Extractor(PipelineItem):
-    """ abstract class for extracting data """
+    """abstract class for extracting data"""
 
     @abstractmethod
     def get_data(self) -> Iterator[ETLData]:
@@ -33,7 +34,7 @@ class Extractor(PipelineItem):
 
 
 class Transformer(PipelineItem):
-    """ abstract class for transforming data """
+    """abstract class for transforming data"""
 
     @abstractmethod
     def transform_data(self, data: Iterator[ETLData]) -> Iterator[ETLData]:
@@ -41,7 +42,7 @@ class Transformer(PipelineItem):
 
 
 class Loader(PipelineItem):
-    """ abstract class for loading data """
+    """abstract class for loading data"""
 
     @abstractmethod
     def load_data(self, data: Iterator[ETLData]) -> Iterator[dict]:
@@ -53,11 +54,14 @@ class ETLPipelineError(Exception):
 
 
 class ETLPipeline:
-    def __init__(self, extractor: Extractor,
-                 transformer: Transformer,
-                 loader: Loader,
-                 state: DictState,
-                 name: str = 'ETL Pipeline'):
+    def __init__(
+        self,
+        extractor: Extractor,
+        transformer: Transformer,
+        loader: Loader,
+        state: DictState,
+        name: str = "ETL Pipeline",
+    ):
 
         self.name = name
         self.state = state
@@ -78,7 +82,7 @@ class ETLPipeline:
         """
         for record in result:
             logger.info(f'loaded rows:{record["loaded"]}')
-            self.records_loaded += record['loaded']
+            self.records_loaded += record["loaded"]
         self.save_state()
 
     def save_state(self):
@@ -89,7 +93,7 @@ class ETLPipeline:
         self.transformer.pre_check()
         self.loader.pre_check()
 
-        logger.debug(f'{self.name} pre_check() passed -  all OK')
+        logger.debug(f"{self.name} pre_check() passed -  all OK")
 
     def execute(self):
         """
@@ -100,11 +104,11 @@ class ETLPipeline:
         self.transformer.row_count = 0
         self.loader.row_count = 0
 
-        logger.info(f'{self.name} is executing')
+        logger.info(f"{self.name} is executing")
         db_data = self.extractor.get_data()
         transform_data = self.transformer.transform_data(db_data)
         state_data = self.loader.load_data(transform_data)
         self.terminator(state_data)
 
         self.save_state()
-        logger.info(f'{self.name} is finished')
+        logger.info(f"{self.name} is finished")

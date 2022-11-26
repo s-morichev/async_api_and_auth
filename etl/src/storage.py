@@ -1,6 +1,6 @@
 import json
+from abc import ABC, abstractmethod
 from json import JSONDecodeError
-from abc import abstractmethod, ABC
 from pathlib import Path
 from typing import Any
 
@@ -20,12 +20,12 @@ class BaseStorage(ABC):
 class JsonFileStorage(BaseStorage):
     def __init__(self, file_path: str):
         if not file_path:
-            raise FileNotFoundError('JsonFileStorage need file path for saving state')
+            raise FileNotFoundError("JsonFileStorage need file path for saving state")
 
         self.file_path = file_path
 
     def save_state(self, state: dict) -> None:
-        with open(self.file_path, 'w') as json_file:
+        with open(self.file_path, "w") as json_file:
             json.dump(state, json_file, default=str)
 
     def retrieve_state(self) -> dict:
@@ -35,7 +35,7 @@ class JsonFileStorage(BaseStorage):
         if not json_path.is_file():
             return result
 
-        with open(self.file_path, 'r') as json_file:
+        with open(self.file_path, "r") as json_file:
             try:
                 result = json.load(json_file)
             except JSONDecodeError:
@@ -47,7 +47,7 @@ class JsonFileStorage(BaseStorage):
 
 class State:
     """
-        Класс для сохранения состояния
+    Класс для сохранения состояния
     """
 
     def __init__(self, storage: BaseStorage):
@@ -66,10 +66,11 @@ class State:
 
 class DictState(State):
     """
-        Dict like object which save state in BaseStorage object
-        if save_on_state is set True - it will be saved every changing
-        otherwise only when save_state() calling
+    Dict like object which save state in BaseStorage object
+    if save_on_state is set True - it will be saved every changing
+    otherwise only when save_state() calling
     """
+
     def __init__(self, storage: BaseStorage, save_on_set=True):
         self.save_on_state = save_on_set
         super().__init__(storage)
