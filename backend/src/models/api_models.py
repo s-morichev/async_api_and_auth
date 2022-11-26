@@ -9,7 +9,7 @@ class Genre(IdMixin):
 
 class RoleMovies(BaseMixin):
     role: str
-    movies: list[uuid.UUID]
+    movies: list[UUID]
 
 
 class Person(IdMixin):
@@ -17,7 +17,6 @@ class Person(IdMixin):
 
 
 class ExtendedPerson(Person):
-    full_name: str
     movies: list[RoleMovies]
 
 
