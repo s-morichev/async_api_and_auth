@@ -28,6 +28,7 @@ services:
       - elasticsearch
 
   etl:
+    restart: always
     build:
       context: .
       dockerfile: ./docker/etl/Dockerfile
@@ -36,7 +37,7 @@ services:
         - "etl_sprint_4"
     container_name: etl
     volumes:
-      - ./etl/src/:/opt/etl/
+      - etl_data:/opt/etl/var/
     env_file:
       - .env
     depends_on:
@@ -84,3 +85,4 @@ services:
 volumes:
   postgres_data:
   elasticsearch_data:
+  etl_data:

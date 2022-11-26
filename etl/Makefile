@@ -1,2 +1,2 @@
 run:
-	python ./src/etl_main.py
+	python ./src/main.py
