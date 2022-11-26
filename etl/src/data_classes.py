@@ -14,6 +14,18 @@ class Person(IdNameMixin):
     pass
 
 
+class FPerson(BaseModel, ETLData):
+    """ class for load persons directly"""
+    id: str
+    full_name: str
+    modified: datetime
+
+class FGenre(BaseModel, ETLData):
+    """ class for load genres directly"""
+    id: str
+    name: str
+    modified: datetime
+
 class Genre(IdNameMixin):
     pass
 
@@ -39,8 +51,7 @@ class PGData(BaseETLData):
 class ESData(BaseETLData):
     genre: list[str]
 
-    # лучше бы назвал director_names. Но схема есть схема...
-    director: list[str]
+    directors_names: list[str]
     actors_names: list[str]
     writers_names: list[str]
 

@@ -27,7 +27,7 @@ class ETLTransformer(Transformer):
             ex_data['genre'] = [genre.name for genre in row.genres]
             ex_data['actors'], ex_data['actors_names'] = filter_persons(persons, RoleType.ACTOR)
             ex_data['writers'], ex_data['writers_names'] = filter_persons(persons, RoleType.WRITER)
-            ex_data['directors'], ex_data['director'] = filter_persons(persons, RoleType.DIRECTOR)
+            ex_data['directors'], ex_data['directors_names'] = filter_persons(persons, RoleType.DIRECTOR)
 
             es_data = ESData(**(row.dict() | ex_data))
             yield es_data

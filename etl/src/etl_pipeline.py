@@ -52,8 +52,14 @@ class ETLPipelineError(Exception):
 
 
 class ETLPipeline:
-    def __init__(self, extractor: Extractor, transformer: Transformer, loader: Loader, storage: BaseStorage = None):
-        self.state = DictState(storage, save_on_set=False)
+    def __init__(self, extractor: Extractor,
+                 transformer: Transformer,
+                 loader: Loader,
+                 state: DictState,
+                 name: str = 'ETL Pipeline'):
+
+        self.name = name
+        self.state = state
 
         self.extractor = extractor
         self.extractor.state = self.state
@@ -63,6 +69,7 @@ class ETLPipeline:
 
         self.loader = loader
         self.loader.state = self.state
+        self.records_loaded = 0
 
     def terminator(self, result: Iterator[dict]):
         """
@@ -70,6 +77,7 @@ class ETLPipeline:
         """
         for record in result:
             logger.debug(record)
+            self.records_loaded = record['loaded']
         self.save_state()
 
     def save_state(self):
@@ -80,15 +88,18 @@ class ETLPipeline:
         self.transformer.pre_check()
         self.loader.pre_check()
 
-        logger.debug('pre_check() passed -  all OK')
+        logger.debug(f'{self.name} pre_check() passed -  all OK')
 
     def execute(self):
         """
         run steep for ETL pipeline
         """
+        self.records_loaded = 0
+        logger.info(f'{self.name} is executing')
         db_data = self.extractor.get_data()
         transform_data = self.transformer.transform_data(db_data)
         state_data = self.loader.load_data(transform_data)
         self.terminator(state_data)
 
         self.save_state()
+        logger.info(f'{self.name} is finished')

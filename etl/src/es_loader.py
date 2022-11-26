@@ -14,11 +14,12 @@ logger = etl_logger.get_logger(__name__)
 
 
 class ESLoader(Loader):
-    def __init__(self, url: str, index_name: str, butch_size: int = 1000):
+    def __init__(self, url: str, index_name: str, batch_size: int = 1000, exclude={'modified'}):
         self.url = url
         self.index_name = index_name
-        self.butch_size = butch_size
+        self.batch_size = batch_size
         self.connection = None
+        self.exclude = exclude
 
     def _get_connection(self):
         if self.connection:
@@ -28,7 +29,7 @@ class ESLoader(Loader):
             return self.connection
 
     @backoff(exceptions=(ElasticsearchException,), logger_func=logger.error)
-    def _load_to_es(self, data: list[ESData]) -> tuple:
+    def _load_to_es(self, data: list[dict]) -> tuple:
         es = self._get_connection()
         result = bulk(es, data)
         return result
@@ -38,16 +39,14 @@ class ESLoader(Loader):
             """ split all data in portion size of butch_size"""
             result = []
             for row in es_data:
-                doc = {"_index": self.index_name, "_id": row.id, "_source": row.dict(exclude={'modified'})}
+                doc = {"_index": self.index_name, "_id": row.id, "_source": row.dict(exclude=self.exclude)}
                 result.append(doc)
-                if len(result) > self.butch_size:
+                if len(result) >= self.batch_size:
                     yield result
                     result = []
             else:
                 if result:
                     yield result
-
-        self.state[DATA_COUNT_KEY] = 0
 
         for data in make_portion_for_es(transform_data):
             data_count = len(data)
@@ -57,7 +56,7 @@ class ESLoader(Loader):
 
             # just for info
             self.state[DATA_COUNT_KEY] += data_count
-            yield {'data_count': data_count}
+            yield {'loaded': self.state[DATA_COUNT_KEY]}
 
     def _index_exists(self, index_name: str):
         es = self._get_connection()
@@ -81,3 +80,7 @@ class ESLoader(Loader):
 
         logger.debug(f'Elasticsearch index: {self.index_name} exist')
         logger.info('Elasticsearch pre_check OK')
+
+        #counter for data loaded
+        self.state[DATA_COUNT_KEY] = 0
+

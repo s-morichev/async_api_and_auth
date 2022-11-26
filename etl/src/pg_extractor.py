@@ -13,7 +13,7 @@ from backoff import backoff_gen
 from constants import (FW_UPDATE_KEY, GENRES_UPDATE_KEY, PERSONS_UPDATE_KEY,
                        FILMWORK_SQL, PERSON_SQL, GENRE_SQL, ENRICH_SQL)
 from data_classes import PGData
-from etl_pipeline import Extractor, ETLPipelineError
+from etl_pipeline import Extractor, ETLPipelineError, ETLData
 
 logger = etl_logger.get_logger(__name__)
 
@@ -26,6 +26,8 @@ class ExtractorWorker(ABC):
 class BaseExtractorWorker(ExtractorWorker):
     state: dict = None
     STATE_KEY = 'BASE_KEY'
+    NAME = 'BASE'
+    DATA_CLASS = PGData
 
     def _get_sql_string(self):
         """ return SQL string for query"""
@@ -33,30 +35,57 @@ class BaseExtractorWorker(ExtractorWorker):
     def _enrich(self, connection, data: list[dict]) -> list[dict]:
         """ На вход получаем список словарей с id filmwork, на выходе готовые данные"""
         with closing(connection.cursor()) as cursor:
-            ids = tuple(row['id'] for row in data)
+            ids = tuple(row['f_id'] for row in data)
             cursor.execute(ENRICH_SQL, (ids,))
             rows = cursor.fetchall()
         return rows
 
-
     def _mark_state(self, data: list[dict]):
         """ mark state of Extractor if need"""
-        self.state[self.STATE_KEY] = data[-1]['modified']
+        # in filmworks id is f_id
+        self.state[self.STATE_KEY] = (data[-1]['modified'], data[-1].get('id') or data[-1].get('f_id'))
+
+    def _get_state_date(self, key: str = None) -> str | datetime.datetime:
+        """ return date from state if exist else return datetime.min"""
+        if not key:
+            key = self.STATE_KEY
+        if self.state[key]:
+            return self.state.get(key)[0]
+        return datetime.datetime.min
+
+    def _same_data_in_rows(self, rows: list[dict]) -> bool:
+        """ check if in rows last row is same as loaded"""
+        if not self.state[self.STATE_KEY]:
+            return False
+        last_date, last_id = self.state[self.STATE_KEY]
+        # may be str, cant compare
+        if isinstance(last_date, str):
+            last_date = datetime.datetime.fromisoformat(last_date)
+        # in filmwork id is f_id
+        last_row_date, last_row_id = rows[-1]['modified'], rows[-1].get('id') or rows[-1].get('f_id')
+        is_same = ((last_date == last_row_date) and (last_id == last_row_id))
+        return is_same
 
     # psycopg2.DatabaseError - не стал ловить, пусть лучше вываливается и перезагружается сервис
     @backoff_gen(exceptions=(psycopg2.OperationalError,), logger_func=logger.error)
-    def get_data(self, connection_factory: Callable[[], PGConnection], settings: dict) -> Iterator[PGData]:
+    def get_data(self, connection_factory: Callable[[], PGConnection], settings: dict) -> Iterator[ETLData]:
+        logger.debug(f'{self.NAME} worker get data')
         self.state = settings['state']
         connection = connection_factory()
 
         with closing(connection.cursor()) as cursor:
             cursor.execute(self._get_sql_string())
             while rows := cursor.fetchmany(size=settings['batch_size']):
+                # if data is loaded - do nothing
+                if self._same_data_in_rows(rows):
+                    logger.debug('Nothing to load')
+                    return None
                 enrich_rows = self._enrich(connection, rows)
                 self._mark_state(rows)
                 logger.debug(f' {type(self).__name__}: load data from db row count:{len(enrich_rows)}')
-                yield from [PGData(**row) for row in enrich_rows]
+                yield from [self.DATA_CLASS(**row) for row in enrich_rows]
             else:
+                logger.debug('Mark no data')
                 self._mark_state_no_data(cursor)
 
     def _mark_state_no_data(self, cursor: PGCursor):
@@ -68,43 +97,46 @@ class BaseExtractorWorker(ExtractorWorker):
 
 class FWExtractorWorker(BaseExtractorWorker):
     STATE_KEY = FW_UPDATE_KEY
+    NAME = 'Filworks Extractor'
 
     def _get_sql_string(self):
-        fw_date = (self.state.get(self.STATE_KEY) or datetime.datetime.min)
+        fw_date = self._get_state_date()
         return FILMWORK_SQL.format(fw_date)
 
 
 class PersonsExtractorWorker(BaseExtractorWorker):
     STATE_KEY = PERSONS_UPDATE_KEY
+    NAME = 'Persons 2M2 Extractor'
 
     def _get_sql_string(self):
-        p_date = (self.state.get(self.STATE_KEY) or datetime.datetime.min)
-        fw_date = (self.state.get(FW_UPDATE_KEY) or datetime.datetime.min)
+        p_date = self._get_state_date()
+        fw_date = self._get_state_date(FW_UPDATE_KEY)
         return PERSON_SQL.format(p_date, fw_date)
 
     def _mark_state_no_data(self, cursor: PGCursor):
-        cursor.execute("select max(p.modified) from content.person p")
+        cursor.execute("Select p.id, p.modified from content.person p order by p.modified desc, p.id desc limit 1;")
         max_date = cursor.fetchone()
         if max_date:
-            self._mark_state([{'modified': max_date[0]}])
+            self._mark_state([{'modified': max_date[1], 'id': max_date[0]}])
 
 
 class GenresExtractorWorker(BaseExtractorWorker):
     STATE_KEY = GENRES_UPDATE_KEY
+    NAME = 'Genres 2M2 Extractor'
 
     def _get_sql_string(self):
-        g_date = (self.state.get(self.STATE_KEY) or datetime.datetime.min)
-        fw_date = (self.state.get(FW_UPDATE_KEY) or datetime.datetime.min)
+        g_date = self._get_state_date()
+        fw_date = self._get_state_date(FW_UPDATE_KEY)
         return GENRE_SQL.format(g_date, fw_date)
 
     def _mark_state_no_data(self, cursor: PGCursor):
-        cursor.execute("select max(g.modified) from content.genre g")
+        cursor.execute("Select g.id, g.modified from content.genre g order by g.modified desc, g.id desc limit 1;")
         max_date = cursor.fetchone()
         if max_date:
-            self._mark_state([{'modified': max_date[0]}])
+            self._mark_state([{'modified': max_date[1], 'id': max_date[0]}])
 
 
-class PGExtractor(Extractor):
+class FWExtractor(Extractor):
     def __init__(self, dsn: str, batch_size: int = 100):
         self.dsn: str = dsn
         self.batch_size: int = batch_size

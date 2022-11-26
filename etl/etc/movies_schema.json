@@ -48,6 +48,9 @@
       "imdb_rating": {
         "type": "float"
       },
+      "rars_rating": {
+        "type": "byte"
+      },
       "fw_type": {
         "type": "keyword"
       },
@@ -80,7 +83,7 @@
         "type": "text",
         "analyzer": "ru_en"
       },
-      "director": {
+      "directors_names": {
         "type": "text",
         "analyzer": "ru_en"
       },

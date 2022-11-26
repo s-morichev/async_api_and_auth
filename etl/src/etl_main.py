@@ -5,10 +5,12 @@ import etl_logger
 from es_loader import ESLoader
 from etl_pipeline import ETLPipeline, ETLPipelineError
 from etl_transformer import ETLTransformer
-from etl_utils import es_create_index_if_not_exist
-from pg_extractor import PGExtractor
+from etl_utils import check_or_create_indexes
+from pg_extractor import FWExtractor
 from settings import settings, STATE_FILE
-from storage import JsonFileStorage
+from storage import JsonFileStorage, DictState
+from backoff import backoff
+from plane_pipelines import PersonExtractor, GenreExtractor, DummyTransformer
 
 logger = etl_logger.get_logger('ETL')
 ev_exit = Event()
@@ -19,17 +21,26 @@ def all_ready_for_etl() -> bool:
     создаем индекс в ES если он отсутствует
     Но в проде он же будет создан до запуска?
     """
-    return es_create_index_if_not_exist()
+    return check_or_create_indexes()
 
 
-def run(pipeline: ETLPipeline):
+def run(pipelines: list[ETLPipeline]):
     while not ev_exit.is_set():
+        loaded = 0
+        logger.info('Start working...')
         start_time = datetime.now()
-        pipeline.execute()
+
+        for pipeline in pipelines:
+            logger.info('-------------------------------------------------')
+            pipeline.execute()
+            logger.info(f'record loaded:{pipeline.records_loaded}')
+            loaded += pipeline.records_loaded
         end_time = datetime.now()
+
         logger.info('-------------------------------------------------')
         logger.info(f'ETL executed. Time elapsed:{end_time - start_time}')
-        logger.info(f'record loaded:{pipeline.state["data_count"]}')
+        logger.info(f'Amount record loaded:{loaded}')
+
         logger.info(f'wait for {settings.ETL_SLEEP_TIME}s')
         ev_exit.wait(settings.ETL_SLEEP_TIME)
 
@@ -39,6 +50,42 @@ def panic_exit(msg: str):
     exit(1)
 
 
+@backoff(exceptions=(ETLPipelineError,), logger_func=logger.error)
+def pre_check(pipelines: list[ETLPipeline]):
+    for pipeline in pipelines:
+        pipeline.pre_check()
+
+
+def create_fw_pipeline(state_storage: DictState) -> ETLPipeline:
+    dsn = settings.PG_URI
+    pg = FWExtractor(dsn, settings.PG_BATCH_SIZE)
+
+    url = settings.ES_URI
+    es = ESLoader(url, settings.ES_INDEX_MOVIES, settings.ES_BATCH_SIZE)
+
+    return ETLPipeline(pg, ETLTransformer(), es, state_storage, 'Filmworks pipeline')
+
+
+def create_person_pipeline(state_storage: DictState) -> ETLPipeline:
+    dsn = settings.PG_URI
+    pg = PersonExtractor(dsn, settings.PG_BATCH_SIZE)
+
+    url = settings.ES_URI
+    es = ESLoader(url, settings.ES_INDEX_PERSONS, settings.ES_BATCH_SIZE, exclude={'modified', 'id'})
+
+    return ETLPipeline(pg, DummyTransformer(), es, state_storage, 'Persons pipeline')
+
+
+def create_genre_pipeline(state_storage: DictState) -> ETLPipeline:
+    dsn = settings.PG_URI
+    pg = GenreExtractor(dsn, settings.PG_BATCH_SIZE)
+
+    url = settings.ES_URI
+    es = ESLoader(url, settings.ES_INDEX_GENRES, settings.ES_BATCH_SIZE, exclude={'modified', 'id'})
+
+    return ETLPipeline(pg, DummyTransformer(), es, state_storage, 'Genres pipeline')
+
+
 def main():
     logger.info('Start ETL')
 
@@ -46,34 +93,21 @@ def main():
         panic_exit('Error while check system')
 
     storage = JsonFileStorage(STATE_FILE)
+    state = DictState(storage, save_on_set=False)
 
-    dsn = settings.PG_URI
-    pg = PGExtractor(dsn, settings.BATCH_SIZE)
+    fw_pipeline = create_fw_pipeline(state)
+    p_pipeline = create_person_pipeline(state)
+    g_pipeline = create_genre_pipeline(state)
 
-    url = settings.ES_URI
-    es = ESLoader(url, settings.ES_INDEX_MOVIES)
+    pipelines = [fw_pipeline, p_pipeline, g_pipeline]
 
-    pipeline = ETLPipeline(pg, ETLTransformer(), es, storage)
+    logger.info('check conditions for ETL pipelines')
+    pre_check(pipelines)
 
-    logger.info('check conditions for ETL')
-
-    # проверка на условия для запуска ETL
-    # если требуется - можно сделать ожидание
-    # а не прекращать работу
-    try:
-        pipeline.pre_check()
-    except ETLPipelineError as e:
-        if settings.DEBUG:
-            logger.exception(e)
-        else:
-            logger.critical(e)
-
-        panic_exit('There are no working conditions. exit ETL')
-
-    logger.info('execute ETL')
+    logger.info('start pipelines')
 
     try:
-        run(pipeline)
+        run(pipelines)
     except Exception as e:
         # catch ALL unexpected exceptions
         # and logging them

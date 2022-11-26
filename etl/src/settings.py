@@ -5,8 +5,10 @@ from pydantic import BaseSettings
 BASE_DIR = Path(__file__).parent.parent
 
 # env in project root
-ENV_FILE = BASE_DIR.parent / '.env.local'
-ES_SCHEMA_FILE = BASE_DIR / 'etc/movies_schema.json'
+ENV_FILE = BASE_DIR / '.env.local'
+SCHEMA_FILE_MOVIES = BASE_DIR / 'etc/movies_schema.json'
+SCHEMA_FILE_GENRES = BASE_DIR / 'etc/genres_schema.json'
+SCHEMA_FILE_PERSONS = BASE_DIR / 'etc/persons_schema.json'
 
 VAR_DIR = BASE_DIR / 'var/'
 LOG_DIR = VAR_DIR / 'log/'
@@ -20,8 +22,11 @@ class Settings(BaseSettings):
     PG_URI: str
     ES_URI: str
     ES_INDEX_MOVIES: str = 'movies'
+    ES_INDEX_PERSONS: str = 'persons'
+    ES_INDEX_GENRES: str = 'genres'
     ETL_SLEEP_TIME: int = 10
-    BATCH_SIZE: int = 100
+    PG_BATCH_SIZE: int = 500
+    ES_BATCH_SIZE: int = 1000  # ES>PG!!!
 
 
 settings = Settings(_env_file=ENV_FILE)
