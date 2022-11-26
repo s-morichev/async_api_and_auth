@@ -18,7 +18,7 @@ ev_exit = Event()
 
 def all_ready_for_etl() -> bool:
     """
-    создаем индекс в ES если он отсутствует
+    создаем индексы в ES если они отсутствуют
     Но в проде он же будет создан до запуска?
     """
     return check_or_create_indexes()

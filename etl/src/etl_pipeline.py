@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Iterator
 
 import etl_logger
-from storage import BaseStorage, DictState
+from storage import DictState
 
 logger = etl_logger.get_logger(__name__)
 

@@ -4,7 +4,7 @@ from elastic_transport import ConnectionError
 from elasticsearch import Elasticsearch
 
 import etl_logger
-from settings import *
+from settings import SCHEMA_FILE_GENRES, SCHEMA_FILE_MOVIES, SCHEMA_FILE_PERSONS, settings
 
 logger = etl_logger.get_logger(__name__)
 

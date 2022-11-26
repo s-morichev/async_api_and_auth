@@ -26,7 +26,7 @@ ENRICH_SQL = """
                fw.title,
                fw.description,
                fw.rating as imdb_rating,
-               fw.age_limit, 
+               fw.age_limit,
                fw.type as fw_type,
                fw.modified,
                COALESCE (
@@ -78,14 +78,14 @@ GENRE_SQL = """
        """
 
 EX_PERSONS_SQL = """
-            SELECT p.id, p.full_name, p.modified 
-            FROM content.person p 
-            WHERE p.modified >='{0}' 
+            SELECT p.id, p.full_name, p.modified
+            FROM content.person p
+            WHERE p.modified >='{0}'
             ORDER by p.modified, p.id;
         """
-EX_GENRES_SQL = """            
-            SELECT g.id, g.name, g.modified 
-            FROM content.genre g 
-            WHERE g.modified >='{0}' 
+EX_GENRES_SQL = """
+            SELECT g.id, g.name, g.modified
+            FROM content.genre g
+            WHERE g.modified >='{0}'
             ORDER by g.modified, g.id;
         """

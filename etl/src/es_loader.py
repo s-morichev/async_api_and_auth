@@ -80,7 +80,7 @@ class ESLoader(Loader):
             if not self._index_exists(self.index_name):
                 raise ETLPipelineError(f"Elasticsearch index {self.index_name} not exists")
 
-        except ElasticsearchException as e:
+        except ConnectionError as e:
             raise ETLPipelineError(f"Elasticsearch pre_check error:{e}") from e
 
         logger.debug(f"Elasticsearch index: {self.index_name} exist")

@@ -5,7 +5,6 @@ from typing import Callable, Iterator
 
 import psycopg2
 from psycopg2.extensions import connection as PGConnection
-from psycopg2.extensions import cursor as PGCursor
 from psycopg2.extras import DictCursor
 
 import etl_logger
