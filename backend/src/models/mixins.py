@@ -10,8 +10,8 @@ def orjson_dumps(v, *, default):
     return orjson.dumps(v, default=default).decode()
 
 
-class BaseMixin(BaseModel):
-    """Базовый класс для ресурсов."""
+class BaseOrjsonModel(BaseModel):
+    """Базовый класс моделей, использует orjson для (де)сериализации"""
 
     class Config:
         # Заменяем стандартную работу с json на более быструю
