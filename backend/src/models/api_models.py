@@ -1,4 +1,4 @@
-import uuid
+from uuid import UUID
 
 from models.mixins import BaseMixin, IdMixin
 
