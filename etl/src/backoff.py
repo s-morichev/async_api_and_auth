@@ -5,7 +5,7 @@ from time import sleep
 def backoff(exceptions,
             start_sleep_time: float = 0.1,
             factor: float = 2,
-            border_sleep_time: float = 10,
+            border_sleep_time: float = 30,
             logger_func=None):
     """
     Функция для повторного выполнения функции через некоторое время, если возникла ошибка.
@@ -41,6 +41,8 @@ def backoff(exceptions,
                     # increase sleep time
                     if sleep_time <= border_sleep_time / factor:
                         sleep_time *= factor
+                    else:
+                        sleep_time = border_sleep_time
 
         return inner
 
@@ -50,7 +52,7 @@ def backoff(exceptions,
 def backoff_gen(exceptions,
                 start_sleep_time: float = 0.1,
                 factor: float = 2,
-                border_sleep_time: float = 10,
+                border_sleep_time: float = 30,
                 logger_func=None):
     """
     Декоратор для генератора
@@ -87,6 +89,8 @@ def backoff_gen(exceptions,
                     # increase sleep time
                     if sleep_time <= border_sleep_time / factor:
                         sleep_time *= factor
+                    else:
+                        sleep_time = border_sleep_time
 
         return inner
     return func_wrapper

@@ -13,6 +13,7 @@ class ETLData(ABC):
 
 class PipelineItem(ABC):
     """ Abstract class for pipeline items"""
+    row_count: int = 0
 
     # dict object from Pipeline
     # it loads on start and is saved every execute loop
@@ -76,8 +77,8 @@ class ETLPipeline:
         for every bulk in es_loader call save_state
         """
         for record in result:
-            logger.debug(record)
-            self.records_loaded = record['loaded']
+            logger.info(f'loaded rows:{record["loaded"]}')
+            self.records_loaded += record['loaded']
         self.save_state()
 
     def save_state(self):
@@ -95,6 +96,10 @@ class ETLPipeline:
         run steep for ETL pipeline
         """
         self.records_loaded = 0
+        self.extractor.row_count = 0
+        self.transformer.row_count = 0
+        self.loader.row_count = 0
+
         logger.info(f'{self.name} is executing')
         db_data = self.extractor.get_data()
         transform_data = self.transformer.transform_data(db_data)

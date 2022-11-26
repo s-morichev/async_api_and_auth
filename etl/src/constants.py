@@ -26,6 +26,7 @@ ENRICH_SQL = '''
                fw.title,
                fw.description,
                fw.rating as imdb_rating,
+               fw.age_limit, 
                fw.type as fw_type,
                fw.modified,
                COALESCE (

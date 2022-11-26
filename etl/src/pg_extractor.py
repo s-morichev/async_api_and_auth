@@ -19,6 +19,7 @@ logger = etl_logger.get_logger(__name__)
 
 
 class ExtractorWorker(ABC):
+    row_count: int = 0
     def get_data(self, connection_factory: Callable[[], PGConnection], settings: dict) -> Iterator[PGData]:
         pass
 
@@ -28,6 +29,7 @@ class BaseExtractorWorker(ExtractorWorker):
     STATE_KEY = 'BASE_KEY'
     NAME = 'BASE'
     DATA_CLASS = PGData
+
 
     def _get_sql_string(self):
         """ return SQL string for query"""
@@ -73,26 +75,39 @@ class BaseExtractorWorker(ExtractorWorker):
         self.state = settings['state']
         connection = connection_factory()
 
-        with closing(connection.cursor()) as cursor:
+        with closing(connection.cursor('ETL_DATA_CURSOR')) as cursor:
             cursor.execute(self._get_sql_string())
             while rows := cursor.fetchmany(size=settings['batch_size']):
                 # if data is loaded - do nothing
                 if self._same_data_in_rows(rows):
                     logger.debug('Nothing to load')
                     return None
+
                 enrich_rows = self._enrich(connection, rows)
+
                 self._mark_state(rows)
+                self.row_count += len(rows)
                 logger.debug(f' {type(self).__name__}: load data from db row count:{len(enrich_rows)}')
+
                 yield from [self.DATA_CLASS(**row) for row in enrich_rows]
+
             else:
                 logger.debug('Mark no data')
-                self._mark_state_no_data(cursor)
+                self._mark_state_no_data(connection)
 
-    def _mark_state_no_data(self, cursor: PGCursor):
+    def _mark_state_no_data(self, connection: PGConnection, sql: str = ''):
         """
         save state when no data select
         it can be in Persons and Genres due optimization
         """
+        if not sql:
+            return
+
+        with closing(connection.cursor()) as cursor:
+            cursor.execute(sql)
+            max_date = cursor.fetchone()
+            if max_date:
+                self._mark_state([{'modified': max_date[1], 'id': max_date[0]}])
 
 
 class FWExtractorWorker(BaseExtractorWorker):
@@ -113,11 +128,9 @@ class PersonsExtractorWorker(BaseExtractorWorker):
         fw_date = self._get_state_date(FW_UPDATE_KEY)
         return PERSON_SQL.format(p_date, fw_date)
 
-    def _mark_state_no_data(self, cursor: PGCursor):
-        cursor.execute("Select p.id, p.modified from content.person p order by p.modified desc, p.id desc limit 1;")
-        max_date = cursor.fetchone()
-        if max_date:
-            self._mark_state([{'modified': max_date[1], 'id': max_date[0]}])
+    def _mark_state_no_data(self, connection: PGConnection, sql: str = ''):
+        sql = "Select p.id, p.modified from content.person p order by p.modified desc, p.id desc limit 1;"
+        super()._mark_state_no_data(connection, sql)
 
 
 class GenresExtractorWorker(BaseExtractorWorker):
@@ -129,11 +142,9 @@ class GenresExtractorWorker(BaseExtractorWorker):
         fw_date = self._get_state_date(FW_UPDATE_KEY)
         return GENRE_SQL.format(g_date, fw_date)
 
-    def _mark_state_no_data(self, cursor: PGCursor):
-        cursor.execute("Select g.id, g.modified from content.genre g order by g.modified desc, g.id desc limit 1;")
-        max_date = cursor.fetchone()
-        if max_date:
-            self._mark_state([{'modified': max_date[1], 'id': max_date[0]}])
+    def _mark_state_no_data(self, connection: PGConnection, sql: str = ''):
+        sql = "Select g.id, g.modified from content.genre g order by g.modified desc, g.id desc limit 1;"
+        super()._mark_state_no_data(connection, sql)
 
 
 class FWExtractor(Extractor):
@@ -158,7 +169,9 @@ class FWExtractor(Extractor):
         settings = {'state': self.state, 'batch_size': self.batch_size}
         try:
             for worker in self.workers:
+                worker.row_count = 0
                 yield from worker.get_data(connection_factory=self._get_connection, settings=settings)
+                self.row_count += worker.row_count
         finally:
             self._close_connection()
 

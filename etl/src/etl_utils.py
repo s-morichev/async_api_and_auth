@@ -1,7 +1,7 @@
 import json
 
 from elasticsearch import Elasticsearch
-from elasticsearch.exceptions import ElasticsearchException
+from elastic_transport import ConnectionError
 
 import etl_logger
 from settings import *
@@ -29,7 +29,7 @@ def es_create_index_if_not_exist(index_name: str, schema_file: str) -> bool:
                               mappings=schema_dict['mappings'],
                               settings=schema_dict.get('settings'))
 
-    except (ElasticsearchException, FileNotFoundError) as err:
+    except (ConnectionError, FileNotFoundError) as err:
         msg = f'Elasticsearch index {index_name}  create error:{err}'
         if settings.DEBUG:
             logger.exception(msg)

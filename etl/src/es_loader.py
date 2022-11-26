@@ -1,7 +1,7 @@
 from typing import Any, Iterator
 
 from elasticsearch import Elasticsearch
-from elasticsearch.exceptions import ElasticsearchException
+from elastic_transport import ConnectionError
 from elasticsearch.helpers import bulk
 
 from data_classes import ESData
@@ -28,7 +28,7 @@ class ESLoader(Loader):
             self.connection = Elasticsearch(self.url)
             return self.connection
 
-    @backoff(exceptions=(ElasticsearchException,), logger_func=logger.error)
+    @backoff(exceptions=(ConnectionError,), logger_func=logger.error)
     def _load_to_es(self, data: list[dict]) -> tuple:
         es = self._get_connection()
         result = bulk(es, data)
@@ -50,13 +50,18 @@ class ESLoader(Loader):
 
         for data in make_portion_for_es(transform_data):
             data_count = len(data)
+            resp = self._load_to_es(data)
+            es_data_count = resp[0]
 
-            self._load_to_es(data)
-            logger.debug(f'es load data count:{data_count}')
+            if data_count != es_data_count:
+                raise ETLPipelineError(f'Error load to ES. Send rows:{data_count} loaded:{es_data_count}')
+
+            logger.debug(f'es load data count:{es_data_count}')
 
             # just for info
             self.state[DATA_COUNT_KEY] += data_count
-            yield {'loaded': self.state[DATA_COUNT_KEY]}
+            self.row_count += data_count
+            yield {'loaded': data_count}
 
     def _index_exists(self, index_name: str):
         es = self._get_connection()
@@ -81,6 +86,6 @@ class ESLoader(Loader):
         logger.debug(f'Elasticsearch index: {self.index_name} exist')
         logger.info('Elasticsearch pre_check OK')
 
-        #counter for data loaded
+        # counter for data loaded
         self.state[DATA_COUNT_KEY] = 0
 
