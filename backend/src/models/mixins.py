@@ -10,11 +10,8 @@ def orjson_dumps(v, *, default):
     return orjson.dumps(v, default=default).decode()
 
 
-# TODO: uuid can be str or must be uuid?
-class BaseMixin(BaseModel):
-    """Базовый класс для ресурсов."""
-
-    uuid: UUID = Field(alias="id")
+class BaseOrjsonModel(BaseModel):
+    """Базовый класс моделей, использует orjson для (де)сериализации"""
 
     class Config:
         # Заменяем стандартную работу с json на более быструю
@@ -22,3 +19,7 @@ class BaseMixin(BaseModel):
         json_dumps = orjson_dumps
         # позволит использовать в названии полей псевдонимы
         allow_population_by_field_name = True
+
+
+class IdMixin(BaseModel):
+    uuid: UUID = Field(alias="id")

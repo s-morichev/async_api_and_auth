@@ -1,22 +1,26 @@
-import uuid
+from uuid import UUID
 
-from models.mixins import BaseMixin
+from models.mixins import BaseOrjsonModel, IdMixin
 
 
-class Genre(BaseMixin):
+class Genre(IdMixin, BaseOrjsonModel):
     name: str
 
 
-class Person(BaseMixin):
+class RoleMovies(BaseOrjsonModel):
+    role: str
+    movies: list[UUID]
+
+
+class Person(IdMixin, BaseOrjsonModel):
     full_name: str
 
 
 class ExtendedPerson(Person):
-    role: str
-    film_ids: list[uuid.UUID]
+    movies: list[RoleMovies]
 
 
-class Film(BaseMixin):
+class Film(IdMixin, BaseOrjsonModel):
     title: str
     imdb_rating: float
 
