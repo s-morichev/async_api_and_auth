@@ -49,10 +49,11 @@ COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
 WORKDIR /opt/${APP_NAME}
-COPY ./${APP_NAME}/src .
+COPY ./${APP_NAME}/etc ./etc
+COPY ./${APP_NAME}/src ./src
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
-CMD ["python", "main.py"]
+CMD ["python", "./src/main.py"]
 
 # 'production' образ
 FROM python-base as production
@@ -66,6 +67,7 @@ COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
 WORKDIR /opt/${APP_NAME}
+COPY ./${APP_NAME}/etc .
 COPY ./${APP_NAME}/src .
 
 RUN groupadd -r app && useradd -d /opt/${APP_NAME} -r -g app app \
