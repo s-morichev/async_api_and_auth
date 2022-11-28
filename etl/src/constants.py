@@ -71,14 +71,14 @@ GENRE_SQL = """
         AND (fw.modified < '{1}')
         AND (g.modified > fw.modified)
     ORDER BY g.modified,
-             g.id      
+             g.id
     """
 
 EX_PERSONS_SQL = """
     SELECT t.id,
            t.full_name,
            t.modified,
-           COALESCE (json_agg(jsonb_build_object('role', t.role, 'movies', t.movies)) 
+           COALESCE (json_agg(jsonb_build_object('role', t.role, 'movies', t.movies))
                                                     FILTER (WHERE t.role IS NOT NULL),
             '[]') AS movies
     FROM

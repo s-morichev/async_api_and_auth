@@ -1,5 +1,6 @@
 from datetime import datetime
 from threading import Event
+
 from elastic_transport import ConnectionError as ESConnectionError
 
 import etl_logger
