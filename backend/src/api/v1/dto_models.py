@@ -1,7 +1,25 @@
+from pydantic import BaseModel, Field
 from uuid import UUID
 
-from pydantic import Field
-from models.mixins import BaseOrjsonModel, IdMixin
+import orjson
+
+
+def orjson_dumps(v, *, default):
+    """Сериализует объект в строку JSON."""
+    return orjson.dumps(v, default=default).decode(encoding="utf8")
+
+
+class BaseOrjsonModel(BaseModel):
+    """Базовый класс моделей, использует orjson для (де)сериализации"""
+
+    class Config:
+        json_loads = orjson.loads
+        json_dumps = orjson_dumps
+        allow_population_by_field_name = True
+
+
+class IdMixin(BaseModel):
+    uuid: UUID
 
 
 class Genre(IdMixin, BaseOrjsonModel):

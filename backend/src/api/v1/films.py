@@ -1,35 +1,88 @@
 from http import HTTPStatus
+from typing import List
+import enum
+from uuid import UUID
+import logging
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Query
 from services.films import FilmService, get_film_service
+from api.v1 import dto_models
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 router = APIRouter()
 
 
-class Film(BaseModel):
-    id: str
-    title: str
+class Sorting(enum.Enum):
+    imdb_asc = "+imdb_rating"
+    imdb_desc = "-imdb_rating"
 
 
-# Внедряем FilmService с помощью Depends(get_film_service)
-@router.get("/{film_id}", response_model=Film)
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> Film:
+class Filtering(enum.Enum):
+    genre = "filter[genre]"
+
+
+@router.get("/", response_model=List[dto_models.Film])
+async def films_popular(
+    sort_by: Sorting = Query(Sorting.imdb_desc, alias="sort"),
+    genre_id: UUID | None = Query(None, alias="filter[genre]"),
+    page_number: int = Query(1, alias="page[number]", ge=1),
+    page_size: int = Query(50, alias="page[size]", ge=1),
+    film_service: FilmService = Depends(get_film_service),
+) -> List[dto_models.Film]:
+    films = await film_service.search(
+        sort_field=sort_by.value,
+        filter_genre=genre_id,
+        page_number=page_number,
+        page_size=page_size
+    )
+    return [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in films]
+
+
+@router.get("/search/", response_model=List[dto_models.Film])
+async def film_search(
+    query: str,
+    genre_id: UUID | None = Query(None, alias="filter[genre]"),
+    page_number: int = Query(1, alias="page[number]", ge=1),
+    page_size: int = Query(50, alias="page[size]", ge=1),
+    film_service: FilmService = Depends(get_film_service),
+) -> List[dto_models.Film]:
+    """Найти фильмы"""
+    films = await film_service.search(query, page_number=page_number, page_size=page_size, filter_genre=genre_id)
+    return [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in films]
+
+
+@router.get("/{film_id}/similar", response_model=List[dto_models.Film])
+async def film_similar(
+    film_id: str,
+    page_number: int = Query(1, alias="page[number]", ge=1),
+    page_size: int = Query(3, alias="page[size]", ge=1),
+    film_service: FilmService = Depends(get_film_service),
+) -> List[dto_models.Film]:
+    """Найти фильмы"""
+    films = await film_service.get_similar_by_id(film_id, page_number=page_number, page_size=page_size)
+    return [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in films]
+
+
+@router.get("/{film_id}", response_model=dto_models.ExtendedFilm)
+async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> dto_models.ExtendedFilm:
     """Получить полную информацию о фильме.
 
     - **film_id**: идентификатор фильма
     """
     film = await film_service.get_by_id(film_id)
-    if not film:
-        # Если фильм не найден, отдаём 404 статус
-        # Желательно пользоваться уже определёнными HTTP-статусами, которые содержат enum
-        # Такой код будет более поддерживаемым
+    logger.debug("film in route %s", film)
+    if film is None:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
 
-    # Перекладываем данные из models.Film в Film
-    # Обратите внимание, что у модели бизнес-логики есть поле description
-    # Которое отсутствует в модели ответа API.
-    # Если бы использовалась общая модель для бизнес-логики и формирования ответов API
-    # вы бы предоставляли клиентам данные, которые им не нужны
-    # и, возможно, данные, которые опасно возвращать
-    return Film(id=film.uuid, title=film.title)
+    return dto_models.ExtendedFilm(
+        uuid=film.uuid,
+        title=film.title,
+        imdb_rating=film.imdb_rating,
+        description=film.description,
+        genres=film.genres,
+        actors=film.actors,
+        writers=film.writers,
+        directors=film.directors
+    )
