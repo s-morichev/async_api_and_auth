@@ -1,4 +1,4 @@
-from json import loads, JSONDecodeError
+from json import JSONDecodeError, loads
 
 from elastic_transport import ConnectionError
 from elasticsearch import Elasticsearch
@@ -45,7 +45,7 @@ def es_create_index_if_not_exist(index_name: str, schema_file: str) -> bool:
         return False
 
     # 3. Check for mappings key in schema
-    key_mappings = 'mappings'
+    key_mappings = "mappings"
     if key_mappings not in schema_dict:
         msg = f"Elasticsearch index {index_name}  create error: No 'mappings' in schema file"
         logger.error(msg)
