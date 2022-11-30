@@ -1,0 +1,7 @@
+KEY_PAGE_SIZE = "page[size]"
+KEY_PAGE_NUM = "page[number]"
+KEY_QUERY = "query"
+KEY_ID = "ID"
+
+MAX_PAGE_SIZE = 500
+DEFAULT_CACHE_EXPIRE_IN_SECONDS = 60 * 5

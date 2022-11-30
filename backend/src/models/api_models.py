@@ -1,18 +1,29 @@
 from uuid import UUID
 
-from models.mixins import BaseOrjsonModel, IdMixin
+from pydantic import Field
+
+from models.base_dto import BaseDTO
 
 
-class Genre(IdMixin, BaseOrjsonModel):
+class IdModel(BaseDTO):
+    id: UUID = Field(..., alias="uuid")
+
+
+class Genre(IdModel):
     name: str
 
 
-class RoleMovies(BaseOrjsonModel):
+class Film(IdModel):
+    title: str
+
+
+class RoleMovies(BaseDTO):
     role: str
-    movies: list[UUID]
+    movies: list[Film]
 
 
-class Person(IdMixin, BaseOrjsonModel):
+class Person(BaseDTO):
+    uuid: UUID
     full_name: str
 
 
@@ -20,7 +31,7 @@ class ExtendedPerson(Person):
     movies: list[RoleMovies]
 
 
-class Film(IdMixin, BaseOrjsonModel):
+class FilmImdb(IdModel):
     title: str
     imdb_rating: float
 
