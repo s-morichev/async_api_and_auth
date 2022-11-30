@@ -2,7 +2,7 @@ import hashlib
 
 import orjson
 
-from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE, KEY_QUERY
+from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE, KEY_QUERY, MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE
 
 
 def hash_dict(pretty_key: str, key_dict: dict):
@@ -17,10 +17,11 @@ def hash_dict(pretty_key: str, key_dict: dict):
 def restrict_pages(query_dict: dict | None) -> dict:
     """создает пагинауию если ее нет и ограничивает до 50 на странице"""
     if not query_dict:
-        return {KEY_PAGE_NUM: 1, KEY_PAGE_SIZE: 50}
+        return {KEY_PAGE_NUM: 1, KEY_PAGE_SIZE: DEFAULT_PAGE_SIZE}
     else:
         # устанавливаем размер страницы, если нет
-        query_dict[KEY_PAGE_SIZE] = query_dict.setdefault(KEY_PAGE_SIZE, min(50, query_dict.get(KEY_PAGE_SIZE)))
+
+        query_dict[KEY_PAGE_SIZE] = min(MAX_PAGE_SIZE, query_dict.get(KEY_PAGE_SIZE) or DEFAULT_PAGE_SIZE)
 
         # устанавливаем страницу в 1, если нет
         query_dict[KEY_PAGE_NUM] = query_dict.setdefault(KEY_PAGE_NUM, 1)
