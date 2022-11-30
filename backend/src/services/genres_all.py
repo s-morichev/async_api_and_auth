@@ -6,7 +6,7 @@ from models.service_result import ServiceResult
 from services.base_service import BaseService
 
 
-class GenreServie(BaseService):
+class GenreService(BaseService):
     """список жанров"""
 
     NAME = "GENRES_ALL"

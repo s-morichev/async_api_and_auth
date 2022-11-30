@@ -38,12 +38,11 @@ async def shutdown():
     await elastic.es.close()
 
 
-app.include_router(films_by_person.router, prefix="/api/v1/persons", tags=["films_by_person"])
-app.include_router(person_by_id.router, prefix="/api/v1/persons", tags=["person_id"])
-app.include_router(person_search.router, prefix="/api/v1/persons/search", tags=["person_search"])
-
-app.include_router(genres_all.router, prefix="/api/v1/genres", tags=["genres"])
-app.include_router(genre_by_id.router, prefix="/api/v1/genres", tags=["genre_id"])
+app.include_router(person_by_id.router, prefix="/api/v1/persons", tags=["Персона по id"])
+app.include_router(person_search.router, prefix="/api/v1/persons/search", tags=["Поиск персоны по имени"])
+app.include_router(genres_all.router, prefix="/api/v1/genres", tags=["Все жанры"])
+app.include_router(genre_by_id.router, prefix="/api/v1/genres", tags=["Жанр по id"])
+app.include_router(films_by_person.router, prefix="/api/v1/persons", tags=["Фильмы по id персоны"])
 
 if __name__ == "__main__":
     uvicorn.run(

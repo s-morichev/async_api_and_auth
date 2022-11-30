@@ -20,7 +20,7 @@ async def genre_by_id(
     answer = await service.get(param_dict)
 
     if not answer:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="persons not found")
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="person not found")
 
     # вот здесь то можно и переложить данные
     return answer.result

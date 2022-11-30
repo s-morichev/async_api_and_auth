@@ -46,9 +46,11 @@ class BaseService(metaclass=Singleton):
                 result: list[cls.BASE_MODEL]
             else:
                 result: cls.BASE_MODEL
-
+        # надо чтобы имена классов ответа были уникальны,
+        # инача FastApi не сможет создать OpenAPI документацию
+        Result.__name__ = f'ResultModel:{cls.NAME}'
         cls.RESULT_MODEL = Result
-        return cls.RESULT_MODEL
+        return Result
 
     @classproperty
     def RESPONSE_MODEL(cls):
