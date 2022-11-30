@@ -24,9 +24,10 @@ async def startup():
     # Подключаемся к базам при старте сервера
     # Подключиться можем при работающем event-loop
     # Поэтому логика подключения происходит в асинхронной функции
-    redis.redis = await aioredis.create_redis_pool(
-        (config.REDIS_HOST, config.REDIS_PORT), password="123qwe", minsize=10, maxsize=20
-    )
+    # redis.redis = await aioredis.create_redis_pool(
+    #     (config.REDIS_HOST, config.REDIS_PORT), password="123qwe", minsize=10, maxsize=20
+    # )
+    redis.redis = await aioredis.from_url(f"redis://default:123qwe@{config.REDIS_HOST}:{config.REDIS_PORT}")
     elastic.es = AsyncElasticsearch(hosts=[f"http://{config.ELASTIC_HOST}:{config.ELASTIC_PORT}"])
 
 

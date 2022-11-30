@@ -92,7 +92,7 @@ class BaseService(metaclass=Singleton):
 
     async def put_to_cache(self, query_dict, result) -> None:
         key = self.get_redis_key(query_dict)
-        await self.redis.set(key, result.json(), expire=self.CACHE_EXPIRE_IN_SECONDS)
+        await self.redis.set(key, result.json(), ex=self.CACHE_EXPIRE_IN_SECONDS)
 
     @classmethod
     def get_service(
