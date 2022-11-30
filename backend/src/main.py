@@ -2,17 +2,23 @@ import logging
 
 import aioredis
 import uvicorn as uvicorn
+# from api.v1 import films_by_person, genre_by_id, genres_all, person_by_id, person_search
+from api.v1 import persons, genres
+from core import config
+from core.logger import LOGGING
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import films_by_person, genre_by_id, genres_all, person_by_id, person_search
-from core import config
-from core.logger import LOGGING
 from db import elastic, redis
+
+tags_metadata = [{"name": "Персоны", "description": "Участники фильма"},
+                 {"name": "items", "description": "Manage items. So _fancy_ they have their own docs."}]
 
 app = FastAPI(
     title=config.PROJECT_NAME,
+    version='1.0.0',
+    tags_metadata=tags_metadata,
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
@@ -38,11 +44,12 @@ async def shutdown():
     await elastic.es.close()
 
 
-app.include_router(person_by_id.router, prefix="/api/v1/persons", tags=["Персона по id"])
-app.include_router(person_search.router, prefix="/api/v1/persons/search", tags=["Поиск персоны по имени"])
-app.include_router(genres_all.router, prefix="/api/v1/genres", tags=["Все жанры"])
-app.include_router(genre_by_id.router, prefix="/api/v1/genres", tags=["Жанр по id"])
-app.include_router(films_by_person.router, prefix="/api/v1/persons", tags=["Фильмы по id персоны"])
+app.include_router(persons.router, prefix="/api/v1/persons", tags=["Персоны"])
+app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])
+
+# app.include_router(person_search.router, prefix="/api/v1/persons", tags=["Поиск персоны по имени"])
+# app.include_router(genre_by_id.router, prefix="/api/v1/genres", tags=["Жанр по id"])
+# app.include_router(films_by_person.router, prefix="/api/v1/persons", tags=["Фильмы по id персоны"])
 
 if __name__ == "__main__":
     uvicorn.run(
