@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from pydantic import Field
 from models.mixins import BaseOrjsonModel, IdMixin
+from pydantic import Field
 
 
 class Genre(IdMixin, BaseOrjsonModel):

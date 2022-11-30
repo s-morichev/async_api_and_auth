@@ -11,7 +11,7 @@ def orjson_dumps(v, *, default):
 
 
 class BaseOrjsonModel(BaseModel):
-    """Базовый класс моделей, использует orjson для (де)сериализации"""
+    """Базовый класс моделей, использует orjson для (де)сериализации."""
 
     class Config:
         # Заменяем стандартную работу с json на более быструю
