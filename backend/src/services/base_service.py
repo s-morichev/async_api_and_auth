@@ -41,6 +41,7 @@ class BaseService(metaclass=Singleton):
 
     @classmethod
     def init_result_model(cls) -> Type[ServiceResult]:
+        print('init model')
         class Result(ServiceResult):
             if cls.IS_LIST_RESULT:
                 result: list[cls.BASE_MODEL]
@@ -48,7 +49,7 @@ class BaseService(metaclass=Singleton):
                 result: cls.BASE_MODEL
         # надо чтобы имена классов ответа были уникальны,
         # инача FastApi не сможет создать OpenAPI документацию
-        Result.__name__ = f'ResultModel:{cls.NAME}'
+        Result.__name__ = f'Result:{cls.NAME}'
         cls.RESULT_MODEL = Result
         return Result
 
@@ -56,6 +57,7 @@ class BaseService(metaclass=Singleton):
     def RESPONSE_MODEL(cls):
         """Красивое свойство возвращает модель ответа. Нужно во роуте"""
         return cls.init_result_model()
+        #return cls.RESULT_MODEL
 
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
