@@ -1,5 +1,4 @@
 from typing import Type
-
 from aioredis import Redis
 from core.singletone import Singleton
 from core.utils import classproperty, hash_dict, restrict_pages
@@ -9,8 +8,9 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 from models.base_dto import BaseDTO
 from models.service_result import ServiceResult
+from core.service_logger import get_logger
 
-
+logger = get_logger(__name__)
 # ------------------------------------------------------------------------------ #
 class BaseService(metaclass=Singleton):
     """
@@ -22,6 +22,7 @@ class BaseService(metaclass=Singleton):
     @router.get("/", response_model=Service.RESPONSE_MODEL)
     """
 
+    USE_CACHE = True  # использовать ли кэш
     NAME = "BASE"  # имя сервиса. Используется в ключе редиса
     BASE_MODEL: Type[BaseDTO] = BaseDTO  # базовый класс для ответа
     CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
@@ -29,6 +30,7 @@ class BaseService(metaclass=Singleton):
     # класс ответа, он определяется в зависимости от
     #  BASE_MODEL и IS_LIST_RESULT
     RESULT_MODEL: Type[ServiceResult]
+
 
     def __new__(cls, *args, **kwargs):
         """
@@ -78,26 +80,34 @@ class BaseService(metaclass=Singleton):
         # 2. try to get data from es
         elif result := await self.get_from_elastic(query_dict):
             await self.put_to_cache(query_dict, result)
+            logger.debug(f'get from ES: {result}')
             return result
         else:
+            logger.debug(f'Nothing find')
             return None
 
     async def get_from_elastic(self, query_dict: dict | None) -> ServiceResult | None:
         pass
 
     async def get_from_cache(self, query_dict: dict | None) -> ServiceResult | None:
+        if not self.USE_CACHE:
+            return None
 
         key = self.get_redis_key(query_dict)
         data = await self.redis.get(key)
         if not data:
             return None
-
+        logger.debug(f'get from cache key: {key}')
         result = self.RESULT_MODEL.parse_raw(data)
         return result
 
     async def put_to_cache(self, query_dict, result) -> None:
+        if not self.USE_CACHE:
+            return
+
         key = self.get_redis_key(query_dict)
         await self.redis.set(key, result.json(), ex=self.CACHE_EXPIRE_IN_SECONDS)
+        logger.debug(f'save to cache key: {key}')
 
     @classmethod
     def get_service(

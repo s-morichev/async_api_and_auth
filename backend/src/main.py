@@ -8,11 +8,13 @@ from core.logger import LOGGING
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-
+from core.service_logger import get_logger
 from db import elastic, redis
 
-tags_metadata = [{"name": "Персоны", "description": "Участники фильма"},
-                 {"name": "items", "description": "Manage items. So _fancy_ they have their own docs."}]
+tags_metadata = [{"name": "Персоны", "description": "Запросы по персонам"},
+                 {"name": "Жанры", "description": "Запросы по жанрам"}]
+
+logger = get_logger(__name__)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -26,7 +28,7 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup():
-
+    logger.info('service start')
     redis.redis = await aioredis.from_url(settings.REDIS_URI)
     elastic.es = AsyncElasticsearch(hosts=[settings.ES_URI])
 
@@ -36,6 +38,8 @@ async def shutdown():
     # Отключаемся от баз при выключении сервера
     await redis.redis.close()
     await elastic.es.close()
+    logger.info('service shutdown')
+
 
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["Персоны"])
 app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])
