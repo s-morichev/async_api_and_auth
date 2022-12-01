@@ -21,6 +21,7 @@ class ManyGenre(ManyResponse):
 
 
 class Film(BaseDTO):
+    """Film (uuid,title)"""
     uuid: UUID
     title: str = Field(title='movie title')
 
@@ -45,10 +46,12 @@ class ManyExtendedPerson(ManyResponse):
 
 
 class ImdbFilm(Film):
+    """Film (uuid,title, imdb)"""
     imdb_rating: float = Field(title='IMDB rating')
 
 
 class ExtendedFilm(Film):
+    """Film with extended info"""
     description: str = Field(title='movie description')
     genres: list[Genre]
     actors: list[Person]

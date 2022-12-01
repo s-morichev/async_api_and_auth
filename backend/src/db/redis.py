@@ -5,4 +5,4 @@ redis: Redis | None
 
 # Функция понадобится при внедрении зависимостей
 async def get_redis() -> Redis:
-    return redis
+    return redis  # noqa: F821

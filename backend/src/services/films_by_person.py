@@ -23,7 +23,6 @@ class FilmsByPersonService(BaseService):
             "from": (page_num - 1) * page_size,
             "size": page_size,
             "sort": [{"imdb_rating": {"order": "desc"}}],
-            #"_source": ["_id", "title", "imdb_rating"],
             "query": {
                 "bool": {
                     "should": [

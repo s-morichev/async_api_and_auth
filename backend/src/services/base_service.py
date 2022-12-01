@@ -10,7 +10,10 @@ from models.base_dto import BaseDTO
 from models.service_result import ServiceResult
 from core.service_logger import get_logger
 
+
 logger = get_logger(__name__)
+
+
 # ------------------------------------------------------------------------------ #
 class BaseService(metaclass=Singleton):
     """
@@ -30,7 +33,6 @@ class BaseService(metaclass=Singleton):
     # класс ответа, он определяется в зависимости от
     #  BASE_MODEL и IS_LIST_RESULT
     RESULT_MODEL: Type[ServiceResult]
-
 
     def __new__(cls, *args, **kwargs):
         """
@@ -83,13 +85,13 @@ class BaseService(metaclass=Singleton):
             logger.debug(f'get from ES: {result}')
             return result
         else:
-            logger.debug(f'Nothing find')
+            logger.debug('Nothing find')
             return None
 
-    async def get_from_elastic(self, query_dict: dict | None) -> ServiceResult | None:
+    async def get_from_elastic(self, query_dict: dict) -> ServiceResult | None:
         pass
 
-    async def get_from_cache(self, query_dict: dict | None) -> ServiceResult | None:
+    async def get_from_cache(self, query_dict: dict) -> ServiceResult | None:
         if not self.USE_CACHE:
             return None
 
@@ -101,7 +103,7 @@ class BaseService(metaclass=Singleton):
         result = self.RESULT_MODEL.parse_raw(data)
         return result
 
-    async def put_to_cache(self, query_dict, result) -> None:
+    async def put_to_cache(self, query_dict: dict, result: ServiceResult) -> None:
         if not self.USE_CACHE:
             return
 
@@ -111,7 +113,8 @@ class BaseService(metaclass=Singleton):
 
     @classmethod
     def get_service(
-        cls: Type["BaseService"], redis: Redis = Depends(get_redis), elastic: AsyncElasticsearch = Depends(get_elastic)
+            cls: Type["BaseService"], redis: Redis = Depends(get_redis),
+            elastic: AsyncElasticsearch = Depends(get_elastic)
     ) -> "BaseService":
         """return instance of Service and its must be the same, its a SINGLETONE!!!"""
         return cls(redis, elastic)

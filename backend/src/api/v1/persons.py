@@ -3,7 +3,6 @@ from uuid import UUID
 
 from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE, KEY_QUERY, KEY_ID
 from fastapi import APIRouter, Depends, HTTPException, Query
-from models.service_result import ServiceResult
 from services.persons_search import PersonSearchService
 from services.person_by_id import PersonByIdService
 from services.films_by_person import FilmsByPersonService
@@ -40,7 +39,6 @@ async def films_by_person(
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"films for person id:{person_id} not found")
     lst_film = [ImdbFilm(**dto.dict()) for dto in answer.result]
 
-    # вот здесь то можно и переложить данные
     return ManyImdbFilm(total=answer.total, result=lst_film)
 
 

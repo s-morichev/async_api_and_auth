@@ -5,4 +5,4 @@ es: AsyncElasticsearch | None
 
 # Функция понадобится при внедрении зависимостей
 async def get_elastic() -> AsyncElasticsearch:
-    return es
+    return es  # noqa: F821

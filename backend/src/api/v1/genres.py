@@ -8,7 +8,6 @@ from api.v1.schemas import Genre, ManyGenre
 from services.genre_by_id import GenreByIdService
 from services.genres_all import GenreService
 from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE
-from models.service_result import ServiceResult
 
 router = APIRouter()
 
@@ -31,6 +30,7 @@ async def all_genres(
         page_number: int | None = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
         service: GenreService = Depends(GenreService.get_service),
 ) -> ManyGenre:
+
     param_dict = {KEY_PAGE_NUM: page_number, KEY_PAGE_SIZE: page_size}
     answer = await service.get(param_dict)
 
