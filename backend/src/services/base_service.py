@@ -1,13 +1,12 @@
 from typing import Type
 
 from aioredis import Redis
-from elasticsearch import AsyncElasticsearch
-from fastapi import Depends
-
 from core.singletone import Singleton
 from core.utils import classproperty, hash_dict, restrict_pages
 from db.elastic import get_elastic
 from db.redis import get_redis
+from elasticsearch import AsyncElasticsearch
+from fastapi import Depends
 from models.base_dto import BaseDTO
 from models.service_result import ServiceResult
 
@@ -41,15 +40,16 @@ class BaseService(metaclass=Singleton):
 
     @classmethod
     def init_result_model(cls) -> Type[ServiceResult]:
-        print('init model')
+
         class Result(ServiceResult):
             if cls.IS_LIST_RESULT:
                 result: list[cls.BASE_MODEL]
             else:
                 result: cls.BASE_MODEL
+
         # надо чтобы имена классов ответа были уникальны,
         # инача FastApi не сможет создать OpenAPI документацию
-        Result.__name__ = f'Result:{cls.NAME}'
+        Result.__name__ = f"Result:{cls.NAME}"
         cls.RESULT_MODEL = Result
         return Result
 
@@ -57,7 +57,7 @@ class BaseService(metaclass=Singleton):
     def RESPONSE_MODEL(cls):
         """Красивое свойство возвращает модель ответа. Нужно во роуте"""
         return cls.init_result_model()
-        #return cls.RESULT_MODEL
+        # return cls.RESULT_MODEL
 
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
@@ -86,6 +86,7 @@ class BaseService(metaclass=Singleton):
         pass
 
     async def get_from_cache(self, query_dict: dict | None) -> ServiceResult | None:
+
         key = self.get_redis_key(query_dict)
         data = await self.redis.get(key)
         if not data:

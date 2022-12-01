@@ -1,7 +1,6 @@
-from elasticsearch import NotFoundError
-
 from core.constants import KEY_ID
-from models.api_models import ExtendedPerson
+from elasticsearch import NotFoundError
+from models.dto_models import ExtendedPerson
 from models.service_result import ServiceResult
 from services.base_service import BaseService
 

@@ -1,7 +1,6 @@
-from elasticsearch import NotFoundError
-
 from core.constants import KEY_ID, KEY_PAGE_NUM, KEY_PAGE_SIZE
-from models.api_models import FilmImdb
+from elasticsearch import NotFoundError
+from models.dto_models import ExtendedFilm
 from models.service_result import ServiceResult
 from services.base_service import BaseService
 
@@ -10,7 +9,7 @@ class FilmsByPersonService(BaseService):
     """Фильмы по персоне"""
 
     NAME = "FILMS_BY_PERSON"
-    BASE_MODEL = FilmImdb
+    BASE_MODEL = ExtendedFilm
     IS_LIST_RESULT = True
 
     async def get_from_elastic(self, query_dict: dict = None) -> ServiceResult | None:
@@ -24,7 +23,7 @@ class FilmsByPersonService(BaseService):
             "from": (page_num - 1) * page_size,
             "size": page_size,
             "sort": [{"imdb_rating": {"order": "desc"}}],
-            "_source": ["_id", "title", "imdb_rating"],
+            #"_source": ["_id", "title", "imdb_rating"],
             "query": {
                 "bool": {
                     "should": [
@@ -60,7 +59,7 @@ class FilmsByPersonService(BaseService):
         lst_result = []
         for hit in resp["hits"]["hits"]:
             data_values = {"uuid": hit["_id"]} | hit["_source"]
-            lst_result += [FilmImdb(**data_values)]
+            lst_result += [ExtendedFilm(**data_values)]
 
         res = self.RESULT_MODEL(total=total, page_num=page_num, page_size=page_size, result=lst_result)
         return res

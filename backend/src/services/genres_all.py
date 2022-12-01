@@ -1,7 +1,6 @@
-from elasticsearch import NotFoundError
-
 from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE
-from models.api_models import Genre
+from elasticsearch import NotFoundError
+from models.dto_models import Genre
 from models.service_result import ServiceResult
 from services.base_service import BaseService
 
