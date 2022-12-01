@@ -6,7 +6,7 @@ from uuid import UUID
 
 from api.v1 import dto_models
 from fastapi import APIRouter, Depends, HTTPException, Query
-from services.films import FilmService, get_film_service
+from services.films import PopularFilmsService, SearchFilmsService, FilmByIdService, SimilarFilmsService
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ async def films_popular(
     genre_id: UUID | None = Query(None, alias="filter[genre]"),
     page_number: int = Query(DEFAULT_PAGE_NUMBER, alias="page[number]", ge=1),
     page_size: int = Query(DEFAULT_PAGE_SIZE, alias="page[size]", ge=1),
-    film_service: FilmService = Depends(get_film_service),
+    service: PopularFilmsService = Depends(PopularFilmsService.get_service),
 ) -> List[dto_models.Film]:
     """Получить популярные фильмы (в текущей версии - с наибольшим рейтингом).
 
@@ -43,13 +43,16 @@ async def films_popular(
     - **page[number]**: номер страницы
     - **page[size]**: количество фильмов на странице
     """
-    films = await film_service.search(
-        sort_field=sort_by.value,
-        filter_genre=genre_id,
+    _validate_pagination(page_number, page_size)
+    answer = await service.get_from_elastic(
+        sort_by=sort_by.value,
+        genre_id=genre_id,
         page_number=page_number,
         page_size=page_size,
     )
-    return [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in films]
+
+    dto_list = [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result]
+    return dto_list
 
 
 @router.get("/search/", response_model=List[dto_models.Film])
@@ -58,7 +61,7 @@ async def film_search(
     genre_id: UUID | None = Query(None, alias="filter[genre]"),
     page_number: int = Query(DEFAULT_PAGE_NUMBER, alias="page[number]", ge=1),
     page_size: int = Query(DEFAULT_PAGE_SIZE, alias="page[size]", ge=1),
-    film_service: FilmService = Depends(get_film_service),
+    service: SearchFilmsService = Depends(SearchFilmsService.get_service),
 ) -> List[dto_models.Film]:
     """Найти фильмы.
 
@@ -68,8 +71,16 @@ async def film_search(
     - **page[size]**: количество фильмов на странице
     """
     _validate_pagination(page_number, page_size)
-    films = await film_service.search(query, page_number=page_number, page_size=page_size, filter_genre=genre_id)
-    return [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in films]
+    answer = await service.get_from_elastic(
+        search_for=query,
+        genre_id=genre_id,
+        page_number=page_number,
+        page_size=page_size,
+    )
+
+    dto_list = [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in
+                answer.result]
+    return dto_list
 
 
 @router.get("/{film_id}/similar", response_model=List[dto_models.Film])
@@ -77,7 +88,7 @@ async def film_similar(
     film_id: str,
     page_number: int = Query(1, alias="page[number]", ge=1),
     page_size: int = Query(3, alias="page[size]", ge=1),
-    film_service: FilmService = Depends(get_film_service),
+    service: SimilarFilmsService = Depends(SimilarFilmsService.get_service),
 ) -> List[dto_models.Film]:
     """Получить похожие фильмы (в текущей версии - фильмы того же жанра).
 
@@ -85,20 +96,29 @@ async def film_similar(
     - **page[number]**: номер страницы
     - **page[size]**: количество элементов на странице
     """
-    films = await film_service.get_similar_by_id(film_id, page_number=page_number, page_size=page_size)
-    return [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in films]
+    _validate_pagination(page_number, page_size)
+    answer = await service.get_from_elastic(
+        film_id=film_id,
+        page_number=page_number,
+        page_size=page_size,
+    )
+
+    dto_list = [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in
+                answer.result]
+    return dto_list
 
 
 @router.get("/{film_id}", response_model=dto_models.ExtendedFilm)
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> dto_models.ExtendedFilm:
+async def film_details(
+        film_id: str,
+        service: FilmByIdService = Depends(FilmByIdService.get_service)
+) -> dto_models.ExtendedFilm:
     """Получить полную информацию о фильме.
 
     - **film_id**: UUID идентификатор фильма
     """
-    film = await film_service.get_by_id(film_id)
-    logger.debug("film in route %s", film)
-    if film is None:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
+    answer = await service.get_from_elastic(film_id=film_id)
+    film = answer.result
 
     return dto_models.ExtendedFilm(
         uuid=film.uuid,
