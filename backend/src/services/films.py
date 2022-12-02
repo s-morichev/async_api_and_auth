@@ -1,3 +1,6 @@
+from uuid import UUID
+
+from core.constants import ES_MOVIES_INDEX
 from core.service_logger import get_logger
 from elasticsearch import NotFoundError
 from models import dto_models
@@ -15,8 +18,13 @@ class PopularFilmsService(BaseService):
     RESULT_MODEL = ServiceListResult[dto_models.ImdbFilm]
 
     async def get_from_elastic(
-        self, *, sort_by, genre_id, page_number, page_size, **kwargs
-    ) -> "PopularFilmsService.RESULT_MODEL":
+        self,
+        *,
+        sort_by: str,
+        genre_id: UUID,
+        page_number: int,
+        page_size: int,
+    ) -> "PopularFilmsService.RESULT_MODEL | None":
         query = {"bool": {"must": {"match_all": {}}}}
         if genre_id is not None:
             filter_genre = {"filter": {"nested": {"path": "genres", "query": {"term": {"genres.id": str(genre_id)}}}}}
@@ -25,14 +33,19 @@ class PopularFilmsService(BaseService):
         sort_order = "asc" if sort_by[0] == "+" else "desc"
         sort = [{sort_by[1:]: {"order": sort_order}}]
 
-        response = await self.elastic.search(
-            index="movies",
-            source_includes=["imdb_rating", "title"],
-            query=query,
-            sort=sort,
-            from_=(page_number - 1) * page_size,
-            size=page_size,
-        )
+        es = {
+            "index": ES_MOVIES_INDEX,
+            "from_": (page_number - 1) * page_size,
+            "size": page_size,
+            "source_includes": ["imdb_rating", "title"],
+            "query": query,
+            "sort": sort,
+        }
+
+        try:
+            response = await self.elastic.search(**es)
+        except NotFoundError:
+            return None
 
         total = response["hits"]["total"]["value"]
         results_list = [self.BASE_MODEL(uuid=doc["_id"], **doc["_source"]) for doc in response["hits"]["hits"]]
@@ -49,8 +62,13 @@ class SearchFilmsService(BaseService):
     RESULT_MODEL = ServiceListResult[dto_models.ImdbFilm]
 
     async def get_from_elastic(
-        self, *, search_for, genre_id, page_number, page_size, **kwargs
-    ) -> "SearchFilmsService.RESULT_MODEL":
+        self,
+        *,
+        search_for: str,
+        genre_id: UUID,
+        page_number: int,
+        page_size: int,
+    ) -> "SearchFilmsService.RESULT_MODEL | None":
         query = {
             "bool": {
                 "must": {
@@ -66,13 +84,18 @@ class SearchFilmsService(BaseService):
             filter_genre = {"filter": {"nested": {"path": "genres", "query": {"term": {"genres.id": str(genre_id)}}}}}
             query["bool"].update(filter_genre)
 
-        response = await self.elastic.search(
-            index="movies",
-            source_includes=["imdb_rating", "title"],
-            query=query,
-            from_=(page_number - 1) * page_size,
-            size=page_size,
-        )
+        es = {
+            "index": ES_MOVIES_INDEX,
+            "from_": (page_number - 1) * page_size,
+            "size": page_size,
+            "source_includes": ["imdb_rating", "title"],
+            "query": query,
+        }
+
+        try:
+            response = await self.elastic.search(**es)
+        except NotFoundError:
+            return None
 
         total = response["hits"]["total"]["value"]
         results_list = [self.BASE_MODEL(uuid=doc["_id"], **doc["_source"]) for doc in response["hits"]["hits"]]
@@ -88,10 +111,9 @@ class FilmByIdService(BaseService):
     BASE_MODEL = dto_models.ExtendedFilm
     RESULT_MODEL = ServiceSingeResult[dto_models.ExtendedFilm]
 
-    async def get_from_elastic(self, *, film_id, **kwargs) -> "FilmByIdService.RESULT_MODEL | None":
+    async def get_from_elastic(self, *, film_id: UUID) -> "FilmByIdService.RESULT_MODEL | None":
         try:
-            logger.info("elastic %s", self.elastic)
-            response = await self.elastic.get(index="movies", id=film_id)
+            response = await self.elastic.get(index=ES_MOVIES_INDEX, id=str(film_id))
         except NotFoundError:
             return None
 
@@ -109,7 +131,11 @@ class SimilarFilmsService(BaseService):
     RESULT_MODEL = ServiceListResult[dto_models.ImdbFilm]
 
     async def get_from_elastic(
-        self, *, film_id, page_number, page_size, **kwargs
+        self,
+        *,
+        film_id: UUID,
+        page_number: int,
+        page_size: int,
     ) -> "SimilarFilmsService.RESULT_MODEL | None":
         resp = await (await FilmByIdService.get_service()).get_from_elastic(film_id=film_id)
         if resp is None:

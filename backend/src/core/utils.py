@@ -1,7 +1,13 @@
 import hashlib
 
 import orjson
-from core.constants import DEFAULT_PAGE_SIZE, KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE
+from core.constants import DEFAULT_PAGE_SIZE, ES_PAGINATION_LIMIT, KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE
+
+
+def validate_pagination(page_number: int, page_size: int) -> str:
+    if page_number * page_size > ES_PAGINATION_LIMIT:
+        return f"Requested window is too large, {KEY_PAGE_NUM} * {KEY_PAGE_SIZE} must be less than or equal to {ES_PAGINATION_LIMIT}"
+    return ""
 
 
 def hash_dict(pretty_key: str, key_dict: dict):

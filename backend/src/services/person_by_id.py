@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from core.constants import ES_PERSONS_INDEX
 from elasticsearch import NotFoundError
 from models.dto_models import ExtendedPerson
 from models.service_result import ServiceSingeResult
@@ -13,10 +14,10 @@ class PersonByIdService(BaseService):
     BASE_MODEL = ExtendedPerson
     RESULT_MODEL = ServiceSingeResult[ExtendedPerson]
 
-    async def get_from_elastic(self, *, person_id) -> "PersonByIdService.RESULT_MODEL | None":
-        index_name = "persons"
+    async def get_from_elastic(self, *, person_id: UUID) -> "PersonByIdService.RESULT_MODEL | None":
+        index_name = ES_PERSONS_INDEX
         try:
-            resp = await self.elastic.get(index=index_name, id=person_id)
+            resp = await self.elastic.get(index=index_name, id=str(person_id))
         except NotFoundError:
             return None
 

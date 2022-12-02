@@ -1,16 +1,19 @@
 from typing import Type
 
 from aioredis import Redis
+from core.constants import DEFAULT_CACHE_EXPIRE_IN_SECONDS
 from core.service_logger import get_logger
 from core.singletone import Singleton
-from core.utils import classproperty, hash_dict, restrict_pages
+from core.utils import hash_dict
 from db.elastic import get_elastic
 from db.redis import get_redis
 from elasticsearch import AsyncElasticsearch
 from models.base_dto import BaseDTO
-from models.service_result import ServiceResult
+from models.service_result import ServiceListResult, ServiceSingeResult
 
 logger = get_logger(__name__)
+
+MaybeResult = ServiceSingeResult | ServiceListResult | None
 
 
 # ------------------------------------------------------------------------------ #
@@ -26,9 +29,9 @@ class BaseService(metaclass=Singleton):
 
     USE_CACHE = True  # использовать ли кэш
     NAME = "BASE"  # имя сервиса. Используется в ключе редиса
-    BASE_MODEL: Type[BaseDTO]  # базовый класс для ответа
-    CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
-    RESULT_MODEL: Type[ServiceResult]
+    BASE_MODEL: BaseDTO  # базовый класс для ответа
+    CACHE_EXPIRE_IN_SECONDS = DEFAULT_CACHE_EXPIRE_IN_SECONDS
+    RESULT_MODEL: MaybeResult
 
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
@@ -37,7 +40,7 @@ class BaseService(metaclass=Singleton):
     def get_redis_key(self, keys: dict):
         return hash_dict(self.NAME, keys)
 
-    async def get(self, **kwargs) -> ServiceResult | None:
+    async def get(self, **kwargs) -> MaybeResult:
         # 1. try to get data from cache
         if result := await self.get_from_cache(kwargs):
             result.cached = 1
@@ -52,10 +55,10 @@ class BaseService(metaclass=Singleton):
             logger.debug("Nothing find")
             return None
 
-    async def get_from_elastic(self, **kwargs) -> ServiceResult | None:
+    async def get_from_elastic(self, **kwargs) -> MaybeResult:
         pass
 
-    async def get_from_cache(self, query_dict: dict) -> ServiceResult | None:
+    async def get_from_cache(self, query_dict: dict) -> MaybeResult:
         if not self.USE_CACHE:
             return None
 
@@ -67,7 +70,7 @@ class BaseService(metaclass=Singleton):
         result = self.RESULT_MODEL.parse_raw(data)
         return result
 
-    async def put_to_cache(self, query_dict: dict, result: ServiceResult) -> None:
+    async def put_to_cache(self, query_dict: dict, result: ServiceSingeResult | ServiceListResult) -> None:
         if not self.USE_CACHE:
             return
 
