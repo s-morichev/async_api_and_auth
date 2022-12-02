@@ -15,8 +15,7 @@ router = APIRouter()
 async def person_by_id(
     person_id: UUID, service: PersonByIdService = Depends(PersonByIdService.get_service)
 ) -> ExtendedPerson:
-    param_dict = {KEY_ID: person_id}
-    answer = await service.get(param_dict)
+    answer = await service.get(person_id=person_id)
 
     if not answer:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"person id:{person_id} not found")
@@ -31,9 +30,7 @@ async def films_by_person(
     page_number: int | None = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
     service: FilmsByPersonService = Depends(FilmsByPersonService.get_service),
 ) -> ManyImdbFilm:
-    param_dict = {KEY_PAGE_NUM: page_number, KEY_PAGE_SIZE: page_size, KEY_ID: person_id}
-
-    answer = await service.get(param_dict)
+    answer = await service.get(page_num=page_number, page_size=page_size, person_id=person_id)
     if not answer:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"films for person id:{person_id} not found")
     lst_film = [ImdbFilm(**dto.dict()) for dto in answer.result]
@@ -48,9 +45,7 @@ async def person_search(
     page_number: int | None = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
     service: PersonSearchService = Depends(PersonSearchService.get_service),
 ) -> ManyExtendedPerson:
-
-    param_dict = {KEY_PAGE_NUM: page_number, KEY_PAGE_SIZE: page_size, KEY_QUERY: query}
-    answer = await service.get(param_dict)
+    answer = await service.get(page_num=page_number, page_size=page_size, query=query)
 
     if not answer:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"persons for '{query}' not found")

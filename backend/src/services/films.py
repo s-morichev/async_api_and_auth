@@ -1,13 +1,6 @@
 import logging
-from functools import lru_cache
-from typing import Any
-from uuid import UUID
 
-from aioredis import Redis
-from db.elastic import get_elastic
-from db.redis import get_redis
-from elasticsearch import AsyncElasticsearch, NotFoundError
-from fastapi import Depends
+from elasticsearch import NotFoundError
 from models import dto_models
 from models.service_result import ServiceResult
 from services.base_service import BaseService

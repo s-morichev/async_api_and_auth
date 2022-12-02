@@ -43,7 +43,7 @@ async def films_popular(
     - **page[size]**: количество фильмов на странице
     """
     _validate_pagination(page_number, page_size)
-    answer = await service.get_from_elastic(  # без кеша
+    answer = await service.get(
         sort_by=sort_by.value,
         genre_id=genre_id,
         page_number=page_number,
@@ -72,7 +72,7 @@ async def film_search(
     - **page[size]**: количество фильмов на странице
     """
     _validate_pagination(page_number, page_size)
-    answer = await service.get_from_elastic(
+    answer = await service.get(
         search_for=query,
         genre_id=genre_id,
         page_number=page_number,
@@ -99,7 +99,7 @@ async def film_similar(
     - **page[size]**: количество элементов на странице
     """
     _validate_pagination(page_number, page_size)
-    answer = await service.get_from_elastic(
+    answer = await service.get(
         film_id=film_id,
         page_number=page_number,
         page_size=page_size,
@@ -119,7 +119,7 @@ async def film_details(
 
     - **film_id**: UUID идентификатор фильма
     """
-    answer = await service.get_from_elastic(film_id=film_id)
+    answer = await service.get(film_id=film_id)
     film = answer.result
 
     return schemas.ExtendedImdbFilm(

@@ -12,12 +12,7 @@ class PersonSearchService(BaseService):
     BASE_MODEL = ExtendedPerson
     IS_LIST_RESULT = True
 
-    async def get_from_elastic(self, query_dict: dict = None) -> ServiceResult | None:
-
-        page_num = query_dict[KEY_PAGE_NUM]
-        page_size = query_dict[KEY_PAGE_SIZE]
-        query = query_dict[KEY_QUERY]
-
+    async def get_from_elastic(self, *, page_num, page_size, query) -> ServiceResult | None:
         index_name = "persons"
 
         es = {

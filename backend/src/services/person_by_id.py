@@ -1,4 +1,5 @@
-from core.constants import KEY_ID
+from uuid import UUID
+
 from elasticsearch import NotFoundError
 from models.dto_models import ExtendedPerson
 from models.service_result import ServiceResult
@@ -12,9 +13,8 @@ class PersonByIdService(BaseService):
     BASE_MODEL = ExtendedPerson
     IS_LIST_RESULT = False
 
-    async def get_from_elastic(self, query_dict: dict) -> ServiceResult | None:
+    async def get_from_elastic(self, *, person_id) -> ServiceResult | None:
         index_name = "persons"
-        person_id = query_dict[KEY_ID]
         try:
             resp = await self.elastic.get(index=index_name, id=person_id)
         except NotFoundError:

@@ -12,8 +12,7 @@ router = APIRouter()
 
 @router.get("/{genre_id}", response_model=Genre, tags=["Жанр по id"])
 async def genre_by_id(genre_id: UUID, service: GenreByIdService = Depends(GenreByIdService.get_service)) -> Genre:
-    param_dict = {KEY_ID: genre_id}
-    answer = await service.get(param_dict)
+    answer = await service.get(genre_id=genre_id)
 
     if not answer:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"genre id:{genre_id} not found")
@@ -28,9 +27,7 @@ async def all_genres(
     page_number: int | None = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
     service: GenreService = Depends(GenreService.get_service),
 ) -> ManyGenre:
-
-    param_dict = {KEY_PAGE_NUM: page_number, KEY_PAGE_SIZE: page_size}
-    answer = await service.get(param_dict)
+    answer = await service.get(page_num=page_number, page_size=page_size)
 
     if not answer:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="genres not found")

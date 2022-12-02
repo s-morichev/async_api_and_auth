@@ -12,9 +12,8 @@ class GenreByIdService(BaseService):
     BASE_MODEL = Genre
     IS_LIST_RESULT = False
 
-    async def get_from_elastic(self, query_dict: dict) -> ServiceResult | None:
+    async def get_from_elastic(self, *, genre_id) -> ServiceResult | None:
         index_name = "genres"
-        genre_id = query_dict[KEY_ID]
         try:
             resp = await self.elastic.get(index=index_name, id=genre_id)
         except NotFoundError:

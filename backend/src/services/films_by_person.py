@@ -12,12 +12,7 @@ class FilmsByPersonService(BaseService):
     BASE_MODEL = ExtendedFilm
     IS_LIST_RESULT = True
 
-    async def get_from_elastic(self, query_dict: dict = None) -> ServiceResult | None:
-
-        page_num = query_dict[KEY_PAGE_NUM]
-        page_size = query_dict[KEY_PAGE_SIZE]
-        person_id = query_dict[KEY_ID]
-
+    async def get_from_elastic(self, *, page_num, page_size, person_id) -> ServiceResult | None:
         index_name = "movies"
         es = {
             "from": (page_num - 1) * page_size,

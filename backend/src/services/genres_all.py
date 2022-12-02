@@ -12,11 +12,7 @@ class GenreService(BaseService):
     BASE_MODEL = Genre
     IS_LIST_RESULT = True
 
-    async def get_from_elastic(self, query_dict: dict = None) -> ServiceResult | None:
-
-        page_num = query_dict[KEY_PAGE_NUM]
-        page_size = query_dict[KEY_PAGE_SIZE]
-
+    async def get_from_elastic(self, *, page_num, page_size) -> ServiceResult | None:
         index_name = "genres"
 
         es = {"from": (page_num - 1) * page_size, "size": page_size, "query": {"match_all": {}}}

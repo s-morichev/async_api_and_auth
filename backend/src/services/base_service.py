@@ -68,25 +68,22 @@ class BaseService(metaclass=Singleton):
     def get_redis_key(self, keys: dict):
         return hash_dict(self.NAME, keys)
 
-    async def get(self, query_dict: dict = None) -> ServiceResult | None:
-        # ограничиваем параметры пагинации
-        query_dict = restrict_pages(query_dict)
-
+    async def get(self, **kwargs) -> ServiceResult | None:
         # 1. try to get data from cache
-        if result := await self.get_from_cache(query_dict):
+        if result := await self.get_from_cache(kwargs):
             result.cached = 1
             return result  #
 
         # 2. try to get data from es
-        elif result := await self.get_from_elastic(query_dict):
-            await self.put_to_cache(query_dict, result)
+        elif result := await self.get_from_elastic(**kwargs):
+            await self.put_to_cache(kwargs, result)
             logger.debug(f"get from ES: {result}")
             return result
         else:
             logger.debug("Nothing find")
             return None
 
-    async def get_from_elastic(self, query_dict: dict) -> ServiceResult | None:
+    async def get_from_elastic(self, **kwargs) -> ServiceResult | None:
         pass
 
     async def get_from_cache(self, query_dict: dict) -> ServiceResult | None:
