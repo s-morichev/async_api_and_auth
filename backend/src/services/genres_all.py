@@ -1,7 +1,7 @@
 from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE
 from elasticsearch import NotFoundError
 from models.dto_models import Genre
-from models.service_result import ServiceResult
+from models.service_result import ServiceListResult
 from services.base_service import BaseService
 
 
@@ -10,9 +10,9 @@ class GenreService(BaseService):
 
     NAME = "GENRES_ALL"
     BASE_MODEL = Genre
-    IS_LIST_RESULT = True
+    RESULT_MODEL = ServiceListResult[Genre]
 
-    async def get_from_elastic(self, *, page_num, page_size) -> ServiceResult | None:
+    async def get_from_elastic(self, *, page_num, page_size) -> "GenreService.RESULT_MODEL | None":
         index_name = "genres"
 
         es = {"from": (page_num - 1) * page_size, "size": page_size, "query": {"match_all": {}}}

@@ -1,7 +1,7 @@
 from core.constants import KEY_ID, KEY_PAGE_NUM, KEY_PAGE_SIZE
 from elasticsearch import NotFoundError
 from models.dto_models import ExtendedFilm
-from models.service_result import ServiceResult
+from models.service_result import ServiceListResult
 from services.base_service import BaseService
 
 
@@ -10,9 +10,9 @@ class FilmsByPersonService(BaseService):
 
     NAME = "FILMS_BY_PERSON"
     BASE_MODEL = ExtendedFilm
-    IS_LIST_RESULT = True
+    RESULT_MODEL = ServiceListResult[ExtendedFilm]
 
-    async def get_from_elastic(self, *, page_num, page_size, person_id) -> ServiceResult | None:
+    async def get_from_elastic(self, *, page_num, page_size, person_id) -> "FilmsByPersonService.RESULT_MODEL | None":
         index_name = "movies"
         es = {
             "from": (page_num - 1) * page_size,

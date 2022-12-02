@@ -1,14 +1,20 @@
+from typing import Any, Generic, TypeVar
 from uuid import UUID
 
 from models.base_dto import BaseDTO
 from pydantic import Field
+from pydantic.generics import GenericModel
+
+ModelT = TypeVar("ModelT")
 
 
-class ManyResponse(BaseDTO):
-    """Base answer with many rows"""
-
+class ManyResponse(GenericModel, Generic[ModelT]):
     total: int = Field(..., title="Amount rows in source")
-    result: list[BaseDTO]
+    result: list[ModelT]
+
+    @classmethod
+    def __concrete_name__(cls: type[Any], params: tuple[type[Any], ...]) -> str:
+        return f"{params[0].__name__.title()}ManyResponse"
 
 
 class Genre(BaseDTO):
@@ -16,12 +22,6 @@ class Genre(BaseDTO):
 
     uuid: UUID = Field(title="id")
     name: str = Field(title="genres name")
-
-
-class ManyGenre(ManyResponse):
-    """List of genres"""
-
-    result: list[Genre] = Field(title="list of genres")
 
 
 class Film(BaseDTO):
@@ -47,10 +47,6 @@ class ExtendedPerson(Person):
     movies: list[RoleMovies]
 
 
-class ManyExtendedPerson(ManyResponse):
-    result: list[ExtendedPerson] = Field(title="list of persons")
-
-
 class ImdbFilm(Film):
     """Film (uuid,title, imdb)"""
 
@@ -65,15 +61,3 @@ class ExtendedImdbFilm(ImdbFilm):
     actors: list[Person]
     writers: list[Person]
     directors: list[Person]
-
-
-class ManyFilm(ManyResponse):
-    result: list[Film]
-
-
-class ManyImdbFilm(ManyResponse):
-    result: list[ImdbFilm]
-
-
-class ManyExtendedImdbFilm(ManyResponse):
-    result: list[ExtendedImdbFilm]

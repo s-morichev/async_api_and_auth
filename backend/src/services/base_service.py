@@ -26,40 +26,9 @@ class BaseService(metaclass=Singleton):
 
     USE_CACHE = True  # использовать ли кэш
     NAME = "BASE"  # имя сервиса. Используется в ключе редиса
-    BASE_MODEL: Type[BaseDTO] = BaseDTO  # базовый класс для ответа
+    BASE_MODEL: Type[BaseDTO]  # базовый класс для ответа
     CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
-    IS_LIST_RESULT = False  # одно значение в ответе или список ожидается
-    # класс ответа, он определяется в зависимости от
-    #  BASE_MODEL и IS_LIST_RESULT
     RESULT_MODEL: Type[ServiceResult]
-
-    def __new__(cls, *args, **kwargs):
-        """
-        Дополняю классовый метод чтобы в рантайме определять класс ответа
-        Извращаюсь как могу))
-        """
-        cls.init_result_model()
-        return super().__new__(cls)
-
-    @classmethod
-    def init_result_model(cls) -> Type[ServiceResult]:
-        class Result(ServiceResult):
-            if cls.IS_LIST_RESULT:
-                result: list[cls.BASE_MODEL]
-            else:
-                result: cls.BASE_MODEL
-
-        # надо чтобы имена классов ответа были уникальны,
-        # инача FastApi не сможет создать OpenAPI документацию
-        Result.__name__ = f"Result:{cls.NAME}"
-        cls.RESULT_MODEL = Result
-        return Result
-
-    @classproperty
-    def RESPONSE_MODEL(cls):
-        """Красивое свойство возвращает модель ответа. Нужно во роуте"""
-        return cls.init_result_model()
-        # return cls.RESULT_MODEL
 
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
