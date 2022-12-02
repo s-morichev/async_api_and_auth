@@ -1,8 +1,7 @@
 import hashlib
 
 import orjson
-
-from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE
+from core.constants import DEFAULT_PAGE_SIZE, KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE
 
 
 def hash_dict(pretty_key: str, key_dict: dict):

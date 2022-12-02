@@ -1,12 +1,11 @@
 import enum
 import logging
 from http import HTTPStatus
-from typing import List
 from uuid import UUID
 
-from api.v1 import dto_models
+from api.v1 import schemas
 from fastapi import APIRouter, Depends, HTTPException, Query
-from services.films import PopularFilmsService, SearchFilmsService, FilmByIdService, SimilarFilmsService
+from services.films import FilmByIdService, PopularFilmsService, SearchFilmsService, SimilarFilmsService
 
 logger = logging.getLogger(__name__)
 
@@ -28,14 +27,14 @@ def _validate_pagination(page_number: int, page_size: int):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=resp)
 
 
-@router.get("/", response_model=List[dto_models.Film])
+@router.get("/", response_model=schemas.ManyImdbFilm)
 async def films_popular(
     sort_by: Sorting = Query(Sorting.imdb_desc, alias="sort"),
     genre_id: UUID | None = Query(None, alias="filter[genre]"),
     page_number: int = Query(DEFAULT_PAGE_NUMBER, alias="page[number]", ge=1),
     page_size: int = Query(DEFAULT_PAGE_SIZE, alias="page[size]", ge=1),
     service: PopularFilmsService = Depends(PopularFilmsService.get_service),
-) -> List[dto_models.Film]:
+) -> schemas.ManyImdbFilm:
     """Получить популярные фильмы (в текущей версии - с наибольшим рейтингом).
 
     - **sort**: поле для сортировки с префиксом + либо -
@@ -44,25 +43,27 @@ async def films_popular(
     - **page[size]**: количество фильмов на странице
     """
     _validate_pagination(page_number, page_size)
-    answer = await service.get_from_elastic(
+    answer = await service.get_from_elastic(  # без кеша
         sort_by=sort_by.value,
         genre_id=genre_id,
         page_number=page_number,
         page_size=page_size,
     )
 
-    dto_list = [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result]
-    return dto_list
+    film_list = [
+        schemas.ImdbFilm(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result
+    ]
+    return schemas.ManyImdbFilm(total=answer.total, result=film_list)
 
 
-@router.get("/search/", response_model=List[dto_models.Film])
+@router.get("/search/", response_model=schemas.ManyImdbFilm)
 async def film_search(
     query: str,
     genre_id: UUID | None = Query(None, alias="filter[genre]"),
     page_number: int = Query(DEFAULT_PAGE_NUMBER, alias="page[number]", ge=1),
     page_size: int = Query(DEFAULT_PAGE_SIZE, alias="page[size]", ge=1),
     service: SearchFilmsService = Depends(SearchFilmsService.get_service),
-) -> List[dto_models.Film]:
+) -> schemas.ManyImdbFilm:
     """Найти фильмы.
 
     - **query**: поисковый запрос
@@ -78,18 +79,19 @@ async def film_search(
         page_size=page_size,
     )
 
-    dto_list = [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in
-                answer.result]
-    return dto_list
+    film_list = [
+        schemas.ImdbFilm(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result
+    ]
+    return schemas.ManyImdbFilm(total=answer.total, result=film_list)
 
 
-@router.get("/{film_id}/similar", response_model=List[dto_models.Film])
+@router.get("/{film_id}/similar", response_model=schemas.ManyImdbFilm)
 async def film_similar(
     film_id: str,
     page_number: int = Query(1, alias="page[number]", ge=1),
     page_size: int = Query(3, alias="page[size]", ge=1),
     service: SimilarFilmsService = Depends(SimilarFilmsService.get_service),
-) -> List[dto_models.Film]:
+) -> schemas.ManyImdbFilm:
     """Получить похожие фильмы (в текущей версии - фильмы того же жанра).
 
     - **film_id**: UUID идентификатор фильма
@@ -103,16 +105,16 @@ async def film_similar(
         page_size=page_size,
     )
 
-    dto_list = [dto_models.Film(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in
-                answer.result]
-    return dto_list
+    film_list = [
+        schemas.ImdbFilm(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result
+    ]
+    return schemas.ManyImdbFilm(total=answer.total, result=film_list)
 
 
-@router.get("/{film_id}", response_model=dto_models.ExtendedFilm)
+@router.get("/{film_id}", response_model=schemas.ExtendedImdbFilm)
 async def film_details(
-        film_id: str,
-        service: FilmByIdService = Depends(FilmByIdService.get_service)
-) -> dto_models.ExtendedFilm:
+    film_id: str, service: FilmByIdService = Depends(FilmByIdService.get_service)
+) -> schemas.ExtendedImdbFilm:
     """Получить полную информацию о фильме.
 
     - **film_id**: UUID идентификатор фильма
@@ -120,7 +122,7 @@ async def film_details(
     answer = await service.get_from_elastic(film_id=film_id)
     film = answer.result
 
-    return dto_models.ExtendedFilm(
+    return schemas.ExtendedImdbFilm(
         uuid=film.uuid,
         title=film.title,
         imdb_rating=film.imdb_rating,

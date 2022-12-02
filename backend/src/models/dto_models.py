@@ -16,6 +16,10 @@ class Film(IdModel):
     title: str
 
 
+class ImdbFilm(Film):
+    imdb_rating: float
+
+
 class RoleMovies(BaseDTO):
     role: str
     movies: list[Film]

@@ -1,15 +1,14 @@
 from typing import Type
+
 from aioredis import Redis
+from core.service_logger import get_logger
 from core.singletone import Singleton
 from core.utils import classproperty, hash_dict, restrict_pages
 from db.elastic import get_elastic
 from db.redis import get_redis
 from elasticsearch import AsyncElasticsearch
-from fastapi import Depends
 from models.base_dto import BaseDTO
 from models.service_result import ServiceResult
-from core.service_logger import get_logger
-
 
 logger = get_logger(__name__)
 
@@ -44,7 +43,6 @@ class BaseService(metaclass=Singleton):
 
     @classmethod
     def init_result_model(cls) -> Type[ServiceResult]:
-
         class Result(ServiceResult):
             if cls.IS_LIST_RESULT:
                 result: list[cls.BASE_MODEL]
@@ -82,10 +80,10 @@ class BaseService(metaclass=Singleton):
         # 2. try to get data from es
         elif result := await self.get_from_elastic(query_dict):
             await self.put_to_cache(query_dict, result)
-            logger.debug(f'get from ES: {result}')
+            logger.debug(f"get from ES: {result}")
             return result
         else:
-            logger.debug('Nothing find')
+            logger.debug("Nothing find")
             return None
 
     async def get_from_elastic(self, query_dict: dict) -> ServiceResult | None:
@@ -99,7 +97,7 @@ class BaseService(metaclass=Singleton):
         data = await self.redis.get(key)
         if not data:
             return None
-        logger.debug(f'get from cache key: {key}')
+        logger.debug(f"get from cache key: {key}")
         result = self.RESULT_MODEL.parse_raw(data)
         return result
 
@@ -109,14 +107,13 @@ class BaseService(metaclass=Singleton):
 
         key = self.get_redis_key(query_dict)
         await self.redis.set(key, result.json(), ex=self.CACHE_EXPIRE_IN_SECONDS)
-        logger.debug(f'save to cache key: {key}')
+        logger.debug(f"save to cache key: {key}")
 
     @classmethod
-    def get_service(
-            cls: Type["BaseService"], redis: Redis = Depends(get_redis),
-            elastic: AsyncElasticsearch = Depends(get_elastic)
-    ) -> "BaseService":
+    async def get_service(cls: Type["BaseService"]) -> "BaseService":
         """return instance of Service and its must be the same, its a SINGLETONE!!!"""
+        redis = await get_redis()
+        elastic = await get_elastic()
         return cls(redis, elastic)
 
     # ------------------------------------------------------------------------------ #
