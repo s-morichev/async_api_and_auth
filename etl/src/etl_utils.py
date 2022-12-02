@@ -1,4 +1,4 @@
-import json
+from json import JSONDecodeError, loads
 
 from elastic_transport import ConnectionError
 from elasticsearch import Elasticsearch
@@ -11,33 +11,57 @@ logger = etl_logger.get_logger(__name__)
 
 def es_create_index_if_not_exist(index_name: str, schema_file: str) -> bool:
     """check if index exists and try to create them
+    throw ES ConnectionError if raised
+
+    :param index_name - index for check
+    :param schema_file - file json with index schema
+
     :return True if all OK, False if error occurred
     """
+
     logger.info("check ES Index...")
+    # 1. connect to ES and check index existing
     try:
-        logger.debug(f"ES in {settings.ES_URI}")
         es = Elasticsearch(settings.ES_URI)
         if es.indices.exists(index=index_name):
             return True
 
-        logger.debug(f'Elasticsearch creating index "{index_name}" is not exist')
+    except ConnectionError as err:
+        msg = f"No connection to Elasticsearch: {err}"
+        logger.error(msg)
+        raise err
 
+    logger.debug(f'Elasticsearch creating index "{index_name}" is not exist')
+
+    # 2. load schema from JSON file
+    try:
         with open(schema_file, "r") as schema_file:
             schema = schema_file.read()
-            schema_dict = json.loads(schema)
-            es.indices.create(index=index_name, mappings=schema_dict["mappings"], settings=schema_dict.get("settings"))
+            schema_dict = loads(schema)
 
-    except (ConnectionError, FileNotFoundError) as err:
+    except (JSONDecodeError, FileNotFoundError) as err:
         msg = f"Elasticsearch index {index_name}  create error:{err}"
-        if settings.DEBUG:
-            logger.exception(msg)
-        else:
-            logger.error(msg)
+        logger.error(msg)
         return False
 
-    else:
-        logger.debug(f'Elasticsearch creating index "{index_name}" is OK')
-        return True
+    # 3. Check for mappings key in schema
+    key_mappings = "mappings"
+    if key_mappings not in schema_dict:
+        msg = f"Elasticsearch index {index_name}  create error: No 'mappings' in schema file"
+        logger.error(msg)
+        return False
+
+    # 4. Create index
+    try:
+        es.indices.create(index=index_name, mappings=schema_dict[key_mappings], settings=schema_dict.get("settings"))
+
+    except ConnectionError as err:
+        msg = f"Elasticsearch index {index_name}  create error: {err}"
+        logger.error(msg)
+        raise err
+
+    logger.debug(f'Elasticsearch creating index "{index_name}" is OK')
+    return True
 
 
 def check_or_create_indexes():

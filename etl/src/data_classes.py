@@ -14,12 +14,23 @@ class Person(IdNameMixin):
     pass
 
 
+class Movie(BaseModel):
+    id: str
+    title: str
+
+
+class RoleMovies(BaseModel):
+    role: str
+    movies: list[Movie]
+
+
 class FPerson(BaseModel, ETLData):
     """class for load persons directly"""
 
     id: str
     full_name: str
     modified: datetime
+    movies: list[RoleMovies]
 
 
 class FGenre(BaseModel, ETLData):

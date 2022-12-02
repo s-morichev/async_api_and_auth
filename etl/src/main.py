@@ -1,6 +1,8 @@
 from datetime import datetime
 from threading import Event
 
+from elastic_transport import ConnectionError as ESConnectionError
+
 import etl_logger
 from backoff import backoff
 from es_loader import ESLoader
@@ -16,11 +18,8 @@ logger = etl_logger.get_logger("ETL")
 ev_exit = Event()
 
 
+@backoff(exceptions=(ESConnectionError,), logger_func=logger.error)
 def all_ready_for_etl() -> bool:
-    """
-    создаем индексы в ES если они отсутствуют
-    Но в проде он же будет создан до запуска?
-    """
     return check_or_create_indexes()
 
 
