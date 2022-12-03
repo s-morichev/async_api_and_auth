@@ -2,7 +2,7 @@ from http import HTTPStatus
 from uuid import UUID
 
 from api.v1.schemas import Genre, ManyResponse
-from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE
+from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE
 from core.utils import validate_pagination
 from fastapi import APIRouter, Depends, HTTPException, Query
 from services.genres  import GenreByIdService, GenresAllService
@@ -23,7 +23,8 @@ async def genre_by_id(genre_id: UUID, service: GenreByIdService = Depends(GenreB
 
 @router.get("/", response_model=ManyResponse[Genre])
 async def all_genres(
-    page_size: int = Query(default=50, alias=KEY_PAGE_SIZE, title="count of results rows", ge=1),
+    page_size: int = Query(default=DEFAULT_PAGE_SIZE, alias=KEY_PAGE_SIZE,
+                           title="count of results rows", ge=1, lte=MAX_PAGE_SIZE),
     page_number: int = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
     service: GenresAllService = Depends(GenresAllService.get_service),
 ) -> ManyResponse[Genre]:
