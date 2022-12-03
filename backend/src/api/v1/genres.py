@@ -2,11 +2,10 @@ from http import HTTPStatus
 from uuid import UUID
 
 from api.v1.schemas import Genre, ManyResponse
-from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE
 from core.utils import validate_pagination
-from fastapi import APIRouter, Depends, HTTPException, Query
-from services.genres  import GenreByIdService, GenresAllService
-
+from fastapi import APIRouter, Depends, HTTPException
+from services.genres import GenreByIdService, GenresAllService
+from params import PageParams
 router = APIRouter()
 
 
@@ -24,20 +23,18 @@ async def genre_by_id(genre_id: UUID, service: GenreByIdService = Depends(GenreB
 
 @router.get("/", response_model=ManyResponse[Genre])
 async def all_genres(
-    page_size: int = Query(default=DEFAULT_PAGE_SIZE, alias=KEY_PAGE_SIZE,
-                           title="count of results rows", ge=1, lte=MAX_PAGE_SIZE),
-    page_number: int = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
-    service: GenresAllService = Depends(GenresAllService.get_service),
+        params: PageParams= Depends(),
+        service: GenresAllService = Depends(GenresAllService.get_service),
 ) -> ManyResponse[Genre]:
     """
         Список жанров
         - **page[number]**: номер страницы
         - **page[size]**: количество жанров на странице
     """
-    if message := validate_pagination(page_number, page_size):
+    if message := validate_pagination(params.page_number, params.page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
 
-    answer = await service.get(page_num=page_number, page_size=page_size)
+    answer = await service.get(page_num=params.page_number, page_size=params.page_size)
 
     if not answer:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="genres not found")

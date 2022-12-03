@@ -6,6 +6,7 @@ from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE, KEY_QUERY, MAX_PAGE_SIZE
 from core.utils import validate_pagination
 from fastapi import APIRouter, Depends, HTTPException, Query
 from services.persons import FilmsByPersonService, PersonByIdService, PersonSearchService
+from params import QueryPageParams, PageParams
 
 router = APIRouter()
 
@@ -27,8 +28,7 @@ async def person_by_id(
 @router.get("/{person_id}/film", response_model=ManyResponse[ImdbFilm])
 async def films_by_person(
     person_id: UUID,
-    page_size: int = Query(default=DEFAULT_PAGE_SIZE, alias=KEY_PAGE_SIZE, title="count of results rows", ge=1, lte=MAX_PAGE_SIZE),
-    page_number: int = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
+    params: PageParams = Depends(),
     service: FilmsByPersonService = Depends(FilmsByPersonService.get_service),
 ) -> ManyResponse[ImdbFilm]:
 
@@ -37,10 +37,10 @@ async def films_by_person(
     - **page[number]**: номер страницы
     - **page[size]**: количество записей на странице
     """
-    if message := validate_pagination(page_number, page_size):
+    if message := validate_pagination(params.page_number, params.page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
 
-    answer = await service.get(page_num=page_number, page_size=page_size, person_id=person_id)
+    answer = await service.get(page_num=params.page_number, page_size=params.page_size, person_id=person_id)
 
     if not answer:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"films for person id:{person_id} not found")
@@ -52,10 +52,7 @@ async def films_by_person(
 
 @router.get("/", response_model=ManyResponse[ExtendedPerson])
 async def person_search(
-    query: str = Query(default="", alias=KEY_QUERY, title="string for search"),
-    page_size: int = Query(default=DEFAULT_PAGE_SIZE, alias=KEY_PAGE_SIZE,
-                           title="count of results rows", ge=1, lte=MAX_PAGE_SIZE),
-    page_number: int = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
+    params: QueryPageParams = Depends(),
     service: PersonSearchService = Depends(PersonSearchService.get_service),
 ) -> ManyResponse[ExtendedPerson]:
     """
@@ -65,13 +62,13 @@ async def person_search(
       - **page[size]**: количество записей на странице
       """
 
-    if message := validate_pagination(page_number, page_size):
+    if message := validate_pagination(params.page_number, params.page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
 
-    answer = await service.get(page_num=page_number, page_size=page_size, query=query)
+    answer = await service.get(page_num=params.page_number, page_size=params.page_size, query=params.query)
 
     if not answer:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"persons for '{query}' not found")
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"persons for '{params.query}' not found")
 
     lst_person = [ExtendedPerson(**dto.dict()) for dto in answer.result]
     return ManyResponse[ExtendedPerson](total=answer.total, result=lst_person)

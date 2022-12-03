@@ -3,19 +3,12 @@ from http import HTTPStatus
 from uuid import UUID
 
 from api.v1.schemas import ExtendedImdbFilm, ImdbFilm, ManyResponse
-from core.constants import (
-    DEFAULT_PAGE_SIZE,
-    KEY_FILTER_GENRE,
-    KEY_PAGE_NUM,
-    KEY_PAGE_SIZE,
-    KEY_QUERY,
-    KEY_SORT,
-    MAX_PAGE_SIZE,
-)
+from core.constants import KEY_FILTER_GENRE, KEY_SORT
 from core.service_logger import get_logger
 from core.utils import validate_pagination
 from fastapi import APIRouter, Depends, HTTPException, Query
 from services.films import FilmByIdService, PopularFilmsService, SearchFilmsService, SimilarFilmsService
+from params import QueryPageParams, PageParams
 
 logger = get_logger(__name__)
 
@@ -29,11 +22,10 @@ class Sorting(enum.Enum):
 
 @router.get("/", response_model=ManyResponse[ImdbFilm])
 async def films_popular(
-    sort_by: Sorting = Query(Sorting.imdb_desc, alias=KEY_SORT),
-    genre_id: UUID | None = Query(None, alias=KEY_FILTER_GENRE),
-    page_number: int = Query(1, alias=KEY_PAGE_NUM, ge=1),
-    page_size: int = Query(DEFAULT_PAGE_SIZE, alias=KEY_PAGE_SIZE, ge=1, lte=MAX_PAGE_SIZE),
-    service: PopularFilmsService = Depends(PopularFilmsService.get_service),
+        sort_by: Sorting = Query(Sorting.imdb_desc, alias=KEY_SORT),
+        genre_id: UUID | None = Query(None, alias=KEY_FILTER_GENRE),
+        params: PageParams = Depends(),
+        service: PopularFilmsService = Depends(PopularFilmsService.get_service),
 ) -> ManyResponse[ImdbFilm]:
     """Получить популярные фильмы (в текущей версии - с наибольшим рейтингом).
 
@@ -42,14 +34,14 @@ async def films_popular(
     - **page[number]**: номер страницы
     - **page[size]**: количество фильмов на странице
     """
-    if message := validate_pagination(page_number, page_size):
+    if message := validate_pagination(params.page_number, params.page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
 
     answer = await service.get(
         sort_by=sort_by.value,
         genre_id=genre_id,
-        page_number=page_number,
-        page_size=page_size,
+        page_number=pages.page_number,
+        page_size=pages.page_size,
     )
 
     film_list = [ImdbFilm(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result]
@@ -58,11 +50,9 @@ async def films_popular(
 
 @router.get("/search/", response_model=ManyResponse[ImdbFilm])
 async def film_search(
-    query: str = Query(alias=KEY_QUERY),
-    genre_id: UUID | None = Query(None, alias=KEY_FILTER_GENRE),
-    page_number: int = Query(1, alias=KEY_PAGE_NUM, ge=1),
-    page_size: int = Query(DEFAULT_PAGE_SIZE, alias=KEY_PAGE_SIZE, ge=1, lte=MAX_PAGE_SIZE),
-    service: SearchFilmsService = Depends(SearchFilmsService.get_service),
+        genre_id: UUID | None = Query(None, alias=KEY_FILTER_GENRE),
+        params: QueryPageParams = Depends(),
+        service: SearchFilmsService = Depends(SearchFilmsService.get_service),
 ) -> ManyResponse[ImdbFilm]:
     """Найти фильмы.
 
@@ -71,13 +61,13 @@ async def film_search(
     - **page[number]**: номер страницы
     - **page[size]**: количество фильмов на странице
     """
-    if message := validate_pagination(page_number, page_size):
+    if message := validate_pagination(params.page_number, params.page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
     answer = await service.get(
-        search_for=query,
+        search_for=params.query,
         genre_id=genre_id,
-        page_number=page_number,
-        page_size=page_size,
+        page_number=params.page_number,
+        page_size=params.page_size,
     )
 
     film_list = [ImdbFilm(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result]
@@ -86,10 +76,9 @@ async def film_search(
 
 @router.get("/{film_id}/similar", response_model=ManyResponse[ImdbFilm])
 async def film_similar(
-    film_id: UUID,
-    page_number: int = Query(1, alias=KEY_PAGE_NUM, ge=1),
-    page_size: int = Query(DEFAULT_PAGE_SIZE, alias=KEY_PAGE_SIZE, ge=1, lte=MAX_PAGE_SIZE),
-    service: SimilarFilmsService = Depends(SimilarFilmsService.get_service),
+        film_id: UUID,
+        params: QueryPageParams = Depends(),
+        service: SimilarFilmsService = Depends(SimilarFilmsService.get_service),
 ) -> ManyResponse[ImdbFilm]:
     """Получить похожие фильмы (в текущей версии - фильмы того же жанра).
 
@@ -97,12 +86,12 @@ async def film_similar(
     - **page[number]**: номер страницы
     - **page[size]**: количество элементов на странице
     """
-    if message := validate_pagination(page_number, page_size):
+    if message := validate_pagination(params.page_number, params.page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
     answer = await service.get(
         film_id=film_id,
-        page_number=page_number,
-        page_size=page_size,
+        page_number=params.page_number,
+        page_size=params.page_size,
     )
 
     film_list = [ImdbFilm(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result]
@@ -111,7 +100,7 @@ async def film_similar(
 
 @router.get("/{film_id}", response_model=ExtendedImdbFilm)
 async def film_details(
-    film_id: UUID, service: FilmByIdService = Depends(FilmByIdService.get_service)
+        film_id: UUID, service: FilmByIdService = Depends(FilmByIdService.get_service)
 ) -> ExtendedImdbFilm:
     """Получить полную информацию о фильме.
 
