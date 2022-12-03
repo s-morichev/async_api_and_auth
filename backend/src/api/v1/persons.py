@@ -5,9 +5,7 @@ from api.v1.schemas import ExtendedPerson, ImdbFilm, ManyResponse
 from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE, KEY_QUERY
 from core.utils import validate_pagination
 from fastapi import APIRouter, Depends, HTTPException, Query
-from services.films_by_person import FilmsByPersonService
-from services.person_by_id import PersonByIdService
-from services.persons_search import PersonSearchService
+from services.persons import FilmsByPersonService, PersonByIdService, PersonSearchService
 
 router = APIRouter()
 
@@ -16,6 +14,7 @@ router = APIRouter()
 async def person_by_id(
     person_id: UUID, service: PersonByIdService = Depends(PersonByIdService.get_service)
 ) -> ExtendedPerson:
+
     answer = await service.get(person_id=person_id)
 
     if not answer:
@@ -31,12 +30,15 @@ async def films_by_person(
     page_number: int = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
     service: FilmsByPersonService = Depends(FilmsByPersonService.get_service),
 ) -> ManyResponse[ImdbFilm]:
+
     if message := validate_pagination(page_number, page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
 
     answer = await service.get(page_num=page_number, page_size=page_size, person_id=person_id)
+
     if not answer:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"films for person id:{person_id} not found")
+
     lst_film = [ImdbFilm(**dto.dict()) for dto in answer.result]
 
     return ManyResponse[ImdbFilm](total=answer.total, result=lst_film)
@@ -49,6 +51,7 @@ async def person_search(
     page_number: int = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
     service: PersonSearchService = Depends(PersonSearchService.get_service),
 ) -> ManyResponse[ExtendedPerson]:
+
     if message := validate_pagination(page_number, page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
 
