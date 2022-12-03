@@ -12,6 +12,7 @@ router = APIRouter()
 
 @router.get("/{genre_id}", response_model=Genre)
 async def genre_by_id(genre_id: UUID, service: GenreByIdService = Depends(GenreByIdService.get_service)) -> Genre:
+    """ Поиск жанра по id"""
     answer = await service.get(genre_id=genre_id)
 
     if not answer:
@@ -28,7 +29,11 @@ async def all_genres(
     page_number: int = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
     service: GenresAllService = Depends(GenresAllService.get_service),
 ) -> ManyResponse[Genre]:
-
+    """
+        Список жанров
+        - **page[number]**: номер страницы
+        - **page[size]**: количество жанров на странице
+    """
     if message := validate_pagination(page_number, page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
 

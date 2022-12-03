@@ -14,6 +14,7 @@ router = APIRouter()
 async def person_by_id(
     person_id: UUID, service: PersonByIdService = Depends(PersonByIdService.get_service)
 ) -> ExtendedPerson:
+    """Поиск персоны по id"""
 
     answer = await service.get(person_id=person_id)
 
@@ -31,6 +32,11 @@ async def films_by_person(
     service: FilmsByPersonService = Depends(FilmsByPersonService.get_service),
 ) -> ManyResponse[ImdbFilm]:
 
+    """
+    Поиск фильмов по id персоны
+    - **page[number]**: номер страницы
+    - **page[size]**: количество записей на странице
+    """
     if message := validate_pagination(page_number, page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
 
@@ -52,6 +58,12 @@ async def person_search(
     page_number: int = Query(default=1, alias=KEY_PAGE_NUM, title="number of page (pagination)", ge=1),
     service: PersonSearchService = Depends(PersonSearchService.get_service),
 ) -> ManyResponse[ExtendedPerson]:
+    """
+      Поиск персон по имени
+      - query - поисковая строка
+      - **page[number]**: номер страницы
+      - **page[size]**: количество записей на странице
+      """
 
     if message := validate_pagination(page_number, page_size):
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
