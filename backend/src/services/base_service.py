@@ -9,7 +9,6 @@ from core.singletone import Singleton
 from core.utils import hash_dict, classproperty
 from db.elastic import get_elastic
 from db.redis import get_redis
-from models.base_dto import BaseDTO
 from models.service_result import ServiceListResult, ServiceSingeResult
 
 logger = get_logger(__name__)

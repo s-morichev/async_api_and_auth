@@ -7,7 +7,7 @@ def orjson_dumps(v, *, default):
     return orjson.dumps(v, default=default).decode()
 
 
-class BaseDTO(BaseModel):
+class CoreModel(BaseModel):
     class Config:
         # Заменяем стандартную работу с json на более быструю
         json_loads = orjson.loads
