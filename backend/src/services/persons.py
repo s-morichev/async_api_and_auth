@@ -13,7 +13,6 @@ class FilmsByPersonService(BaseService):
     """Фильмы по персоне"""
 
     NAME = "FILMS_BY_PERSON"
-    BASE_MODEL = ExtendedFilm
     RESULT_MODEL = ServiceListResult[ExtendedFilm]
 
     async def get_from_elastic(
@@ -71,7 +70,6 @@ class PersonByIdService(BaseService):
     """Персона по id"""
 
     NAME = "PERSON_BY_ID"
-    BASE_MODEL = ExtendedPerson
     RESULT_MODEL = ServiceSingeResult[ExtendedPerson]
 
     async def get_from_elastic(self, *, person_id: UUID) -> "PersonByIdService.RESULT_MODEL | None":
@@ -94,7 +92,6 @@ class PersonSearchService(BaseService):
     """Персона по имени"""
 
     NAME = "PERSONS_SEARCH"
-    BASE_MODEL = ExtendedPerson
     RESULT_MODEL = ServiceListResult[ExtendedPerson]
 
     async def get_from_elastic(

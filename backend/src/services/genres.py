@@ -12,7 +12,6 @@ class GenreByIdService(BaseService):
     """Жанр по id"""
 
     NAME = "GENRE_BY_ID"
-    BASE_MODEL = Genre
     RESULT_MODEL = ServiceSingeResult[Genre]
 
     async def get_from_elastic(self, *, genre_id: UUID) -> "GenreByIdService.RESULT_MODEL | None":
@@ -35,7 +34,6 @@ class GenresAllService(BaseService):
     """список жанров"""
 
     NAME = "GENRES_ALL"
-    BASE_MODEL = Genre
     RESULT_MODEL = ServiceListResult[Genre]
 
     async def get_from_elastic(self, *, page_num: int, page_size: int) -> "GenresAllService.RESULT_MODEL | None":
