@@ -1,7 +1,9 @@
-from core.constants import KEY_ID, KEY_PAGE_NUM, KEY_PAGE_SIZE
+from uuid import UUID
+
+from core.constants import ES_MOVIES_INDEX
 from elasticsearch import NotFoundError
 from models.dto_models import ExtendedFilm
-from models.service_result import ServiceResult
+from models.service_result import ServiceListResult
 from services.base_service import BaseService
 
 
@@ -10,15 +12,12 @@ class FilmsByPersonService(BaseService):
 
     NAME = "FILMS_BY_PERSON"
     BASE_MODEL = ExtendedFilm
-    IS_LIST_RESULT = True
+    RESULT_MODEL = ServiceListResult[ExtendedFilm]
 
-    async def get_from_elastic(self, query_dict: dict = None) -> ServiceResult | None:
-
-        page_num = query_dict[KEY_PAGE_NUM]
-        page_size = query_dict[KEY_PAGE_SIZE]
-        person_id = query_dict[KEY_ID]
-
-        index_name = "movies"
+    async def get_from_elastic(
+        self, *, page_num: int, page_size: int, person_id: UUID
+    ) -> "FilmsByPersonService.RESULT_MODEL | None":
+        index_name = ES_MOVIES_INDEX
         es = {
             "from": (page_num - 1) * page_size,
             "size": page_size,
@@ -29,19 +28,19 @@ class FilmsByPersonService(BaseService):
                         {
                             "nested": {
                                 "path": "actors",
-                                "query": {"bool": {"filter": {"term": {"actors.id": person_id}}}},
+                                "query": {"bool": {"filter": {"term": {"actors.id": str(person_id)}}}},
                             }
                         },
                         {
                             "nested": {
                                 "path": "directors",
-                                "query": {"bool": {"filter": {"term": {"directors.id": person_id}}}},
+                                "query": {"bool": {"filter": {"term": {"directors.id": str(person_id)}}}},
                             }
                         },
                         {
                             "nested": {
                                 "path": "writers",
-                                "query": {"bool": {"filter": {"term": {"writers.id": person_id}}}},
+                                "query": {"bool": {"filter": {"term": {"writers.id": str(person_id)}}}},
                             }
                         },
                     ]

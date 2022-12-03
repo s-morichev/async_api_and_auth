@@ -1,7 +1,8 @@
-from pathlib import Path
 from logging import config as logging_config
-from pydantic import BaseSettings, Field
+from pathlib import Path
+
 from core.logger import LOGGING
+from pydantic import BaseSettings, Field
 
 # Применяем настройки логирования
 logging_config.dictConfig(LOGGING)
@@ -14,7 +15,7 @@ LOG_FILE = LOG_DIR / "service.log"
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = Field('movies', env="BACKEND_PROJECT_NAME")
+    PROJECT_NAME: str = Field("movies", env="BACKEND_PROJECT_NAME")
     DEBUG: bool = Field(False, env="BACKEND_DEBUG")
     REDIS_URI: str = Field(..., env="REDIS_DSN")
     ES_URI: str = Field(..., env="ELK_DSN")

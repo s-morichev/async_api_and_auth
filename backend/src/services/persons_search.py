@@ -1,7 +1,7 @@
-from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE, KEY_QUERY
+from core.constants import ES_PERSONS_INDEX
 from elasticsearch import NotFoundError
 from models.dto_models import ExtendedPerson
-from models.service_result import ServiceResult
+from models.service_result import ServiceListResult
 from services.base_service import BaseService
 
 
@@ -10,15 +10,12 @@ class PersonSearchService(BaseService):
 
     NAME = "PERSONS_SEARCH"
     BASE_MODEL = ExtendedPerson
-    IS_LIST_RESULT = True
+    RESULT_MODEL = ServiceListResult[ExtendedPerson]
 
-    async def get_from_elastic(self, query_dict: dict = None) -> ServiceResult | None:
-
-        page_num = query_dict[KEY_PAGE_NUM]
-        page_size = query_dict[KEY_PAGE_SIZE]
-        query = query_dict[KEY_QUERY]
-
-        index_name = "persons"
+    async def get_from_elastic(
+        self, *, page_num: int, page_size: int, query: str
+    ) -> "PersonSearchService.RESULT_MODEL | None":
+        index_name = ES_PERSONS_INDEX
 
         es = {
             "from": (page_num - 1) * page_size,

@@ -2,23 +2,25 @@ import logging
 
 import aioredis
 import uvicorn as uvicorn
-from api.v1 import persons, genres
+from api.v1 import films, genres, persons
 from core.config import settings
 from core.logger import LOGGING
+from core.service_logger import get_logger
+from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from core.service_logger import get_logger
-from db import elastic, redis
 
-tags_metadata = [{"name": "Персоны", "description": "Запросы по персонам"},
-                 {"name": "Жанры", "description": "Запросы по жанрам"}]
+tags_metadata = [
+    {"name": "Персоны", "description": "Запросы по персонам"},
+    {"name": "Жанры", "description": "Запросы по жанрам"},
+]
 
 logger = get_logger(__name__)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    version='1.0.0',
+    version="1.0.0",
     tags_metadata=tags_metadata,
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
@@ -28,7 +30,7 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup():
-    logger.info('service start')
+    logger.info("service start")
     redis.redis = await aioredis.from_url(settings.REDIS_URI)
     elastic.es = AsyncElasticsearch(hosts=[settings.ES_URI])
 
@@ -38,9 +40,10 @@ async def shutdown():
     # Отключаемся от баз при выключении сервера
     await redis.redis.close()
     await elastic.es.close()
-    logger.info('service shutdown')
+    logger.info("service shutdown")
 
 
+app.include_router(films.router, prefix="/api/v1/films", tags=["Фильмы"])
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["Персоны"])
 app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])
 
