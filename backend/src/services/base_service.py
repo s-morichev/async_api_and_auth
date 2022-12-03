@@ -31,7 +31,7 @@ class BaseService(metaclass=Singleton):
     NAME = "BASE"  # имя сервиса. Используется в ключе редиса
     BASE_MODEL: BaseDTO  # базовый класс для ответа
     CACHE_EXPIRE_IN_SECONDS = DEFAULT_CACHE_EXPIRE_IN_SECONDS
-    RESULT_MODEL: MaybeResult
+    RESULT_MODEL: ServiceSingeResult | ServiceListResult
 
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
