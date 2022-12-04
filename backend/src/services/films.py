@@ -137,8 +137,9 @@ class SimilarFilmsService(BaseService):
         resp = await (await FilmByIdService.get_service()).get_from_elastic(film_id=film_id)
         if resp is None:
             return None
-        if resp.result.genres:
-            genre_id = resp.result.genres[0].uuid
+        if not resp.result.genres:
+            return None
+        genre_id = resp.result.genres[0].uuid
 
         result = await (await PopularFilmsService.get_service()).get_from_elastic(
             sort_by="-imdb_rating", genre_id=genre_id, page_number=page_number, page_size=page_size

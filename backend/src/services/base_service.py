@@ -20,11 +20,9 @@ MaybeResult = ServiceSingeResult | ServiceListResult | None
 class BaseService(metaclass=Singleton):
     """
     Базовый класс для всех сервисов. Сделан как синглтон
-    Надо только определить NAME,  BASE_MODEL, IS_LIST_RESULT
+    Надо только определить NAME, RESULT_MODEL
     и метод get_from_elastic()
-    в словаре query_dict в методе get() ждем все параметры
-    свойство RESPONSE_MODEL возвращает модель ответа, удобно в
-    @router.get("/", response_model=Service.RESPONSE_MODEL)
+    в словаре **kwargs в методе get() ждем все параметры
     """
 
     USE_CACHE = True  # использовать ли кэш

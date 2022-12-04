@@ -12,6 +12,7 @@ from core.logger import LOGGING
 from db import elastic, redis
 
 tags_metadata = [
+    {"name": "Фильмы", "description": "Запросы по фильмам"},
     {"name": "Персоны", "description": "Запросы по персонам"},
     {"name": "Жанры", "description": "Запросы по жанрам"},
 ]
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
-    tags_metadata=tags_metadata,
+    openapi_tags=tags_metadata,
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
