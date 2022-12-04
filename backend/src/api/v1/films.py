@@ -1,16 +1,16 @@
 import enum
 from http import HTTPStatus
 from uuid import UUID
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from api.v1.params import PageParams, QueryPageParams
 from api.v1.schemas import ExtendedImdbFilm, ImdbFilm, ManyResponse
 from core.constants import KEY_FILTER_GENRE, KEY_SORT
-from core.service_logger import get_logger
 from services.films import FilmByIdService, PopularFilmsService, SearchFilmsService, SimilarFilmsService
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

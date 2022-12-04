@@ -9,7 +9,6 @@ from fastapi.responses import ORJSONResponse
 from api.v1 import films, genres, persons
 from core.config import settings
 from core.logger import LOGGING
-from core.service_logger import get_logger
 from db import elastic, redis
 
 tags_metadata = [
@@ -17,7 +16,7 @@ tags_metadata = [
     {"name": "Жанры", "description": "Запросы по жанрам"},
 ]
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

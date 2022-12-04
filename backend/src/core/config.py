@@ -1,12 +1,7 @@
-from logging import config as logging_config
 from pathlib import Path
 
 from pydantic import BaseSettings, Field
 
-from core.logger import LOGGING
-
-# Применяем настройки логирования
-logging_config.dictConfig(LOGGING)
 
 BASE_DIR = Path(__file__).parent.parent
 ENV_FILE = BASE_DIR / ".env.local"
