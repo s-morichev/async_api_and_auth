@@ -3,6 +3,7 @@ import logging
 from aioredis import Redis
 from elasticsearch import AsyncElasticsearch
 from aioredis.exceptions import RedisError
+from fastapi import Depends
 
 from core.constants import DEFAULT_CACHE_EXPIRE_IN_SECONDS
 from core.singletone import Singleton
@@ -89,12 +90,11 @@ class BaseService(metaclass=Singleton):
         except RedisError as err:
             logger.error(f"Error put to cache: {err}")
 
-
     @classmethod
-    async def get_service(cls: Type["BaseService"]) -> "BaseService":
+    async def get_service(cls: Type["BaseService"], redis: Redis = Depends(get_redis),
+                          elastic: AsyncElasticsearch = Depends(get_elastic)) -> "BaseService":
         """return instance of Service and its must be the same, its a SINGLETONE!!!"""
-        redis = await get_redis()
-        elastic = await get_elastic()
+
         return cls(redis, elastic)
 
     # ------------------------------------------------------------------------------ #
