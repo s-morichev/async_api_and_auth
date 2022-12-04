@@ -1,8 +1,4 @@
-https://github.com/RomanBorovskiy/YP_Async_API
-
-Автоматическое форматирование кода `isort .`, затем `black -l 120 .`
-
-Запуск всех сервисов командой `docker compose up -d --build`
-
-Redis сконфигурирован для использования в качестве кеша, поэтому нет
-необходимости в явном указании времени жизни ключа.
+https://github.com/RomanBorovskiy/YP_Async_API  
+Участники:  
+* Роман Боровский
+* Сергей Моричев
