@@ -84,13 +84,13 @@ class BaseService(metaclass=Singleton):
             return
 
         key = self.get_redis_key(query_dict)
+        logger.debug(f"save to cache key: {key}")
 
         try:
             await self.redis.set(key, result.json(), ex=self.CACHE_EXPIRE_IN_SECONDS)
         except RedisError as err:
             logger.error(f"Error put to cache: {err}")
 
-        logger.debug(f"save to cache key: {key}")
 
     @classmethod
     async def get_service(cls: Type["BaseService"]) -> "BaseService":
