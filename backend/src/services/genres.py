@@ -1,12 +1,14 @@
 from uuid import UUID
 
-from core.constants import ES_GENRES_INDEX
 from elasticsearch import NotFoundError
+
+from core.constants import ES_GENRES_INDEX
 from models.dto_models import Genre
-from models.service_result import ServiceSingeResult, ServiceListResult
+from models.service_result import ServiceListResult, ServiceSingeResult
 from services.base_service import BaseService
 
 # ------------------------------------------------------------------------------ #
+
 
 class GenreByIdService(BaseService):
     """Жанр по id"""
@@ -29,6 +31,7 @@ class GenreByIdService(BaseService):
 
 
 # ------------------------------------------------------------------------------ #
+
 
 class GenresAllService(BaseService):
     """список жанров"""

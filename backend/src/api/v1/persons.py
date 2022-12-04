@@ -1,12 +1,11 @@
 from http import HTTPStatus
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, HTTPException
+
+from api.v1.params import PageParams, QueryPageParams
 from api.v1.schemas import ExtendedPerson, ImdbFilm, ManyResponse
-from core.constants import KEY_PAGE_NUM, KEY_PAGE_SIZE, KEY_QUERY, MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE
-from core.utils import validate_pagination
-from fastapi import APIRouter, Depends, HTTPException, Query
 from services.persons import FilmsByPersonService, PersonByIdService, PersonSearchService
-from params import QueryPageParams, PageParams
 
 router = APIRouter()
 
@@ -37,8 +36,7 @@ async def films_by_person(
     - **page[number]**: номер страницы
     - **page[size]**: количество записей на странице
     """
-    if message := validate_pagination(params.page_number, params.page_size):
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
+    params.check_pagination()
 
     answer = await service.get(page_num=params.page_number, page_size=params.page_size, person_id=person_id)
 
@@ -56,14 +54,13 @@ async def person_search(
     service: PersonSearchService = Depends(PersonSearchService.get_service),
 ) -> ManyResponse[ExtendedPerson]:
     """
-      Поиск персон по имени
-      - query - поисковая строка
-      - **page[number]**: номер страницы
-      - **page[size]**: количество записей на странице
-      """
+    Поиск персон по имени
+    - query - поисковая строка
+    - **page[number]**: номер страницы
+    - **page[size]**: количество записей на странице
+    """
 
-    if message := validate_pagination(params.page_number, params.page_size):
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=message)
+    params.check_pagination()
 
     answer = await service.get(page_num=params.page_number, page_size=params.page_size, query=params.query)
 

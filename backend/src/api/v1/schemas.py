@@ -1,9 +1,10 @@
 from typing import Any, Generic, TypeVar
 from uuid import UUID
 
-from core.core_model import CoreModel
 from pydantic import Field
 from pydantic.generics import GenericModel
+
+from core.core_model import CoreModel
 
 ModelT = TypeVar("ModelT")
 

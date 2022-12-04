@@ -3,10 +3,11 @@ from typing import Type
 from aioredis import Redis
 from elasticsearch import AsyncElasticsearch
 from redis.exceptions import RedisError
+
 from core.constants import DEFAULT_CACHE_EXPIRE_IN_SECONDS
 from core.service_logger import get_logger
 from core.singletone import Singleton
-from core.utils import hash_dict, classproperty
+from core.utils import classproperty, hash_dict
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.service_result import ServiceListResult, ServiceSingeResult
@@ -29,7 +30,7 @@ class BaseService(metaclass=Singleton):
 
     USE_CACHE = True  # использовать ли кэш
     NAME = "BASE"  # имя сервиса. Используется в ключе редиса
-    #BASE_MODEL: BaseDTO  # базовый класс для ответа
+    # BASE_MODEL: BaseDTO  # базовый класс для ответа
     CACHE_EXPIRE_IN_SECONDS = DEFAULT_CACHE_EXPIRE_IN_SECONDS
     RESULT_MODEL: ServiceSingeResult | ServiceListResult
 
@@ -39,8 +40,8 @@ class BaseService(metaclass=Singleton):
 
     @classproperty
     def BASE_MODEL(self):
-        """ return base model from Result_model"""
-        return self.RESULT_MODEL.__fields__['result'].type_
+        """return base model from Result_model"""
+        return self.RESULT_MODEL.__fields__["result"].type_
 
     def get_redis_key(self, keys: dict):
         return hash_dict(self.NAME, keys)
@@ -71,7 +72,7 @@ class BaseService(metaclass=Singleton):
         try:
             data = await self.redis.get(key)
         except RedisError as err:
-            logger.error(f'Error get from cache: {err}')
+            logger.error(f"Error get from cache: {err}")
             data = None
 
         if not data:
@@ -89,7 +90,7 @@ class BaseService(metaclass=Singleton):
         try:
             await self.redis.set(key, result.json(), ex=self.CACHE_EXPIRE_IN_SECONDS)
         except RedisError as err:
-            logger.error(f'Error put to cache: {err}')
+            logger.error(f"Error put to cache: {err}")
 
         logger.debug(f"save to cache key: {key}")
 

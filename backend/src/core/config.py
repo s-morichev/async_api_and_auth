@@ -1,8 +1,9 @@
 from logging import config as logging_config
 from pathlib import Path
 
-from core.logger import LOGGING
 from pydantic import BaseSettings, Field
+
+from core.logger import LOGGING
 
 # Применяем настройки логирования
 logging_config.dictConfig(LOGGING)

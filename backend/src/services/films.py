@@ -1,8 +1,9 @@
 from uuid import UUID
 
+from elasticsearch import NotFoundError
+
 from core.constants import ES_MOVIES_INDEX
 from core.service_logger import get_logger
-from elasticsearch import NotFoundError
 from models import dto_models
 from models.service_result import ServiceListResult, ServiceSingeResult
 from services.base_service import BaseService

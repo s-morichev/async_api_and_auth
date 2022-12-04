@@ -1,7 +1,8 @@
 from uuid import UUID
 
-from core.constants import ES_MOVIES_INDEX, ES_PERSONS_INDEX
 from elasticsearch import NotFoundError
+
+from core.constants import ES_MOVIES_INDEX, ES_PERSONS_INDEX
 from models.dto_models import ExtendedFilm, ExtendedPerson
 from models.service_result import ServiceListResult, ServiceSingeResult
 from services.base_service import BaseService
@@ -16,7 +17,7 @@ class FilmsByPersonService(BaseService):
     RESULT_MODEL = ServiceListResult[ExtendedFilm]
 
     async def get_from_elastic(
-            self, *, page_num: int, page_size: int, person_id: UUID
+        self, *, page_num: int, page_size: int, person_id: UUID
     ) -> "FilmsByPersonService.RESULT_MODEL | None":
         index_name = ES_MOVIES_INDEX
         es = {
@@ -63,6 +64,7 @@ class FilmsByPersonService(BaseService):
         res = self.RESULT_MODEL(total=total, page_num=page_num, page_size=page_size, result=lst_result)
         return res
 
+
 # ------------------------------------------------------------------------------ #
 
 
@@ -84,6 +86,7 @@ class PersonByIdService(BaseService):
 
         res = self.RESULT_MODEL(total=1, page_num=1, page_size=1, result=result)
         return res
+
 
 # ------------------------------------------------------------------------------ #
 
@@ -117,5 +120,6 @@ class PersonSearchService(BaseService):
 
         res = self.RESULT_MODEL(total=total, page_num=page_num, page_size=page_size, result=lst_result)
         return res
+
 
 # ------------------------------------------------------------------------------ #
