@@ -1,0 +1,1702 @@
+{
+	"info": {
+		"_postman_id": "023147d5-fc90-4a94-a05a-59b05c52dbf6",
+		"name": "MOVIES",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24134959"
+	},
+	"item": [
+		{
+			"name": "api/v1",
+			"item": [
+				{
+					"name": "films",
+					"item": [
+						{
+							"name": "{film id}",
+							"item": [
+								{
+									"name": "Film Details",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/films/:film_id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"films",
+												":film_id"
+											],
+											"variable": [
+												{
+													"key": "film_id",
+													"value": "urn:uuid:2663a657-8a8f-6bb9-7faa-78fb8a7e32af",
+													"description": "(Required) "
+												}
+											]
+										},
+										"description": "Получить полную информацию о фильме.\n\n- **film_id**: UUID идентификатор фильма"
+									},
+									"response": [
+										{
+											"name": "Successful Response",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "//api/v1/films/:film_id",
+													"path": [
+														"",
+														"api",
+														"v1",
+														"films",
+														":film_id"
+													],
+													"variable": [
+														{
+															"key": "film_id",
+															"value": "urn:uuid:2663a657-8a8f-6bb9-7faa-78fb8a7e32af",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"uuid\": \"urn:uuid:a21df494-fbbd-a0ba-dbd5-7b7d07ffbefd\",\n  \"title\": \"nostrud consectetur\",\n  \"imdb_rating\": -38438939.96220768,\n  \"description\": \"voluptate sit officia Ut \",\n  \"genres\": [\n    {\n      \"uuid\": \"urn:uuid:407467d7-70e9-24de-cb25-de65ef452584\",\n      \"name\": \"id elit labore\"\n    },\n    {\n      \"uuid\": \"21fae735-5b6c-7bb4-d9cf-9927899a17be\",\n      \"name\": \"labore do velit culpa mollit\"\n    }\n  ],\n  \"actors\": [\n    {\n      \"uuid\": \"a67bc118-d82e-90b9-436a-a50b66c5da3f\",\n      \"full_name\": \"tempor aute Excepteur in\"\n    },\n    {\n      \"uuid\": \"fc1a2473-00cf-8853-084b-54573bd8b8cd\",\n      \"full_name\": \"elit\"\n    }\n  ],\n  \"writers\": [\n    {\n      \"uuid\": \"urn:uuid:9724d7d2-76d2-06cb-213f-99a53e734fb9\",\n      \"full_name\": \"mollit in\"\n    },\n    {\n      \"uuid\": \"2bc972d9-05ac-650f-c6dc-3437768f6522\",\n      \"full_name\": \"id amet proident et\"\n    }\n  ],\n  \"directors\": [\n    {\n      \"uuid\": \"f4ff08d7-9f92-aa41-ab69-9a1ae03fa719\",\n      \"full_name\": \"commodo mollit adipisicing\"\n    },\n    {\n      \"uuid\": \"urn:uuid:c035d3ab-f073-0780-3b3a-902e7c86bbc6\",\n      \"full_name\": \"Lorem dol\"\n    }\n  ]\n}"
+										},
+										{
+											"name": "Validation Error",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/films/:film_id",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"films",
+														":film_id"
+													],
+													"variable": [
+														{
+															"key": "film_id",
+															"value": "urn:uuid:2663a657-8a8f-6bb9-7faa-78fb8a7e32af",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+											"code": 422,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"velit mollit dolor laborum officia\",\n        \"anim in ea amet\"\n      ],\n      \"msg\": \"e\",\n      \"type\": \"magna eiusmod id amet\"\n    },\n    {\n      \"loc\": [\n        \"voluptate nisi exercitati\",\n        \"enim exercitation cillum\"\n      ],\n      \"msg\": \"pariat\",\n      \"type\": \"quis incididunt\"\n    }\n  ]\n}"
+										}
+									]
+								},
+								{
+									"name": "Film Similar",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/films/:film_id/similar?page[number]=1&page[size]=50",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"films",
+												":film_id",
+												"similar"
+											],
+											"query": [
+												{
+													"key": "page[number]",
+													"value": "1"
+												},
+												{
+													"key": "page[size]",
+													"value": "50"
+												}
+											],
+											"variable": [
+												{
+													"key": "film_id",
+													"value": "urn:uuid:2663a657-8a8f-6bb9-7faa-78fb8a7e32af",
+													"description": "(Required) "
+												}
+											]
+										},
+										"description": "Получить похожие фильмы (в текущей версии - фильмы того же жанра).\n\n- **film_id**: UUID идентификатор фильма\n- **page[number]**: номер страницы\n- **page[size]**: количество элементов на странице"
+									},
+									"response": [
+										{
+											"name": "Successful Response",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "//api/v1/films/:film_id/similar?page[number]=1&page[size]=50",
+													"path": [
+														"",
+														"api",
+														"v1",
+														"films",
+														":film_id",
+														"similar"
+													],
+													"query": [
+														{
+															"key": "page[number]",
+															"value": "1"
+														},
+														{
+															"key": "page[size]",
+															"value": "50"
+														}
+													],
+													"variable": [
+														{
+															"key": "film_id",
+															"value": "urn:uuid:2663a657-8a8f-6bb9-7faa-78fb8a7e32af",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"total\": 61038547,\n  \"result\": [\n    {\n      \"uuid\": \"8f8cc035-3ed7-82e1-5047-62589098943f\",\n      \"title\": \"nostrud ipsum ea ullamco\",\n      \"imdb_rating\": -75436889.15199569\n    },\n    {\n      \"uuid\": \"urn:uuid:e40d0c33-60c2-e5c3-174b-759f41d1d4da\",\n      \"title\": \"qui ipsum cupidatat occaecat ut\",\n      \"imdb_rating\": 53259810.66411537\n    }\n  ]\n}"
+										},
+										{
+											"name": "Validation Error",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/api/v1/films/:film_id/similar?page[number]=1&page[size]=50",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"films",
+														":film_id",
+														"similar"
+													],
+													"query": [
+														{
+															"key": "page[number]",
+															"value": "1"
+														},
+														{
+															"key": "page[size]",
+															"value": "50"
+														}
+													],
+													"variable": [
+														{
+															"key": "film_id",
+															"value": "urn:uuid:2663a657-8a8f-6bb9-7faa-78fb8a7e32af",
+															"description": "(Required) "
+														}
+													]
+												}
+											},
+											"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+											"code": 422,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"velit mollit dolor laborum officia\",\n        \"anim in ea amet\"\n      ],\n      \"msg\": \"e\",\n      \"type\": \"magna eiusmod id amet\"\n    },\n    {\n      \"loc\": [\n        \"voluptate nisi exercitati\",\n        \"enim exercitation cillum\"\n      ],\n      \"msg\": \"pariat\",\n      \"type\": \"quis incididunt\"\n    }\n  ]\n}"
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "Films Popular",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/films/?sort=non sed&filter[genre]=ff95e7cd-5d37-73c6-171a-82430a385cb8&page[number]=1&page[size]=50",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"films",
+										""
+									],
+									"query": [
+										{
+											"key": "sort",
+											"value": "non sed"
+										},
+										{
+											"key": "filter[genre]",
+											"value": "ff95e7cd-5d37-73c6-171a-82430a385cb8"
+										},
+										{
+											"key": "page[number]",
+											"value": "1"
+										},
+										{
+											"key": "page[size]",
+											"value": "50"
+										}
+									]
+								},
+								"description": "Получить популярные фильмы (в текущей версии - с наибольшим рейтингом).\n\n- **sort**: поле для сортировки с префиксом + либо -\n- **filter[genre]**: UUID идентификатор жанра, из которого получить фильмы\n- **page[number]**: номер страницы\n- **page[size]**: количество фильмов на странице"
+							},
+							"response": [
+								{
+									"name": "Successful Response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "//api/v1/films/?sort=non sed&filter[genre]=ff95e7cd-5d37-73c6-171a-82430a385cb8&page[number]=1&page[size]=50",
+											"path": [
+												"",
+												"api",
+												"v1",
+												"films",
+												""
+											],
+											"query": [
+												{
+													"key": "sort",
+													"value": "non sed"
+												},
+												{
+													"key": "filter[genre]",
+													"value": "ff95e7cd-5d37-73c6-171a-82430a385cb8"
+												},
+												{
+													"key": "page[number]",
+													"value": "1"
+												},
+												{
+													"key": "page[size]",
+													"value": "50"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"total\": 82713041,\n  \"result\": [\n    {\n      \"uuid\": \"09443bc2-8da0-29c6-d0ed-829e782873c8\",\n      \"title\": \"est ullamco\",\n      \"imdb_rating\": -75393976.84874403\n    },\n    {\n      \"uuid\": \"52505318-5d38-ab62-169c-9344efe391d2\",\n      \"title\": \"sed quis laborum\",\n      \"imdb_rating\": 71496671.7066915\n    }\n  ]\n}"
+								},
+								{
+									"name": "Validation Error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/films/?sort=non sed&filter[genre]=ff95e7cd-5d37-73c6-171a-82430a385cb8&page[number]=1&page[size]=50",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"films",
+												""
+											],
+											"query": [
+												{
+													"key": "sort",
+													"value": "non sed"
+												},
+												{
+													"key": "filter[genre]",
+													"value": "ff95e7cd-5d37-73c6-171a-82430a385cb8"
+												},
+												{
+													"key": "page[number]",
+													"value": "1"
+												},
+												{
+													"key": "page[size]",
+													"value": "50"
+												}
+											]
+										}
+									},
+									"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+									"code": 422,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"voluptate dolore nulla tempor\",\n        \"reprehenderit Duis nostrud amet\"\n      ],\n      \"msg\": \"ut proident qui\",\n      \"type\": \"exercitation\"\n    },\n    {\n      \"loc\": [\n        \"o\",\n        \"mollit ipsum Ut sint\"\n      ],\n      \"msg\": \"do incididunt\",\n      \"type\": \"ullamco non\"\n    }\n  ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Film Search",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/films/search/?query=elit dolore&filter[genre]=ff95e7cd-5d37-73c6-171a-82430a385cb8&page[number]=1&page[size]=50",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"films",
+										"search",
+										""
+									],
+									"query": [
+										{
+											"key": "query",
+											"value": "elit dolore",
+											"description": "(Required) "
+										},
+										{
+											"key": "filter[genre]",
+											"value": "ff95e7cd-5d37-73c6-171a-82430a385cb8"
+										},
+										{
+											"key": "page[number]",
+											"value": "1"
+										},
+										{
+											"key": "page[size]",
+											"value": "50"
+										}
+									]
+								},
+								"description": "Найти фильмы.\n\n- **query**: поисковый запрос\n- **filter[genre]**: UUID идентификатор жанра, в котором выполнить поиск\n- **page[number]**: номер страницы\n- **page[size]**: количество фильмов на странице"
+							},
+							"response": [
+								{
+									"name": "Successful Response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "//api/v1/films/search/?query=elit dolore&filter[genre]=ff95e7cd-5d37-73c6-171a-82430a385cb8&page[number]=1&page[size]=50",
+											"path": [
+												"",
+												"api",
+												"v1",
+												"films",
+												"search",
+												""
+											],
+											"query": [
+												{
+													"key": "query",
+													"value": "elit dolore"
+												},
+												{
+													"key": "filter[genre]",
+													"value": "ff95e7cd-5d37-73c6-171a-82430a385cb8"
+												},
+												{
+													"key": "page[number]",
+													"value": "1"
+												},
+												{
+													"key": "page[size]",
+													"value": "50"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"total\": 61038547,\n  \"result\": [\n    {\n      \"uuid\": \"8f8cc035-3ed7-82e1-5047-62589098943f\",\n      \"title\": \"nostrud ipsum ea ullamco\",\n      \"imdb_rating\": -75436889.15199569\n    },\n    {\n      \"uuid\": \"urn:uuid:e40d0c33-60c2-e5c3-174b-759f41d1d4da\",\n      \"title\": \"qui ipsum cupidatat occaecat ut\",\n      \"imdb_rating\": 53259810.66411537\n    }\n  ]\n}"
+								},
+								{
+									"name": "Validation Error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/films/search/?query=elit dolore&filter[genre]=ff95e7cd-5d37-73c6-171a-82430a385cb8&page[number]=1&page[size]=50",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"films",
+												"search",
+												""
+											],
+											"query": [
+												{
+													"key": "query",
+													"value": "elit dolore"
+												},
+												{
+													"key": "filter[genre]",
+													"value": "ff95e7cd-5d37-73c6-171a-82430a385cb8"
+												},
+												{
+													"key": "page[number]",
+													"value": "1"
+												},
+												{
+													"key": "page[size]",
+													"value": "50"
+												}
+											]
+										}
+									},
+									"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+									"code": 422,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"velit mollit dolor laborum officia\",\n        \"anim in ea amet\"\n      ],\n      \"msg\": \"e\",\n      \"type\": \"magna eiusmod id amet\"\n    },\n    {\n      \"loc\": [\n        \"voluptate nisi exercitati\",\n        \"enim exercitation cillum\"\n      ],\n      \"msg\": \"pariat\",\n      \"type\": \"quis incididunt\"\n    }\n  ]\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "persons",
+					"item": [
+						{
+							"name": "Person Search",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/persons/?query=&page[size]=50&page[number]=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"persons",
+										""
+									],
+									"query": [
+										{
+											"key": "query",
+											"value": ""
+										},
+										{
+											"key": "page[size]",
+											"value": "50"
+										},
+										{
+											"key": "page[number]",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Successful Response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "//api/v1/persons/?query=&page[size]=50&page[number]=1",
+											"path": [
+												"",
+												"api",
+												"v1",
+												"persons",
+												""
+											],
+											"query": [
+												{
+													"key": "query",
+													"value": ""
+												},
+												{
+													"key": "page[size]",
+													"value": "50"
+												},
+												{
+													"key": "page[number]",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"total\": -84755079,\n  \"result\": [\n    {\n      \"uuid\": \"5586e902-747e-6858-48a6-22013b0ede5b\",\n      \"full_name\": \"proident labore in Lorem\",\n      \"movies\": [\n        {\n          \"role\": \"incididunt qui Ut\",\n          \"movies\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ]\n        },\n        {\n          \"role\": \"nulla sed magna in\",\n          \"movies\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"uuid\": \"urn:uuid:7178d258-a0b0-7a7f-e3d7-2f00af81f6c6\",\n      \"full_name\": \"in sit labore incididunt\",\n      \"movies\": [\n        {\n          \"role\": \"quis consectetur occaecat\",\n          \"movies\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ]\n        },\n        {\n          \"role\": \"aute est\",\n          \"movies\": [\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            },\n            {\n              \"value\": \"<Error: Too many levels of nesting to fake this schema>\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}"
+								},
+								{
+									"name": "Validation Error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/persons/?query=&page[size]=50&page[number]=1",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"persons",
+												""
+											],
+											"query": [
+												{
+													"key": "query",
+													"value": ""
+												},
+												{
+													"key": "page[size]",
+													"value": "50"
+												},
+												{
+													"key": "page[number]",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+									"code": 422,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"velit mollit dolor laborum officia\",\n        \"anim in ea amet\"\n      ],\n      \"msg\": \"e\",\n      \"type\": \"magna eiusmod id amet\"\n    },\n    {\n      \"loc\": [\n        \"voluptate nisi exercitati\",\n        \"enim exercitation cillum\"\n      ],\n      \"msg\": \"pariat\",\n      \"type\": \"quis incididunt\"\n    }\n  ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Person By Id",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/persons/search/:person_id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"persons",
+										"search",
+										":person_id"
+									],
+									"variable": [
+										{
+											"key": "person_id",
+											"value": "e4a6b702-e455-f379-a77c-4ac0257c7986",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Successful Response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "//api/v1/persons/search/:person_id",
+											"path": [
+												"",
+												"api",
+												"v1",
+												"persons",
+												"search",
+												":person_id"
+											],
+											"variable": [
+												{
+													"key": "person_id",
+													"value": "e4a6b702-e455-f379-a77c-4ac0257c7986",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"uuid\": \"urn:uuid:4bd43247-2799-a366-3c69-e9e9397deaf2\",\n  \"full_name\": \"cillum est reprehenderit\",\n  \"movies\": [\n    {\n      \"role\": \"dolor irure tempor dolore\",\n      \"movies\": [\n        {\n          \"uuid\": \"d6df6e2e-3ed2-cec7-46ca-de306ff5410d\",\n          \"title\": \"ad nostrud\"\n        },\n        {\n          \"uuid\": \"6fa6a187-0042-b58c-49d5-9026c269bdfb\",\n          \"title\": \"sit Ut in cillum\"\n        }\n      ]\n    },\n    {\n      \"role\": \"reprehenderit do occaecat nulla mollit\",\n      \"movies\": [\n        {\n          \"uuid\": \"84891445-7285-ba4a-4680-70b933108181\",\n          \"title\": \"et anim Ut\"\n        },\n        {\n          \"uuid\": \"e6649e15-1405-039d-ddfc-aedfd74108d1\",\n          \"title\": \"dolore ut nostrud in\"\n        }\n      ]\n    }\n  ]\n}"
+								},
+								{
+									"name": "Validation Error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/persons/search/:person_id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"persons",
+												"search",
+												":person_id"
+											],
+											"variable": [
+												{
+													"key": "person_id",
+													"value": "e4a6b702-e455-f379-a77c-4ac0257c7986",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+									"code": 422,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"velit mollit dolor laborum officia\",\n        \"anim in ea amet\"\n      ],\n      \"msg\": \"e\",\n      \"type\": \"magna eiusmod id amet\"\n    },\n    {\n      \"loc\": [\n        \"voluptate nisi exercitati\",\n        \"enim exercitation cillum\"\n      ],\n      \"msg\": \"pariat\",\n      \"type\": \"quis incididunt\"\n    }\n  ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Films By Person",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/persons/:person_id/film?page[size]=50&page[number]=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"persons",
+										":person_id",
+										"film"
+									],
+									"query": [
+										{
+											"key": "page[size]",
+											"value": "50"
+										},
+										{
+											"key": "page[number]",
+											"value": "1"
+										}
+									],
+									"variable": [
+										{
+											"key": "person_id",
+											"value": "e4a6b702-e455-f379-a77c-4ac0257c7986",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Successful Response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "//api/v1/persons/:person_id/film?page[size]=50&page[number]=1",
+											"path": [
+												"",
+												"api",
+												"v1",
+												"persons",
+												":person_id",
+												"film"
+											],
+											"query": [
+												{
+													"key": "page[size]",
+													"value": "50"
+												},
+												{
+													"key": "page[number]",
+													"value": "1"
+												}
+											],
+											"variable": [
+												{
+													"key": "person_id",
+													"value": "e4a6b702-e455-f379-a77c-4ac0257c7986",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"total\": 61038547,\n  \"result\": [\n    {\n      \"uuid\": \"8f8cc035-3ed7-82e1-5047-62589098943f\",\n      \"title\": \"nostrud ipsum ea ullamco\",\n      \"imdb_rating\": -75436889.15199569\n    },\n    {\n      \"uuid\": \"urn:uuid:e40d0c33-60c2-e5c3-174b-759f41d1d4da\",\n      \"title\": \"qui ipsum cupidatat occaecat ut\",\n      \"imdb_rating\": 53259810.66411537\n    }\n  ]\n}"
+								},
+								{
+									"name": "Validation Error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/persons/:person_id/film?page[size]=50&page[number]=1",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"persons",
+												":person_id",
+												"film"
+											],
+											"query": [
+												{
+													"key": "page[size]",
+													"value": "50"
+												},
+												{
+													"key": "page[number]",
+													"value": "1"
+												}
+											],
+											"variable": [
+												{
+													"key": "person_id",
+													"value": "e4a6b702-e455-f379-a77c-4ac0257c7986",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+									"code": 422,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"velit mollit dolor laborum officia\",\n        \"anim in ea amet\"\n      ],\n      \"msg\": \"e\",\n      \"type\": \"magna eiusmod id amet\"\n    },\n    {\n      \"loc\": [\n        \"voluptate nisi exercitati\",\n        \"enim exercitation cillum\"\n      ],\n      \"msg\": \"pariat\",\n      \"type\": \"quis incididunt\"\n    }\n  ]\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "genres",
+					"item": [
+						{
+							"name": "All Genres",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/genres/?page[size]=50&page[number]=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"genres",
+										""
+									],
+									"query": [
+										{
+											"key": "page[size]",
+											"value": "50"
+										},
+										{
+											"key": "page[number]",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Successful Response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "//api/v1/genres/?page[size]=50&page[number]=1",
+											"path": [
+												"",
+												"api",
+												"v1",
+												"genres",
+												""
+											],
+											"query": [
+												{
+													"key": "page[size]",
+													"value": "50"
+												},
+												{
+													"key": "page[number]",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"total\": 64038556,\n  \"result\": [\n    {\n      \"uuid\": \"urn:uuid:8fd26231-ef51-ceea-d488-6584f7dcebc7\",\n      \"name\": \"adipisicing aliqua\"\n    },\n    {\n      \"uuid\": \"urn:uuid:53dfb06d-153b-5d0c-d042-a4c2ea201281\",\n      \"name\": \"et consequat\"\n    }\n  ]\n}"
+								},
+								{
+									"name": "Validation Error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/genres/?page[size]=50&page[number]=1",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"genres",
+												""
+											],
+											"query": [
+												{
+													"key": "page[size]",
+													"value": "50"
+												},
+												{
+													"key": "page[number]",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+									"code": 422,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"velit mollit dolor laborum officia\",\n        \"anim in ea amet\"\n      ],\n      \"msg\": \"e\",\n      \"type\": \"magna eiusmod id amet\"\n    },\n    {\n      \"loc\": [\n        \"voluptate nisi exercitati\",\n        \"enim exercitation cillum\"\n      ],\n      \"msg\": \"pariat\",\n      \"type\": \"quis incididunt\"\n    }\n  ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Genre By Id",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/genres/:genre_id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"genres",
+										":genre_id"
+									],
+									"variable": [
+										{
+											"key": "genre_id",
+											"value": "urn:uuid:26ff35b1-3eae-3e1c-0d98-2a5291eb9e1a",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Successful Response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "//api/v1/genres/:genre_id",
+											"path": [
+												"",
+												"api",
+												"v1",
+												"genres",
+												":genre_id"
+											],
+											"variable": [
+												{
+													"key": "genre_id",
+													"value": "urn:uuid:26ff35b1-3eae-3e1c-0d98-2a5291eb9e1a",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"uuid\": \"urn:uuid:46e9aff8-8380-6c2e-dd57-42dc6ef1e8a4\",\n  \"name\": \"sunt proident in magna dolore\"\n}"
+								},
+								{
+									"name": "Validation Error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/v1/genres/:genre_id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"genres",
+												":genre_id"
+											],
+											"variable": [
+												{
+													"key": "genre_id",
+													"value": "urn:uuid:26ff35b1-3eae-3e1c-0d98-2a5291eb9e1a",
+													"description": "(Required) "
+												}
+											]
+										}
+									},
+									"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+									"code": 422,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"velit mollit dolor laborum officia\",\n        \"anim in ea amet\"\n      ],\n      \"msg\": \"e\",\n      \"type\": \"magna eiusmod id amet\"\n    },\n    {\n      \"loc\": [\n        \"voluptate nisi exercitati\",\n        \"enim exercitation cillum\"\n      ],\n      \"msg\": \"pariat\",\n      \"type\": \"quis incididunt\"\n    }\n  ]\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "tests",
+					"item": [
+						{
+							"name": "поиск фильма по id (03759e03-3418-4fff-ac4d-7727a5d96f04)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Success answer\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Compare title\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['title']).to.equal(\"Hour candidate artist first tonight.\");});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/films/:film_id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"films",
+										":film_id"
+									],
+									"variable": [
+										{
+											"key": "film_id",
+											"value": "03759e03-3418-4fff-ac4d-7727a5d96f04"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "поиск похожего фильма по id (03759e03-3418-4fff-ac4d-7727a5d96f04)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Success answer\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Compare title\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['title']).to.equal(\"Hour candidate artist first tonight.\");});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/films/:film_id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"films",
+										":film_id"
+									],
+									"variable": [
+										{
+											"key": "film_id",
+											"value": "03759e03-3418-4fff-ac4d-7727a5d96f04"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Популярные фильмы",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Success answer\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"compare total = 10_000\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['total']).to.equal(10000);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/films/?sort=-imdb_rating&page[number]=1&page[size]=50",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"films",
+										""
+									],
+									"query": [
+										{
+											"key": "sort",
+											"value": "-imdb_rating"
+										},
+										{
+											"key": "filter[genre]",
+											"value": "ff95e7cd-5d37-73c6-171a-82430a385cb8",
+											"disabled": true
+										},
+										{
+											"key": "page[number]",
+											"value": "1"
+										},
+										{
+											"key": "page[size]",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Популярные фильмы жанр Melodrama",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Success answer\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"compare total = 213\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['total']).to.equal(213);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/films/?sort=-imdb_rating&filter[genre]=da1c962e-ba02-4cef-8ba2-14ad7d8a964f&page[number]=1&page[size]=50",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"films",
+										""
+									],
+									"query": [
+										{
+											"key": "sort",
+											"value": "-imdb_rating"
+										},
+										{
+											"key": "filter[genre]",
+											"value": "da1c962e-ba02-4cef-8ba2-14ad7d8a964f"
+										},
+										{
+											"key": "page[number]",
+											"value": "1"
+										},
+										{
+											"key": "page[size]",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Поиск фильма по слову 'gun'",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Success answer\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"compare total = 862\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['total']).to.equal(862);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/films/search/?query=gun&page[number]=2&page[size]=50",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"films",
+										"search",
+										""
+									],
+									"query": [
+										{
+											"key": "query",
+											"value": "gun"
+										},
+										{
+											"key": "filter[genre]",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "page[number]",
+											"value": "2"
+										},
+										{
+											"key": "page[size]",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Все жанры вторая страница",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Success answer\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"compare total = 140\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['total']).to.equal(140);",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/genres/?page[size]=50&page[number]=2",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"genres",
+										""
+									],
+									"query": [
+										{
+											"key": "page[size]",
+											"value": "50"
+										},
+										{
+											"key": "page[number]",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Жанр по id ('Action')",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Success answer\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"compare name=Action\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['name']).to.equal(\"Action\");",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/genres/:genre_id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"genres",
+										":genre_id"
+									],
+									"variable": [
+										{
+											"key": "genre_id",
+											"value": "3f1b1ee9-0385-4846-b3b9-673628cb5338"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Персона по id ('Frank White')",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Success answer\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"compare full_name=Frank White\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['full_name']).to.equal(\"Frank White\");",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/persons/search/:person_id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"persons",
+										"search",
+										":person_id"
+									],
+									"variable": [
+										{
+											"key": "person_id",
+											"value": "c19296a1-b6bb-4f96-994a-5113f9c8157d"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "фильмы по персоне id ('Edward Sloan')",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Success answer\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"compare total=8\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['total']).to.equal(8);",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/persons/:person_id/film?page[size]=50&page[number]=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"persons",
+										":person_id",
+										"film"
+									],
+									"query": [
+										{
+											"key": "page[size]",
+											"value": "50"
+										},
+										{
+											"key": "page[number]",
+											"value": "1"
+										}
+									],
+									"variable": [
+										{
+											"key": "person_id",
+											"value": "c8244a93-bbaf-44dd-a72b-8b0aaa8bfc05"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search Persons name 'Lee', page=30",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Success answer\", function() {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"compare total=61\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['total']).to.equal(61);",
+											"});",
+											"",
+											"pm.test(\"compare results list length=30=page_size\", function() {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData['result']).to.length(30);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/persons/?query=Lee&page[size]=30&page[number]=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"persons",
+										""
+									],
+									"query": [
+										{
+											"key": "query",
+											"value": "Lee"
+										},
+										{
+											"key": "page[size]",
+											"value": "30"
+										},
+										{
+											"key": "page[number]",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://127.0.0.1:8000\n",
+			"type": "string"
+		}
+	]
+}

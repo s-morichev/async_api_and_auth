@@ -1,8 +1,9 @@
 from uuid import UUID
 
+from elasticsearch import NotFoundError
+
 from core.constants import ES_MOVIES_INDEX
 from core.service_logger import get_logger
-from elasticsearch import NotFoundError
 from models import dto_models
 from models.service_result import ServiceListResult, ServiceSingeResult
 from services.base_service import BaseService
@@ -14,7 +15,6 @@ class PopularFilmsService(BaseService):
     """Популярные фильмы."""
 
     NAME = "POPULAR_FILMS"
-    BASE_MODEL = dto_models.ImdbFilm
     RESULT_MODEL = ServiceListResult[dto_models.ImdbFilm]
 
     async def get_from_elastic(
@@ -58,7 +58,6 @@ class SearchFilmsService(BaseService):
     """Поиск фильмов."""
 
     NAME = "SEARCH_FILMS"
-    BASE_MODEL = dto_models.ImdbFilm
     RESULT_MODEL = ServiceListResult[dto_models.ImdbFilm]
 
     async def get_from_elastic(
@@ -108,7 +107,6 @@ class FilmByIdService(BaseService):
     """Фильм по id."""
 
     NAME = "FILM_BY_ID"
-    BASE_MODEL = dto_models.ExtendedFilm
     RESULT_MODEL = ServiceSingeResult[dto_models.ExtendedFilm]
 
     async def get_from_elastic(self, *, film_id: UUID) -> "FilmByIdService.RESULT_MODEL | None":
@@ -127,7 +125,6 @@ class SimilarFilmsService(BaseService):
     """Похожие фильмы."""
 
     NAME = "SIMILAR_FILMS"
-    BASE_MODEL = dto_models.ImdbFilm
     RESULT_MODEL = ServiceListResult[dto_models.ImdbFilm]
 
     async def get_from_elastic(

@@ -1,9 +1,10 @@
 from typing import Any, Generic, TypeVar
 from uuid import UUID
 
-from models.base_dto import BaseDTO
 from pydantic import Field
 from pydantic.generics import GenericModel
+
+from core.core_model import CoreModel
 
 ModelT = TypeVar("ModelT")
 
@@ -17,28 +18,28 @@ class ManyResponse(GenericModel, Generic[ModelT]):
         return f"{params[0].__name__.title()}ManyResponse"
 
 
-class Genre(BaseDTO):
+class Genre(CoreModel):
     """Movies genre"""
 
     uuid: UUID = Field(title="id")
     name: str = Field(title="genres name")
 
 
-class Film(BaseDTO):
+class Film(CoreModel):
     """Film (uuid,title)"""
 
     uuid: UUID
     title: str = Field(title="movie title")
 
 
-class Person(BaseDTO):
+class Person(CoreModel):
     """Person info"""
 
     uuid: UUID = Field(title="person id")
     full_name: str = Field(title="persons full name")
 
 
-class RoleMovies(BaseDTO):
+class RoleMovies(CoreModel):
     role: str
     movies: list[Film]
 

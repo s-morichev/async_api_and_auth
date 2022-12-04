@@ -1,10 +1,11 @@
 from uuid import UUID
 
-from models.base_dto import BaseDTO
 from pydantic import Field
 
+from core.core_model import CoreModel
 
-class IdModel(BaseDTO):
+
+class IdModel(CoreModel):
     uuid: UUID = Field(..., alias="id")
 
 
@@ -20,7 +21,7 @@ class ImdbFilm(Film):
     imdb_rating: float
 
 
-class RoleMovies(BaseDTO):
+class RoleMovies(CoreModel):
     role: str
     movies: list[Film]
 
