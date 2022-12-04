@@ -1,6 +1,16 @@
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+import logging
+import logging.config as logging_config
+from core.config import settings, LOG_FILE
+
+if settings.DEBUG:
+    LOG_FORMAT = "%(asctime)s - [%(levelname)s] - %(name)s - %(message)s -- (%(filename)s).%(funcName)s(%(lineno)d)"
+    LOG_LEVEL = logging.DEBUG
+else:
+    LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    LOG_LEVEL = logging.INFO
+
 LOG_DEFAULT_HANDLERS = [
-    "console",
+    "console", "file"
 ]
 
 # В логгере настраивается логгирование uvicorn-сервера.
@@ -39,11 +49,17 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",
         },
+        "file": {
+            "class": "logging.FileHandler",
+            "formatter": "verbose",
+            "filename": LOG_FILE,
+            "mode": "w"
+        }
     },
     "loggers": {
         "": {
             "handlers": LOG_DEFAULT_HANDLERS,
-            "level": "INFO",
+            "level":  LOG_LEVEL,
         },
         "uvicorn.error": {
             "level": "INFO",
@@ -55,8 +71,10 @@ LOGGING = {
         },
     },
     "root": {
-        "level": "INFO",
+        "level": LOG_LEVEL,
         "formatter": "verbose",
         "handlers": LOG_DEFAULT_HANDLERS,
     },
 }
+
+logging_config.dictConfig(LOGGING)

@@ -11,6 +11,7 @@ services:
       - backend
 
   backend:
+    restart: "always"
     build:
       context: .
       dockerfile: ./docker/backend/Dockerfile
