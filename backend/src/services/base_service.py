@@ -1,18 +1,17 @@
 from typing import Type
-
+import logging
 from aioredis import Redis
 from elasticsearch import AsyncElasticsearch
 from aioredis.exceptions import RedisError
 
 from core.constants import DEFAULT_CACHE_EXPIRE_IN_SECONDS
-from core.service_logger import get_logger
 from core.singletone import Singleton
 from core.utils import classproperty, hash_dict
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.service_result import ServiceListResult, ServiceSingeResult
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 MaybeResult = ServiceSingeResult | ServiceListResult | None
 
@@ -53,8 +52,8 @@ class BaseService(metaclass=Singleton):
 
         # 2. try to get data from es
         elif result := await self.get_from_elastic(**kwargs):
-            await self.put_to_cache(kwargs, result)
             logger.debug(f"get from ES: {result}")
+            await self.put_to_cache(kwargs, result)
             return result
         else:
             logger.debug("Nothing find")
