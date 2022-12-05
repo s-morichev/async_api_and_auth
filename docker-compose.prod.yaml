@@ -12,6 +12,8 @@ services:
     restart: "always"
     image: "backend_sprint_4"
     container_name: backend
+    volumes:
+      - backend_data:/opt/backend/var/
     env_file:
       - .env
     depends_on:
@@ -65,3 +67,4 @@ volumes:
   postgres_data:
   elasticsearch_data:
   etl_data:
+  backend_data:

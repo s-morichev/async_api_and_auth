@@ -43,8 +43,8 @@ RUN pip install -r requirements.dev.txt
 COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
-WORKDIR /opt/${APP_NAME}
-COPY ./${APP_NAME}/src .
+COPY ./${APP_NAME}/src /opt/${APP_NAME}/src
+WORKDIR /opt/${APP_NAME}/src
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
@@ -60,14 +60,14 @@ ENV PATH="/opt/venv/bin:${PATH}"
 COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
-RUN mkdir /opt/var/
-
-WORKDIR /opt/${APP_NAME}
-COPY ./${APP_NAME}/src .
+COPY ./${APP_NAME}/src /opt/${APP_NAME}/src
+# заранее создаем папки для логов и прочей информации, чтобы далее добавить права доступа для них
+RUN mkdir /opt/${APP_NAME}/var
+RUN mkdir /opt/${APP_NAME}/var/log
+WORKDIR /opt/${APP_NAME}/src
 
 RUN groupadd -r app && useradd -d /opt/${APP_NAME} -r -g app app \
-    && chown app:app -R /opt/${APP_NAME} \
-    && chown app:app -R /opt/var
+    && chown app:app -R /opt/${APP_NAME}
 USER app
 
 ENTRYPOINT ["/opt/entrypoint.sh"]

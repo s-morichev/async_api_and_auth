@@ -50,13 +50,13 @@ COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
 RUN mkdir /opt/var/
-COPY ./${APP_NAME}/etc /opt/etc/
 
-WORKDIR /opt/${APP_NAME}
-COPY ./${APP_NAME}/src ./src
+COPY ./${APP_NAME}/src /opt/${APP_NAME}/src
+COPY ./${APP_NAME}/etc /opt/${APP_NAME}/etc
+WORKDIR /opt/${APP_NAME}/src
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
-CMD ["python", "./src/main.py"]
+CMD ["python", "main.py"]
 
 # 'production' образ
 FROM python-base as production
@@ -69,15 +69,15 @@ ENV PATH="/opt/venv/bin:${PATH}"
 COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
-RUN mkdir /opt/var/
-COPY ./${APP_NAME}/etc /opt/etc/
-
-WORKDIR /opt/${APP_NAME}
-COPY ./${APP_NAME}/src .
+COPY ./${APP_NAME}/src /opt/${APP_NAME}/src
+COPY ./${APP_NAME}/etc /opt/${APP_NAME}/etc
+# заранее создаем папки для логов и прочей информации, чтобы далее добавить права доступа для них
+RUN mkdir /opt/${APP_NAME}/var
+RUN mkdir /opt/${APP_NAME}/var/log
+WORKDIR /opt/${APP_NAME}/src
 
 RUN groupadd -r app && useradd -d /opt/${APP_NAME} -r -g app app \
-    && chown app:app -R /opt/${APP_NAME} \
-    && chown app:app -R /opt/var
+    && chown app:app -R /opt/${APP_NAME}
 USER app
 
 ENTRYPOINT ["/opt/entrypoint.sh"]

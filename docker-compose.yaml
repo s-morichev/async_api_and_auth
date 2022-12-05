@@ -20,7 +20,9 @@ services:
         - "backend_sprint_4"
     container_name: backend
     volumes:
-      - ./backend/src/:/opt/backend/
+      - backend_data:/opt/backend/var/
+      - ./backend/src/:/opt/backend/src
+      - ./backend/var/:/opt/backend/var
     ports:
       - "8000:8000"
     env_file:
@@ -39,6 +41,7 @@ services:
     container_name: etl
     volumes:
       - etl_data:/opt/etl/var/
+      - ./etl/var/:/opt/etl/var
     env_file:
       - .env
     depends_on:
@@ -87,3 +90,4 @@ volumes:
   postgres_data:
   elasticsearch_data:
   etl_data:
+  backend_data:

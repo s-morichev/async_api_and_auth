@@ -19,6 +19,6 @@ build-db:
 	docker --log-level=debug build --tag=postgres_sprint_4 ./docker/postgres/
 
 build-nginx:
-	docker --log-level=debug build --tag=nginx_sprint_3 ./docker/nginx/
+	docker --log-level=debug build --tag=nginx_sprint_4 ./docker/nginx/
 
 build-all: build-backend build-etl build-db build-nginx
