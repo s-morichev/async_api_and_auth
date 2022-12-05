@@ -10,7 +10,7 @@ from services.persons import FilmsByPersonService, PersonByIdService, PersonSear
 router = APIRouter()
 
 
-@router.get("/search/{person_id}", response_model=ExtendedPerson)
+@router.get("/search/{person_id}", response_model=ExtendedPerson, summary="get one person by id=:person_id")
 async def person_by_id(
     person_id: UUID, service: PersonByIdService = Depends(PersonByIdService.get_service)
 ) -> ExtendedPerson:
@@ -24,7 +24,9 @@ async def person_by_id(
     return ExtendedPerson(**answer.result.dict())
 
 
-@router.get("/{person_id}/film", response_model=ManyResponse[ImdbFilm])
+@router.get(
+    "/{person_id}/film", response_model=ManyResponse[ImdbFilm], summary="get many films by person id=:person_id"
+)
 async def films_by_person(
     person_id: UUID,
     params: PageParams = Depends(),
@@ -48,7 +50,9 @@ async def films_by_person(
     return ManyResponse[ImdbFilm](total=answer.total, result=lst_film)
 
 
-@router.get("/", response_model=ManyResponse[ExtendedPerson])
+@router.get(
+    "/", response_model=ManyResponse[ExtendedPerson], summary="get many persons with full name like :query_string"
+)
 async def person_search(
     params: QueryPageParams = Depends(),
     service: PersonSearchService = Depends(PersonSearchService.get_service),

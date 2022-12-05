@@ -20,7 +20,7 @@ class Sorting(enum.Enum):
     imdb_desc = "-imdb_rating"
 
 
-@router.get("/", response_model=ManyResponse[ImdbFilm])
+@router.get("/", response_model=ManyResponse[ImdbFilm], summary="get many films sorted by :sort")
 async def films_popular(
     sort_by: Sorting = Query(Sorting.imdb_desc, alias=KEY_SORT),
     genre_id: UUID | None = Query(None, alias=KEY_FILTER_GENRE),
@@ -50,7 +50,9 @@ async def films_popular(
     return ManyResponse[ImdbFilm](total=answer.total, result=film_list)
 
 
-@router.get("/search/", response_model=ManyResponse[ImdbFilm])
+@router.get(
+    "/search/", response_model=ManyResponse[ImdbFilm], summary="get many films like :query_string and Genre=:genre_id"
+)
 async def film_search(
     genre_id: UUID | None = Query(None, alias=KEY_FILTER_GENRE),
     params: QueryPageParams = Depends(),
@@ -80,7 +82,7 @@ async def film_search(
     return ManyResponse[ImdbFilm](total=answer.total, result=film_list)
 
 
-@router.get("/{film_id}/similar", response_model=ManyResponse[ImdbFilm])
+@router.get("/{film_id}/similar", response_model=ManyResponse[ImdbFilm], summary="get many films similar :film_id")
 async def film_similar(
     film_id: UUID,
     params: PageParams = Depends(),
@@ -108,7 +110,7 @@ async def film_similar(
     return ManyResponse[ImdbFilm](total=answer.total, result=film_list)
 
 
-@router.get("/{film_id}", response_model=ExtendedImdbFilm)
+@router.get("/{film_id}", response_model=ExtendedImdbFilm, summary="get one film with id=:film_id")
 async def film_details(
     film_id: UUID, service: FilmByIdService = Depends(FilmByIdService.get_service)
 ) -> ExtendedImdbFilm:

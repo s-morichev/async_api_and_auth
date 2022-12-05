@@ -10,7 +10,7 @@ from services.genres import GenreByIdService, GenresAllService
 router = APIRouter()
 
 
-@router.get("/{genre_id}", response_model=Genre)
+@router.get("/{genre_id}", response_model=Genre, summary="get one genre by id=:genre_id")
 async def genre_by_id(genre_id: UUID, service: GenreByIdService = Depends(GenreByIdService.get_service)) -> Genre:
     """Поиск жанра по id"""
 
@@ -23,7 +23,7 @@ async def genre_by_id(genre_id: UUID, service: GenreByIdService = Depends(GenreB
     return result
 
 
-@router.get("/", response_model=ManyResponse[Genre])
+@router.get("/", response_model=ManyResponse[Genre], summary="get many(all) genres")
 async def all_genres(
     params: PageParams = Depends(),
     service: GenresAllService = Depends(GenresAllService.get_service),

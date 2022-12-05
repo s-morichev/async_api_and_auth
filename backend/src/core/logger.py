@@ -9,9 +9,7 @@ else:
     LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     LOG_LEVEL = logging.INFO
 
-LOG_DEFAULT_HANDLERS = [
-    "console", "file"
-]
+LOG_DEFAULT_HANDLERS = ["console", "file"]
 
 # В логгере настраивается логгирование uvicorn-сервера.
 # Про логирование в Python можно прочитать в документации
@@ -49,17 +47,12 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",
         },
-        "file": {
-            "class": "logging.FileHandler",
-            "formatter": "verbose",
-            "filename": LOG_FILE,
-            "mode": "w"
-        }
+        "file": {"class": "logging.FileHandler", "formatter": "verbose", "filename": LOG_FILE, "mode": "w"},
     },
     "loggers": {
         "": {
             "handlers": LOG_DEFAULT_HANDLERS,
-            "level":  LOG_LEVEL,
+            "level": LOG_LEVEL,
         },
         "uvicorn.error": {
             "level": "INFO",
