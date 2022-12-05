@@ -5,7 +5,7 @@ from pydantic import BaseSettings, Field
 BASE_DIR = Path(__file__).parent.parent
 
 # env in project root
-ENV_FILE = BASE_DIR / ".env.local"
+ENV_FILE = BASE_DIR.parent / ".env.local"
 SCHEMA_FILE_MOVIES = BASE_DIR / "etc/movies_schema.json"
 SCHEMA_FILE_GENRES = BASE_DIR / "etc/genres_schema.json"
 SCHEMA_FILE_PERSONS = BASE_DIR / "etc/persons_schema.json"

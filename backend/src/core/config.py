@@ -4,10 +4,10 @@ from pydantic import BaseSettings, Field
 
 
 BASE_DIR = Path(__file__).parent.parent
-ENV_FILE = BASE_DIR / ".env.local"
+ENV_FILE = BASE_DIR.parent / ".env.local"
 VAR_DIR = BASE_DIR / "var/"
 LOG_DIR = VAR_DIR / "log/"
-LOG_FILE = LOG_DIR / "service.log"
+LOG_FILE = LOG_DIR / "backend.log"
 
 
 class Settings(BaseSettings):

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, validator
 
-from etl_pipeline import ETLData
+from pipeline.etl_pipeline import ETLData
 
 
 class IdNameMixin(BaseModel):

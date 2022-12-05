@@ -4,11 +4,11 @@ from elastic_transport import ConnectionError
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
-import etl_logger
-from backoff import backoff
-from constants import DATA_COUNT_KEY
-from data_classes import ESData
-from etl_pipeline import ETLPipelineError, Loader
+from core import etl_logger
+from core.backoff import backoff
+from core.constants import DATA_COUNT_KEY
+from pipeline.data_classes import ESData
+from pipeline.etl_pipeline import ETLPipelineError, Loader
 
 logger = etl_logger.get_logger(__name__)
 

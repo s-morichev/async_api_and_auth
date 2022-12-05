@@ -37,8 +37,8 @@ ENV PATH="/opt/venv/bin:${PATH}"
 
 # Устанавливаем dev python пакеты
 WORKDIR /opt/${APP_NAME}
-COPY ./${APP_NAME}/requirements.dev.txt .
-RUN pip install -r requirements.dev.txt
+#COPY ./${APP_NAME}/requirements.dev.txt .
+#RUN pip install -r requirements.dev.txt
 
 COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for

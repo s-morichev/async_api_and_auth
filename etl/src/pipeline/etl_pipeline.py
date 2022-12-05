@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Iterator
 
-import etl_logger
-from storage import DictState
+from core import etl_logger
+from core.storage import DictState
 
 logger = etl_logger.get_logger(__name__)
 

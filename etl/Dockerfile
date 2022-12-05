@@ -15,7 +15,8 @@ COPY requirements.txt requirements.txt
 RUN   pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 # копируем что надо в контейнер
-COPY ./etc ./etc
+#COPY ./etc ./etc
+MKDIR ./var
 COPY ./src ./src
 
-ENTRYPOINT ["python","./src/etl_main.py"]
+ENTRYPOINT ["python","./src/main.py"]

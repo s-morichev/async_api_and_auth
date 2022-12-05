@@ -1,9 +1,9 @@
 from typing import Iterator
 
-import etl_logger
-from constants import RoleType
-from data_classes import ESData, Person, PersonWithRole, PGData
-from etl_pipeline import Transformer
+from core import etl_logger
+from core.constants import RoleType
+from pipeline.data_classes import ESData, Person, PersonWithRole, PGData
+from pipeline.etl_pipeline import Transformer
 
 logger = etl_logger.get_logger(__name__)
 
