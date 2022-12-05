@@ -1,79 +1,148 @@
-from functools import lru_cache
-from typing import Optional
+from uuid import UUID
+import logging
 
-from aioredis import Redis
-from db.elastic import get_elastic
-from db.redis import get_redis
-from elasticsearch import AsyncElasticsearch, NotFoundError
-from fastapi import Depends
-from models.api_models import ExtendedFilm
+from elasticsearch import NotFoundError
 
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+from core.constants import ES_MOVIES_INDEX
+from models import dto_models
+from models.service_result import ServiceListResult, ServiceSingeResult
+from services.base_service import BaseService
+
+logger = logging.getLogger(__name__)
 
 
-class FilmService:
-    """Сервис для поиска информации, связанной с фильмами"""
+class PopularFilmsService(BaseService):
+    """Популярные фильмы."""
 
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
-        self.elastic = elastic
+    NAME = "POPULAR_FILMS"
+    RESULT_MODEL = ServiceListResult[dto_models.ImdbFilm]
 
-    # get_by_id возвращает объект фильма. Он опционален, так как фильм может отсутствовать в базе
-    async def get_by_id(self, film_id: str) -> Optional[ExtendedFilm]:
-        """Получить полную информацию о конкретном фильме по id.
+    async def get_from_elastic(
+        self,
+        *,
+        sort_by: str,
+        genre_id: UUID,
+        page_number: int,
+        page_size: int,
+    ) -> "PopularFilmsService.RESULT_MODEL | None":
+        query = {"bool": {"must": {"match_all": {}}}}
+        if genre_id is not None:
+            filter_genre = {"filter": {"nested": {"path": "genres", "query": {"term": {"genres.id": str(genre_id)}}}}}
+            query["bool"].update(filter_genre)
 
-        Args:
-            film_id: id фильма
+        sort_order = "asc" if sort_by[0] == "+" else "desc"
+        sort = [{sort_by[1:]: {"order": sort_order}}]
 
-        Returns:
-            Расширенная модель фильма либо None, если фильм с таким id не найден.
-        """
-        # Пытаемся получить данные из кеша, потому что оно работает быстрее
-        film = await self._film_from_cache(film_id)
-        if not film:
-            # Если фильма нет в кеше, то ищем его в Elasticsearch
-            film = await self._get_film_from_elastic(film_id)
-            if not film:
-                # Если он отсутствует в Elasticsearch, значит, фильма вообще нет в базе
-                return None
-            # Сохраняем фильм  в кеш
-            await self._put_film_to_cache(film)
+        es = {
+            "index": ES_MOVIES_INDEX,
+            "from_": (page_number - 1) * page_size,
+            "size": page_size,
+            "source_includes": ["imdb_rating", "title"],
+            "query": query,
+            "sort": sort,
+        }
 
-        return film
-
-    async def _get_film_from_elastic(self, film_id: str) -> Optional[ExtendedFilm]:
         try:
-            doc = await self.elastic.get(index="movies", id=film_id)
+            response = await self.elastic.search(**es)
         except NotFoundError:
             return None
-        return ExtendedFilm(**doc["_source"])
 
-    async def _film_from_cache(self, film_id: str) -> Optional[ExtendedFilm]:
-        # Пытаемся получить данные о фильме из кеша, используя команду get
-        # https://redis.io/commands/get
-        data = await self.redis.get(film_id)
-        if not data:
+        total = response["hits"]["total"]["value"]
+        results_list = [self.BASE_MODEL(uuid=doc["_id"], **doc["_source"]) for doc in response["hits"]["hits"]]
+
+        result = self.RESULT_MODEL(total=total, page_num=page_number, page_size=page_size, result=results_list)
+        return result
+
+
+class SearchFilmsService(BaseService):
+    """Поиск фильмов."""
+
+    NAME = "SEARCH_FILMS"
+    RESULT_MODEL = ServiceListResult[dto_models.ImdbFilm]
+
+    async def get_from_elastic(
+        self,
+        *,
+        search_for: str,
+        genre_id: UUID,
+        page_number: int,
+        page_size: int,
+    ) -> "SearchFilmsService.RESULT_MODEL | None":
+        query = {
+            "bool": {
+                "must": {
+                    "multi_match": {
+                        "query": search_for,
+                        "fields": ["title^5", "description^3", "genre"],
+                        "fuzziness": "AUTO",
+                    }
+                }
+            }
+        }
+        if genre_id is not None:
+            filter_genre = {"filter": {"nested": {"path": "genres", "query": {"term": {"genres.id": str(genre_id)}}}}}
+            query["bool"].update(filter_genre)
+
+        es = {
+            "index": ES_MOVIES_INDEX,
+            "from_": (page_number - 1) * page_size,
+            "size": page_size,
+            "source_includes": ["imdb_rating", "title"],
+            "query": query,
+        }
+
+        try:
+            response = await self.elastic.search(**es)
+        except NotFoundError:
             return None
 
-        # pydantic предоставляет удобное API для создания объекта моделей из json
-        film = ExtendedFilm.parse_raw(data)
-        return film
+        total = response["hits"]["total"]["value"]
+        results_list = [self.BASE_MODEL(uuid=doc["_id"], **doc["_source"]) for doc in response["hits"]["hits"]]
 
-    async def _put_film_to_cache(self, film: ExtendedFilm):
-        # Сохраняем данные о фильме, используя команду set
-        # Выставляем время жизни кеша — 5 минут
-        # https://redis.io/commands/set
-        # pydantic позволяет сериализовать модель в json
-        await self.redis.set(film.id, film.json(), ex=FILM_CACHE_EXPIRE_IN_SECONDS)
+        result = self.RESULT_MODEL(total=total, page_num=page_number, page_size=page_size, result=results_list)
+        return result
 
 
-@lru_cache()
-def get_film_service(
-    redis: Redis = Depends(get_redis),
-    elastic: AsyncElasticsearch = Depends(get_elastic),
-) -> FilmService:
-    """Получить экземпляр FilmService.
+class FilmByIdService(BaseService):
+    """Фильм по id."""
 
-    При каждом вызове возвращается один и тот же экземпляр за счет кеширования.
-    """
-    return FilmService(redis, elastic)
+    NAME = "FILM_BY_ID"
+    RESULT_MODEL = ServiceSingeResult[dto_models.ExtendedFilm]
+
+    async def get_from_elastic(self, *, film_id: UUID) -> "FilmByIdService.RESULT_MODEL | None":
+        try:
+            response = await self.elastic.get(index=ES_MOVIES_INDEX, id=str(film_id))
+        except NotFoundError:
+            return None
+
+        result = dto_models.ExtendedFilm(uuid=response["_id"], **response["_source"])
+
+        result = self.RESULT_MODEL(total=1, page_num=1, page_size=1, result=result)
+        return result
+
+
+class SimilarFilmsService(BaseService):
+    """Похожие фильмы."""
+
+    NAME = "SIMILAR_FILMS"
+    RESULT_MODEL = ServiceListResult[dto_models.ImdbFilm]
+
+    async def get_from_elastic(
+        self,
+        *,
+        film_id: UUID,
+        page_number: int,
+        page_size: int,
+    ) -> "SimilarFilmsService.RESULT_MODEL | None":
+        resp = await (await FilmByIdService.get_service()).get_from_elastic(film_id=film_id)
+        if resp is None:
+            return None
+        if not resp.result.genres:
+            return None
+        genre_id = resp.result.genres[0].uuid
+
+        result = await (await PopularFilmsService.get_service()).get_from_elastic(
+            sort_by="-imdb_rating", genre_id=genre_id, page_number=page_number, page_size=page_size
+        )
+
+        return result

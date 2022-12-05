@@ -1,35 +1,135 @@
+import enum
 from http import HTTPStatus
+from uuid import UUID
+import logging
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-from services.films import FilmService, get_film_service
+from fastapi import APIRouter, Depends, HTTPException, Query
+
+from api.v1.params import PageParams, QueryPageParams
+from api.v1.schemas import ExtendedImdbFilm, ImdbFilm, ManyResponse
+from core.constants import KEY_FILTER_GENRE, KEY_SORT
+from services.films import FilmByIdService, PopularFilmsService, SearchFilmsService, SimilarFilmsService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 
-class Film(BaseModel):
-    id: str
-    title: str
+class Sorting(enum.Enum):
+    imdb_asc = "+imdb_rating"
+    imdb_desc = "-imdb_rating"
 
 
-# Внедряем FilmService с помощью Depends(get_film_service)
-@router.get("/{film_id}", response_model=Film)
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> Film:
+@router.get("/", response_model=ManyResponse[ImdbFilm])
+async def films_popular(
+    sort_by: Sorting = Query(Sorting.imdb_desc, alias=KEY_SORT),
+    genre_id: UUID | None = Query(None, alias=KEY_FILTER_GENRE),
+    params: PageParams = Depends(),
+    service: PopularFilmsService = Depends(PopularFilmsService.get_service),
+) -> ManyResponse[ImdbFilm]:
+    """Получить популярные фильмы (в текущей версии - с наибольшим рейтингом).
+
+    - **sort**: поле для сортировки с префиксом + либо -
+    - **filter[genre]**: UUID идентификатор жанра, из которого получить фильмы
+    - **page[number]**: номер страницы
+    - **page[size]**: количество фильмов на странице
+    """
+
+    params.check_pagination()
+
+    answer = await service.get(
+        sort_by=sort_by.value,
+        genre_id=genre_id,
+        page_number=params.page_number,
+        page_size=params.page_size,
+    )
+    if not answer:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="films not found")
+
+    film_list = [ImdbFilm(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result]
+    return ManyResponse[ImdbFilm](total=answer.total, result=film_list)
+
+
+@router.get("/search/", response_model=ManyResponse[ImdbFilm])
+async def film_search(
+    genre_id: UUID | None = Query(None, alias=KEY_FILTER_GENRE),
+    params: QueryPageParams = Depends(),
+    service: SearchFilmsService = Depends(SearchFilmsService.get_service),
+) -> ManyResponse[ImdbFilm]:
+    """Найти фильмы.
+
+    - **query**: поисковый запрос
+    - **filter[genre]**: UUID идентификатор жанра, в котором выполнить поиск
+    - **page[number]**: номер страницы
+    - **page[size]**: количество фильмов на странице
+    """
+
+    params.check_pagination()
+
+    answer = await service.get(
+        search_for=params.query,
+        genre_id=genre_id,
+        page_number=params.page_number,
+        page_size=params.page_size,
+    )
+
+    if not answer:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"films like '{params.query}' not found")
+
+    film_list = [ImdbFilm(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result]
+    return ManyResponse[ImdbFilm](total=answer.total, result=film_list)
+
+
+@router.get("/{film_id}/similar", response_model=ManyResponse[ImdbFilm])
+async def film_similar(
+    film_id: UUID,
+    params: PageParams = Depends(),
+    service: SimilarFilmsService = Depends(SimilarFilmsService.get_service),
+) -> ManyResponse[ImdbFilm]:
+    """Получить похожие фильмы (в текущей версии - фильмы того же жанра).
+
+    - **film_id**: UUID идентификатор фильма
+    - **page[number]**: номер страницы
+    - **page[size]**: количество элементов на странице
+    """
+
+    params.check_pagination()
+
+    answer = await service.get(
+        film_id=film_id,
+        page_number=params.page_number,
+        page_size=params.page_size,
+    )
+
+    if not answer:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"films similar {film_id} not found")
+
+    film_list = [ImdbFilm(uuid=film.uuid, title=film.title, imdb_rating=film.imdb_rating) for film in answer.result]
+    return ManyResponse[ImdbFilm](total=answer.total, result=film_list)
+
+
+@router.get("/{film_id}", response_model=ExtendedImdbFilm)
+async def film_details(
+    film_id: UUID, service: FilmByIdService = Depends(FilmByIdService.get_service)
+) -> ExtendedImdbFilm:
     """Получить полную информацию о фильме.
 
-    - **film_id**: идентификатор фильма
+    - **film_id**: UUID идентификатор фильма
     """
-    film = await film_service.get_by_id(film_id)
-    if not film:
-        # Если фильм не найден, отдаём 404 статус
-        # Желательно пользоваться уже определёнными HTTP-статусами, которые содержат enum
-        # Такой код будет более поддерживаемым
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
 
-    # Перекладываем данные из models.Film в Film
-    # Обратите внимание, что у модели бизнес-логики есть поле description
-    # Которое отсутствует в модели ответа API.
-    # Если бы использовалась общая модель для бизнес-логики и формирования ответов API
-    # вы бы предоставляли клиентам данные, которые им не нужны
-    # и, возможно, данные, которые опасно возвращать
-    return Film(id=film.uuid, title=film.title)
+    answer = await service.get(film_id=film_id)
+    if not answer:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"film {film_id} not found")
+
+    film = answer.result
+
+    return ExtendedImdbFilm(
+        uuid=film.uuid,
+        title=film.title,
+        imdb_rating=film.imdb_rating,
+        description=film.description,
+        genres=film.genres,
+        actors=film.actors,
+        writers=film.writers,
+        directors=film.directors,
+    )

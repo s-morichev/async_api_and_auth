@@ -2,19 +2,33 @@ from pathlib import Path
 
 from pydantic import BaseSettings, Field
 
-
 BASE_DIR = Path(__file__).parent.parent
+
+# env in project root
 ENV_FILE = BASE_DIR / ".env.local"
+SCHEMA_FILE_MOVIES = BASE_DIR / "etc/movies_schema.json"
+SCHEMA_FILE_GENRES = BASE_DIR / "etc/genres_schema.json"
+SCHEMA_FILE_PERSONS = BASE_DIR / "etc/persons_schema.json"
+
 VAR_DIR = BASE_DIR / "var/"
 LOG_DIR = VAR_DIR / "log/"
-LOG_FILE = LOG_DIR / "service.log"
+
+STATE_FILE = VAR_DIR / "etl_state.json"
+LOG_FILE = LOG_DIR / "etl.log"
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = Field("movies", env="BACKEND_PROJECT_NAME")
-    DEBUG: bool = Field(False, env="BACKEND_DEBUG")
-    REDIS_URI: str = Field(..., env="REDIS_DSN")
+    DEBUG: bool = Field(False, env="ETL_DEBUG")
+    PG_URI: str = Field(..., env="PG_DSN")
     ES_URI: str = Field(..., env="ELK_DSN")
+    ES_INDEX_MOVIES: str = "movies"
+    ES_INDEX_PERSONS: str = "persons"
+    ES_INDEX_GENRES: str = "genres"
+    ETL_SLEEP_TIME: int
+
+    # ES_BATCH_SIZE >= PG_BATCH_SIZE !!!
+    PG_BATCH_SIZE: int = Field(500, env="ETL_PG_SIZE")
+    ES_BATCH_SIZE: int = Field(1000, env="ETL_ES_SIZE")
 
 
 settings = Settings(_env_file=ENV_FILE)
