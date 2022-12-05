@@ -3,7 +3,7 @@ https://github.com/RomanBorovskiy/YP_Async_API
 * Роман Боровский
 * Сергей Моричев
 
-
+### Структура разделов
 /backend - сервис на FastAPI  
 /etl - сервис ETL (копирует данные из БД в Elasticsearch)  
 /docs - различная документация, касающаяся проекта  
@@ -13,3 +13,10 @@ https://github.com/RomanBorovskiy/YP_Async_API
 Запуск: docker compose up --build  
 Перед этим надо переименовать .env.example в .env и указать свои пароли для сервисов
 
+
+### Запуск "production" на локальной машине
+
+Измените в .env файле `BACKEND_DEBUG=False`. После этого выполните следующие команды:
+
+- Соберите образы `make build-all`
+- Запустите контейнеры `docker compose -f docker-compose.prod.yaml up -d`

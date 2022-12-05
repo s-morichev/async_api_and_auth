@@ -68,6 +68,11 @@ COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
 WORKDIR /opt/${APP_NAME}
+
+# заранее создаем папки для логов и прочей информации, чтобы далее добавить права доступа для них
+#RUN mkdir /opt/${APP_NAME}/var
+RUN mkdir -p /opt/${APP_NAME}/var/log
+
 #COPY ./${APP_NAME}/etc .
 COPY ./${APP_NAME}/src .
 

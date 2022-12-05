@@ -60,6 +60,8 @@ ENV PATH="/opt/venv/bin:${PATH}"
 COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
+RUN mkdir -p /opt/${APP_NAME}/var/log
+
 WORKDIR /opt/${APP_NAME}
 COPY ./${APP_NAME}/src .
 
