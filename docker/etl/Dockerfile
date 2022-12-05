@@ -17,6 +17,7 @@ RUN apt-get update \
 
 # Билдер для установки Python пакетов и необходимых системных зависимостей
 FROM python-base as builder-base
+ARG APP_NAME
 RUN apt-get update \
     && apt-get --no-install-recommends install -y \
     curl \
@@ -67,8 +68,8 @@ COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
 WORKDIR /opt/${APP_NAME}
-COPY ./${APP_NAME}/etc .
-#COPY ./${APP_NAME}/src .
+#COPY ./${APP_NAME}/etc .
+COPY ./${APP_NAME}/src .
 
 RUN groupadd -r app && useradd -d /opt/${APP_NAME} -r -g app app \
     && chown app:app -R /opt/${APP_NAME}

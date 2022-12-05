@@ -68,4 +68,4 @@ RUN groupadd -r app && useradd -d /opt/${APP_NAME} -r -g app app \
 USER app
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["gunicorn", "main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
