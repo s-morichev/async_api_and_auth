@@ -105,7 +105,7 @@ class PersonSearchService(BaseService):
         es = {
             "from": (page_num - 1) * page_size,
             "size": page_size,
-            "query": {"match": {"full_name": {"query": query}}},
+            "query": {"match": {"full_name": {"query": query, "fuzziness": "AUTO"}}},
         }
         try:
             resp = await self.elastic.search(index=index_name, body=es)
