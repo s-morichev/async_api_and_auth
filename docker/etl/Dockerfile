@@ -17,6 +17,7 @@ RUN apt-get update \
 
 # Билдер для установки Python пакетов и необходимых системных зависимостей
 FROM python-base as builder-base
+ARG APP_NAME
 RUN apt-get update \
     && apt-get --no-install-recommends install -y \
     curl \
@@ -48,8 +49,10 @@ RUN pip install -r requirements.dev.txt
 COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
+RUN mkdir /opt/var/
+COPY ./${APP_NAME}/etc /opt/etc/
+
 WORKDIR /opt/${APP_NAME}
-COPY ./${APP_NAME}/etc ./etc
 COPY ./${APP_NAME}/src ./src
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
@@ -66,12 +69,15 @@ ENV PATH="/opt/venv/bin:${PATH}"
 COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
+RUN mkdir /opt/var/
+COPY ./${APP_NAME}/etc /opt/etc/
+
 WORKDIR /opt/${APP_NAME}
-COPY ./${APP_NAME}/etc .
 COPY ./${APP_NAME}/src .
 
 RUN groupadd -r app && useradd -d /opt/${APP_NAME} -r -g app app \
-    && chown app:app -R /opt/${APP_NAME}
+    && chown app:app -R /opt/${APP_NAME} \
+    && chown app:app -R /opt/var
 USER app
 
 ENTRYPOINT ["/opt/entrypoint.sh"]

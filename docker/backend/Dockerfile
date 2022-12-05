@@ -60,12 +60,15 @@ ENV PATH="/opt/venv/bin:${PATH}"
 COPY ./docker/${APP_NAME}/entrypoint.sh ./docker/wait-for /opt/
 RUN chmod +x /opt/entrypoint.sh /opt/wait-for
 
+RUN mkdir /opt/var/
+
 WORKDIR /opt/${APP_NAME}
 COPY ./${APP_NAME}/src .
 
 RUN groupadd -r app && useradd -d /opt/${APP_NAME} -r -g app app \
-    && chown app:app -R /opt/${APP_NAME}
+    && chown app:app -R /opt/${APP_NAME} \
+    && chown app:app -R /opt/var
 USER app
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["gunicorn", "main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
