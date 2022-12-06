@@ -1,0 +1,15 @@
+KEY_PAGE_SIZE = "page[size]"
+KEY_PAGE_NUM = "page[number]"
+KEY_QUERY = "query"
+KEY_ID = "ID"
+KEY_FILTER_GENRE = "filter[genre]"
+KEY_SORT = "sort"
+
+MAX_PAGE_SIZE = 200
+DEFAULT_PAGE_SIZE = 50
+DEFAULT_CACHE_EXPIRE_IN_SECONDS = 60 * 5
+
+ES_PAGINATION_LIMIT = 10_000
+ES_MOVIES_INDEX = "movies"
+ES_GENRES_INDEX = "genres"
+ES_PERSONS_INDEX = "persons"
