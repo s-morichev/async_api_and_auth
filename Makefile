@@ -10,10 +10,10 @@ flake:
 all: isort black flake
 
 build-backend:
-	docker --log-level=debug build --file=docker/backend/Dockerfile --tag=backend_sprint_4 --target=production .
+	docker --log-level=debug build --tag=backend_sprint_4 --target=production ./backend
 
 build-etl:
-	docker --log-level=debug build --file=docker/etl/Dockerfile --tag=etl_sprint_4 --target=production .
+	docker --log-level=debug build  --tag=etl_sprint_4 --target=production ./etl
 
 build-db:
 	docker --log-level=debug build --tag=postgres_sprint_4 ./docker/postgres/

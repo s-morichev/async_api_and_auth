@@ -13,14 +13,13 @@ services:
   backend:
     restart: "always"
     build:
-      context: .
-      dockerfile: ./docker/backend/Dockerfile
+      context: ./backend
       target: development
       tags:
         - "backend_sprint_4"
     container_name: backend
     volumes:
-      - ./backend/src/:/opt/backend/
+      - ./backend/src/:/opt/app/
     ports:
       - "8000:8000"
     env_file:
@@ -31,14 +30,13 @@ services:
   etl:
     restart: always
     build:
-      context: .
-      dockerfile: ./docker/etl/Dockerfile
+      context: ./etl
       target: development
       tags:
         - "etl_sprint_4"
     container_name: etl
     volumes:
-      - etl_data:/opt/etl/var/
+      - etl_data:/opt/app/var/
     env_file:
       - .env
     depends_on:
