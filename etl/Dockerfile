@@ -1,21 +1,74 @@
-# Исходный контейнер
-FROM python:3.10.8-slim
+# Базовый образ с общими системными зависимостями для dev и prod
+FROM python:3.10.8-slim as python-base
+ARG APP_NAME
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONFAULTHANDLER=1 \
+    PYTHONPATH="/opt/app:$PYTHONPATH"
 
-# папка, в которой будут размещаться файлы проекта внутри контейнера
-WORKDIR /app
+RUN apt-get update \
+    && apt-get --no-install-recommends install -y \
+    libpq5 \
+    netcat \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
-# отключение буферизации вывода (output)
-ENV PYTHONUNBUFFERED 1
-# Python не будет пытаться создавать файлы .pyc
-ENV PYTHONDONTWRITEBYTECODE 1
+# Билдер для установки Python пакетов и необходимых системных зависимостей
+FROM python-base as builder-base
+RUN apt-get update \
+    && apt-get --no-install-recommends install -y \
+    curl \
+    gcc \
+    python3-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt requirements.txt
-# Ставим зависимости
-# --no-cache-dir -  отключаем кэширование pip
-RUN   pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r requirements.txt
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:${PATH}"
 
-# копируем что надо в контейнер
-COPY ./etc ./etc
-COPY ./src ./src
+WORKDIR /opt/app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python","./src/etl_main.py"]
+# development образ
+FROM python-base as development
+
+# Копируем python пакеты для продакшена из билдера
+COPY --from=builder-base /opt/venv/ /opt/venv
+ENV PATH="/opt/venv/bin:${PATH}"
+
+# Устанавливаем dev python пакеты для работы в контейнере
+WORKDIR /opt/app
+COPY requirements.dev.txt .
+RUN pip install -r requirements.dev.txt
+
+COPY entrypoint.sh wait-for /opt/
+RUN chmod +x /opt/entrypoint.sh /opt/wait-for
+
+WORKDIR /opt/app
+COPY ./src .
+
+ENTRYPOINT ["/opt/entrypoint.sh"]
+CMD ["python", "main.py"]
+
+# 'production' образ
+FROM python-base as production
+
+# Копируем только Python пакеты
+COPY --from=builder-base /opt/venv/ /opt/venv/
+ENV PATH="/opt/venv/bin:${PATH}"
+
+COPY entrypoint.sh wait-for /opt/
+RUN chmod +x /opt/entrypoint.sh /opt/wait-for
+
+RUN mkdir -p /opt/app/var/log
+
+WORKDIR /opt/app
+COPY ./src .
+
+RUN groupadd -r app && useradd -d /opt/app -r -g app app \
+    && chown app:app -R /opt/app
+USER app
+
+ENTRYPOINT ["/opt/entrypoint.sh"]
+CMD ["python", "main.py"]

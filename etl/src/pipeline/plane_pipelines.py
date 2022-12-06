@@ -1,9 +1,9 @@
 from typing import Iterator
 
-from constants import EX_GENRE_UPDATE_KEY, EX_GENRES_SQL, EX_PERSON_UPDATE_KEY, EX_PERSONS_SQL
-from data_classes import FGenre, FPerson
-from etl_pipeline import ETLData, Transformer
-from pg_extractor import BaseExtractorWorker, FWExtractor
+from core.constants import EX_GENRE_UPDATE_KEY, EX_GENRES_SQL, EX_PERSON_UPDATE_KEY, EX_PERSONS_SQL
+from pipeline.data_classes import FGenre, FPerson
+from pipeline.etl_pipeline import ETLData, Transformer
+from pipeline.pg_extractor import BaseExtractorWorker, FWExtractor
 
 
 class PersonsExtractorWorker(BaseExtractorWorker):

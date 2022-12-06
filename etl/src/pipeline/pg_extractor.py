@@ -7,9 +7,9 @@ import psycopg2
 from psycopg2.extensions import connection as PGConnection
 from psycopg2.extras import DictCursor
 
-import etl_logger
-from backoff import backoff_gen
-from constants import (
+from core import etl_logger
+from core.backoff import backoff_gen
+from core.constants import (
     ENRICH_SQL,
     FILMWORK_SQL,
     FW_UPDATE_KEY,
@@ -18,8 +18,8 @@ from constants import (
     PERSON_SQL,
     PERSONS_UPDATE_KEY,
 )
-from data_classes import PGData
-from etl_pipeline import ETLData, ETLPipelineError, Extractor
+from pipeline.data_classes import PGData
+from pipeline.etl_pipeline import ETLData, ETLPipelineError, Extractor
 
 logger = etl_logger.get_logger(__name__)
 
