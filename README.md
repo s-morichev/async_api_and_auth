@@ -11,13 +11,11 @@ https://github.com/RomanBorovskiy/YP_Async_API
 /tests - тесты для сервиса backend. Коллекция для Postman  
 
 ### Запуск "development" на локальной машине
-Запуск: docker compose up --build  
-Перед этим надо переименовать .env.example в .env и указать свои пароли для сервисов
-
+Перед этим надо переименовать '.env.example' в '.env' и указать свои пароли для сервисов
+Запуск: 'docker compose up --build'
 
 ### Запуск "production" на локальной машине
-
+Перед этим надо переименовать '.env.example' в '.env' и указать свои пароли для сервисов
 Измените в .env файле `BACKEND_DEBUG=False`. После этого выполните следующие команды:
-
 - Соберите образы `make build-all`
 - Запустите контейнеры `docker compose -f docker-compose.prod.yaml up -d`
