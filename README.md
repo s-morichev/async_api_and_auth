@@ -10,6 +10,7 @@ https://github.com/RomanBorovskiy/YP_Async_API
 /docker - dockefile и необходимые данные для разных сервисов, которые запускаются для работы  
 /tests - тесты для сервиса backend. Коллекция для Postman  
 
+### Запуск "development" на локальной машине
 Запуск: docker compose up --build  
 Перед этим надо переименовать .env.example в .env и указать свои пароли для сервисов
 
