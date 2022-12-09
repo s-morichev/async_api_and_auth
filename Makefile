@@ -22,3 +22,10 @@ build-nginx:
 	docker --log-level=debug build --tag=nginx_sprint_4 ./docker/nginx/
 
 build-all: build-backend build-etl build-db build-nginx
+
+run-test: build-backend
+	docker compose -f ./tests/functional/docker-compose.test.yaml build test
+	docker compose -f ./tests/functional/docker-compose.test.yaml run --rm test
+
+stop-test:
+	docker compose -f ./tests/functional/docker-compose.test.yaml down
