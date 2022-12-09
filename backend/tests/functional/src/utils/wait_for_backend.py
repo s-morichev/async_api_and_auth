@@ -1,22 +1,15 @@
-import asyncio
 import time
-
-import aiohttp
+from http.client import HTTPConnection
 
 from settings import settings
 
-
-async def wait():
-    # TODO посмотреть как лучше пинговать сервис
-    async with aiohttp.ClientSession() as session:
-        while True:
-            try:
-                async with session.get(settings.API_URI):
-                    break
-            except aiohttp.ClientConnectionError:
-                print("wait backend, sleep 1s")
-                time.sleep(1)
-
-
 if __name__ == "__main__":
-    asyncio.run(wait())
+    cut_off = len("http://")
+    connection = HTTPConnection(settings.API_URI[cut_off:])
+    while True:
+        try:
+            connection.connect()
+            break
+        except ConnectionRefusedError:
+            print("wait backend, sleep 1s")
+            time.sleep(1)

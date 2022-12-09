@@ -8,7 +8,10 @@ class Settings(BaseSettings):
     ES_MOVIES_INDEX: str = "movies"
     ES_GENRES_INDEX: str = "genres"
     ES_PERSONS_INDEX: str = "persons"
-    ES_ALL_INDICES: list[str] = ["movies", "genres", "persons"]
+
+    @property
+    def ES_ALL_INDICES(self) -> list[str]:
+        return [self.ES_MOVIES_INDEX, self.ES_PERSONS_INDEX, self.ES_GENRES_INDEX]
 
 
 settings = Settings(_env_file=".env.local")
