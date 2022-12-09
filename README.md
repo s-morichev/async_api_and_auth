@@ -19,3 +19,11 @@ https://github.com/RomanBorovskiy/YP_Async_API
 Измените в `.env` файле `BACKEND_DEBUG=False`. После этого выполните следующие команды:
 - Соберите образы `make build-all`
 - Запустите контейнеры `docker compose -f docker-compose.prod.yaml up -d`
+
+
+### Запуск тестов
+
+Тесты api расположены в папке /backend/tests/functional/. Для запуска выполните `make run-test`.
+После завершения тестов тестовые контейнеры backend, elasticsearch и redis останутся запущенными,
+поэтому при повторном запуске тестов не нужно будет ждать старта контейнеров. Для остановки
+и удаления тестовых контейнеров выполните `make stop-test`.
