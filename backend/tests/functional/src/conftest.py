@@ -31,6 +31,14 @@ async def es_client():
     await client.close()
 
 
+@pytest_asyncio.fixture(scope="session")
+async def aiohttp_session():
+    session = aiohttp.ClientSession()
+    yield session
+
+    await session.close()
+
+
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def create_es_indices(es_client):
     for index, schema in [
@@ -45,7 +53,7 @@ async def create_es_indices(es_client):
         )
 
 
-@pytest.fixture
+@pytest.fixture()
 def es_write_data(es_client, request, event_loop):
     async def inner(documents: list[dict[str, Any]], index: str):
         es_actions = get_es_bulk_actions(documents, index)
@@ -70,15 +78,14 @@ def es_write_data(es_client, request, event_loop):
     return inner
 
 
-@pytest.fixture
-def make_get_request():
+@pytest.fixture(scope="session")
+def make_get_request(aiohttp_session):
     async def inner(path: str, query_data: dict | None = None):
-        async with aiohttp.ClientSession() as session:
-            url = settings.API_URI + path
-            async with session.get(url, params=query_data) as response:
-                body = await response.json()
-                headers = response.headers
-                status = response.status
+        url = settings.API_URI + path
+        async with aiohttp_session.get(url, params=query_data) as response:
+            body = await response.json()
+            headers = response.headers
+            status = response.status
         return body, headers, status
 
     return inner
