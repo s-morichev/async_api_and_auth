@@ -24,8 +24,8 @@ build-nginx:
 build-all: build-backend build-etl build-db build-nginx
 
 run-test: build-backend
-	docker compose -f ./backend/tests/functional/docker-compose.test.yaml build test
-	docker compose -f ./backend/tests/functional/docker-compose.test.yaml run --rm test
+	docker compose -f ./tests/functional/docker-compose.test.yaml build test
+	docker compose -f ./tests/functional/docker-compose.test.yaml run --rm test
 
 stop-test:
-	docker compose -f ./backend/tests/functional/docker-compose.test.yaml down
+	docker compose -f ./tests/functional/docker-compose.test.yaml down
