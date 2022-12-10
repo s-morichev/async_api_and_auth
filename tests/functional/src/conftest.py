@@ -1,11 +1,13 @@
 import asyncio
 from typing import Any, Iterator
+import json
 
 import aiohttp
 import pytest
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
+from pathlib import Path
 
 from settings import settings
 from testdata import genres_schema, movies_schema, persons_schema
@@ -39,18 +41,31 @@ async def aiohttp_session():
     await session.close()
 
 
+# @pytest_asyncio.fixture(scope="session", autouse=True)
+# async def create_es_indices(es_client):
+#     for index, schema in [
+#         (settings.ES_MOVIES_INDEX, movies_schema),
+#         (settings.ES_PERSONS_INDEX, persons_schema),
+#         (settings.ES_GENRES_INDEX, genres_schema),
+#     ]:
+#         await es_client.indices.create(
+#             index=index,
+#             settings=schema.get("settings"),
+#             mappings=schema.get("mappings"),
+#         )
+
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def create_es_indices(es_client):
-    for index, schema in [
-        (settings.ES_MOVIES_INDEX, movies_schema),
-        (settings.ES_PERSONS_INDEX, persons_schema),
-        (settings.ES_GENRES_INDEX, genres_schema),
-    ]:
-        await es_client.indices.create(
-            index=index,
-            settings=schema.get("settings"),
-            mappings=schema.get("mappings"),
-        )
+    path = Path(__file__).parent / 'testdata/'
+    for index in settings.ES_ALL_INDICES:
+        with open(path / f'{index}_schema.json', 'r') as json_file:
+            print(f'create index {index}')
+            schema = json.loads(json_file.read())
+            await es_client.indices.create(
+                index=index,
+                settings=schema.get("settings"),
+                mappings=schema.get("mappings"),
+            )
 
 
 @pytest.fixture()
