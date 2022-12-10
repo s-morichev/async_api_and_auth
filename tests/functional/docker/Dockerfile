@@ -6,11 +6,6 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONFAULTHANDLER=1 \
     PYTHONPATH="/opt/app:$PYTHONPATH"
 
-# Здесь может быть устновка системных пакетов, например gcc для psycopg2
-
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:${PATH}"
-
 WORKDIR /opt/app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
