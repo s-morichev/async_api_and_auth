@@ -2,6 +2,7 @@ import asyncio
 from typing import Any, Iterator
 import json
 
+import aioredis
 import aiohttp
 import pytest
 import pytest_asyncio
@@ -9,8 +10,8 @@ from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from pathlib import Path
 
-from settings import settings
-from testdata import genres_schema, movies_schema, persons_schema
+from .settings import settings
+# from src.testdata import genres_schema, movies_schema, persons_schema
 
 
 def get_es_bulk_actions(documents: list[dict[str, Any]], index: str) -> Iterator[dict[str, Any]]:
@@ -29,7 +30,14 @@ async def es_client():
     client = AsyncElasticsearch(settings.ES_URI)
     yield client
 
-    await client.indices.delete(index=settings.ES_ALL_INDICES)
+    await client.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def redis_client() -> aioredis.Redis:
+    client = await aioredis.from_url(settings.REDIS_URI)
+    yield client
+
     await client.close()
 
 
@@ -55,7 +63,13 @@ async def aiohttp_session():
 #         )
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
-async def create_es_indices(es_client):
+async def create_es_indices(es_client: AsyncElasticsearch):
+    """Запускается один раз на все тесты автоматически"""
+
+    # удаляем индексы на всякий случай - а надо?
+    await es_client.indices.delete(index=settings.ES_ALL_INDICES)
+
+    # создаем индексы по списку. В /testdata должны лежать файлы json со схемами
     path = Path(__file__).parent / 'testdata/'
     for index in settings.ES_ALL_INDICES:
         with open(path / f'{index}_schema.json', 'r') as json_file:
@@ -68,27 +82,68 @@ async def create_es_indices(es_client):
             )
 
 
-@pytest.fixture()
-def es_write_data(es_client, request, event_loop):
+@pytest_asyncio.fixture(scope='module', autouse=True)
+async def flush_data(es_client: AsyncElasticsearch, redis_client: aioredis.Redis):
+#async def flush_data(es_client: AsyncElasticsearch):
+    """ Запускается на каждый модуль автоматически """
+
+    async def clear_redis():
+        await redis_client.flushall()
+
+    async def clear_es_indices():
+        await es_client.delete_by_query(
+            index=settings.ES_ALL_INDICES,
+            query={"match_all": {}},
+        )
+
+    await clear_redis()
+    await clear_es_indices()
+
+
+# @pytest.fixture()
+# def es_write_data(es_client, request, event_loop):
+#     async def inner(documents: list[dict[str, Any]], index: str):
+#         es_actions = get_es_bulk_actions(documents, index)
+#         loaded, errors = await async_bulk(client=es_client, actions=es_actions)
+#
+#         if errors:
+#             raise Exception("Ошибка записи данных в Elasticsearch")
+#         await es_client.indices.refresh()
+#
+#     def finalizer():
+#         async def clear_es_indices():
+#             await es_client.delete_by_query(
+#                 index=settings.ES_ALL_INDICES,
+#                 query={"match_all": {}},
+#             )
+#
+#         # для выполнения корутины внутри finalizer
+#         event_loop.run_until_complete(clear_es_indices())
+#
+#     request.addfinalizer(finalizer)
+#
+#     return inner
+
+
+@pytest.fixture(scope='session')
+def es_write_data(es_client):
     async def inner(documents: list[dict[str, Any]], index: str):
         es_actions = get_es_bulk_actions(documents, index)
         loaded, errors = await async_bulk(client=es_client, actions=es_actions)
 
         if errors:
             raise Exception("Ошибка записи данных в Elasticsearch")
+
         await es_client.indices.refresh()
+        return loaded
 
-    def finalizer():
-        async def clear_es_indices():
-            await es_client.delete_by_query(
-                index=settings.ES_ALL_INDICES,
-                query={"match_all": {}},
-            )
+    return inner
 
-        # для выполнения корутины внутри finalizer
-        event_loop.run_until_complete(clear_es_indices())
 
-    request.addfinalizer(finalizer)
+@pytest.fixture(scope='session')
+def es_write_data2(es_client: AsyncElasticsearch):
+    async def inner(data: list[dict]):
+        return await es_client.bulk(operations=data, refresh=True)
 
     return inner
 

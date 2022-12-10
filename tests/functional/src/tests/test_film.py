@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from settings import settings
+from src.settings import settings
 
 es_three_films_the_star = [
     {
