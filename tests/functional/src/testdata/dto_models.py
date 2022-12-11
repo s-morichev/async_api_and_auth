@@ -44,6 +44,7 @@ class ExtendedFilm(Film):
     writers: list[Person]
     directors: list[Person]
 
+
 class ElasticFilm(Film):
     imdb_rating: float
     rars_rating: int

@@ -57,7 +57,7 @@ async def prepare_data(es_write_data, flush_data):
     es_index = settings.ES_MOVIES_INDEX
     data = create_data(es_index)
 
-    response = await es_write_data(index=es_index, documents=data, id_key='id', exclude={})
+    await es_write_data(index=es_index, documents=data, id_key='id', exclude={})
 
 
 @pytest.mark.parametrize(
