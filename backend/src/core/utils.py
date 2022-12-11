@@ -18,7 +18,10 @@ def hash_dict(pretty_key: str, key_dict: dict):
     GET_PERSON:4acc71e0547112eb432f0a36fb1924c4a738cb49
     """
     s_key = orjson.dumps(key_dict, option=orjson.OPT_SORT_KEYS)
-    return f"{pretty_key}:{hashlib.sha1(s_key).hexdigest()}"
+    if pretty_key:
+        return f"{pretty_key}:{hashlib.sha1(s_key).hexdigest()}"
+    else:
+        return f"{hashlib.sha1(s_key).hexdigest()}"
 
 
 def restrict_pages(query_dict: dict | None) -> dict:
