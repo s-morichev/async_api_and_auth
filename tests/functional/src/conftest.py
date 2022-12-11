@@ -13,9 +13,6 @@ from pathlib import Path
 from .settings import settings
 from .testdata.core_model import CoreModel
 
-def get_es_bulk_actions(documents: list[dict[str, Any]], index: str) -> Iterator[dict[str, Any]]:
-    return ({"_index": index, "_id": document["id"], "_source": document} for document in documents)
-
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -48,24 +45,12 @@ async def aiohttp_session():
     await session.close()
 
 
-# @pytest_asyncio.fixture(scope="session", autouse=True)
-# async def create_es_indices(es_client):
-#     for index, schema in [
-#         (settings.ES_MOVIES_INDEX, movies_schema),
-#         (settings.ES_PERSONS_INDEX, persons_schema),
-#         (settings.ES_GENRES_INDEX, genres_schema),
-#     ]:
-#         await es_client.indices.create(
-#             index=index,
-#             settings=schema.get("settings"),
-#             mappings=schema.get("mappings"),
-#         )
-
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def create_es_indices(es_client: AsyncElasticsearch):
     """Запускается один раз на все тесты автоматически"""
 
     # удаляем индексы на всякий случай - а надо? Игнорируем ошибки если индексов нет
+    # удаляем - вдруг схема поменялась?
     await es_client.options(ignore_status=[400, 404]).indices.delete(index=settings.ES_ALL_INDICES)
 
     # создаем индексы по списку. В /testdata должны лежать файлы json со схемами
@@ -99,33 +84,9 @@ async def flush_data(es_client: AsyncElasticsearch, redis_client: aioredis.Redis
     await clear_es_indices()
 
 
-# @pytest.fixture()
-# def es_write_data(es_client, request, event_loop):
-#     async def inner(documents: list[dict[str, Any]], index: str):
-#         es_actions = get_es_bulk_actions(documents, index)
-#         loaded, errors = await async_bulk(client=es_client, actions=es_actions)
-#
-#         if errors:
-#             raise Exception("Ошибка записи данных в Elasticsearch")
-#         await es_client.indices.refresh()
-#
-#     def finalizer():
-#         async def clear_es_indices():
-#             await es_client.delete_by_query(
-#                 index=settings.ES_ALL_INDICES,
-#                 query={"match_all": {}},
-#             )
-#
-#         # для выполнения корутины внутри finalizer
-#         event_loop.run_until_complete(clear_es_indices())
-#
-#     request.addfinalizer(finalizer)
-#
-#     return inner
-
 @pytest.fixture(scope='session')
 def es_write_data(es_client):
-    async def inner(documents: list[CoreModel], index: str, id_key: str = 'id', exclude: set[str]={'id'}):
+    async def inner(documents: list[CoreModel], index: str, id_key: str = 'id', exclude: set[str] = {'id'}):
         def make_action(index: str, document: CoreModel, id_key: str, exclude: set[str]):
             return {"_index": index, "_id": getattr(document, id_key), "_source": document.dict(exclude=exclude)}
 
@@ -138,28 +99,6 @@ def es_write_data(es_client):
 
         await es_client.indices.refresh()
         return loaded
-
-    return inner
-
-@pytest.fixture(scope='session')
-def es_write_data1(es_client):
-    async def inner(documents: list[dict[str, Any]], index: str):
-        es_actions = get_es_bulk_actions(documents, index)
-        loaded, errors = await async_bulk(client=es_client, actions=es_actions)
-
-        if errors:
-            raise Exception("Ошибка записи данных в Elasticsearch")
-
-        await es_client.indices.refresh()
-        return loaded
-
-    return inner
-
-
-@pytest.fixture(scope='session')
-def es_write_data2(es_client: AsyncElasticsearch):
-    async def inner(data: list[dict]):
-        return await es_client.bulk(operations=data, refresh=True)
 
     return inner
 

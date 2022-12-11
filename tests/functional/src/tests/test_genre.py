@@ -51,7 +51,6 @@ def ids(data: list[dict | str]):
 
 
 @pytest.mark.parametrize('query_data, expected_result', argvalues=args(testdata), ids=ids(testdata))
-@pytest.mark.asyncio
 async def test_list(make_get_request, query_data, expected_result: dict[str, str | int]):
     # шлем запрос
     url = '/api/v1/genres/'
