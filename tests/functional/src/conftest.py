@@ -23,7 +23,6 @@ def get_es_bulk_actions(documents: list[dict[str, Any]], index: str) -> Iterator
 @pytest.fixture(scope="session")
 def event_loop():
     loop = asyncio.get_event_loop_policy().new_event_loop()
-    asyncio.set_event_loop(loop)
     yield loop
     loop.close()
 
@@ -83,7 +82,6 @@ async def create_es_indices(es_client: AsyncElasticsearch):
                 settings=schema.get("settings"),
                 mappings=schema.get("mappings"),
             )
-            await es_client.indices.refresh()
 
 
 @pytest_asyncio.fixture(scope='module', autouse=True)
