@@ -1,12 +1,13 @@
 import uuid
 
 import pytest
-
+import pytest_asyncio
 from ..settings import settings
+from ..testdata.dto_models import ElasticFilm, Genre, Person
 
 
 @pytest_asyncio.fixture(scope='module', autouse=True)
-async def prepare_data(es_write_data2, flush_data):
+async def prepare_data(es_write_data, flush_data):
     def create_data(index_name):
         films = [
             ElasticFilm(
@@ -45,20 +46,18 @@ async def prepare_data(es_write_data2, flush_data):
             )
             for _ in range(2)
         ])
-
-        result = []
-        for row in films:
-            doc = [{"index": {"_index": index_name, "_id": row.id}}, row.dict(exclude={'id'})]
-            result.extend(doc)
-        return result
+        return films
+        # result = []
+        # for row in films:
+        #     #doc = [{"index": {"_index": index_name, "_id": row.id}}, row.dict(exclude={'id'})]
+        #     doc = [{"index": {"_index": index_name, "_id": row.id}}, row.dict()]
+        #     result.extend(doc)
+        # return result
 
     es_index = settings.ES_MOVIES_INDEX
     data = create_data(es_index)
 
-    response = await es_write_data2(data)
-    if response['errors']:
-        print(response)
-        raise Exception('Ошибка записи данных в Elasticsearch')
+    response = await es_write_data(index=es_index, documents=data, id_key='id', exclude={})
 
 
 @pytest.mark.parametrize(

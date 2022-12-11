@@ -11,25 +11,18 @@ total_rows = 4
 
 
 @pytest_asyncio.fixture(scope='module', autouse=True)
-async def prepare_data(es_write_data2, flush_data):
+async def prepare_data(es_write_data, flush_data):
     def create_data(index_name):
         genre_names = ['Action', 'Sci_fi', 'Drama', 'Quest']
         assert len(genre_names) == total_rows
         genres = [Genre(id=uuid.uuid4(), name=name) for name in genre_names]
 
-        result = []
-        for row in genres:
-            doc = [{"index": {"_index": index_name, "_id": row.id}}, row.dict(exclude={'id'})]
-            result.extend(doc)
-        return result
+        return genres
 
     es_index = settings.ES_GENRES_INDEX
     data = create_data(es_index)
 
-    response = await es_write_data2(data)
-    if response['errors']:
-        print(response)
-        raise Exception('Ошибка записи данных в Elasticsearch')
+    response = await es_write_data(index=es_index, documents=data, id_key='id', exclude={'id'})
 
 
 testdata = [
