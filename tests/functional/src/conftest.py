@@ -2,9 +2,7 @@ import asyncio
 from typing import Any, Iterator
 import json
 
-#from redis import asyncio as aioredis
 import redis.asyncio as aioredis
-#import aioredis
 import aiohttp
 import pytest
 import pytest_asyncio
@@ -13,8 +11,7 @@ from elasticsearch.helpers import async_bulk
 from pathlib import Path
 
 from .settings import settings
-# from src.testdata import genres_schema, movies_schema, persons_schema
-
+from .testdata.core_model import CoreModel
 
 def get_es_bulk_actions(documents: list[dict[str, Any]], index: str) -> Iterator[dict[str, Any]]:
     return ({"_index": index, "_id": document["id"], "_source": document} for document in documents)
@@ -128,9 +125,26 @@ async def flush_data(es_client: AsyncElasticsearch, redis_client: aioredis.Redis
 #
 #     return inner
 
-
 @pytest.fixture(scope='session')
 def es_write_data(es_client):
+    async def inner(documents: list[CoreModel], index: str, id_key: str = 'id', exclude: set[str]={'id'}):
+        def make_action(index: str, document: CoreModel, id_key: str, exclude: set[str]):
+            return {"_index": index, "_id": getattr(document, id_key), "_source": document.dict(exclude=exclude)}
+
+        docs = [make_action(index, doc, id_key, exclude) for doc in documents]
+
+        loaded, errors = await async_bulk(client=es_client, actions=docs)
+
+        if errors:
+            raise Exception("Ошибка записи данных в Elasticsearch")
+
+        await es_client.indices.refresh()
+        return loaded
+
+    return inner
+
+@pytest.fixture(scope='session')
+def es_write_data1(es_client):
     async def inner(documents: list[dict[str, Any]], index: str):
         es_actions = get_es_bulk_actions(documents, index)
         loaded, errors = await async_bulk(client=es_client, actions=es_actions)

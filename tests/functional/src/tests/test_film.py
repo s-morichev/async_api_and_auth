@@ -2,33 +2,12 @@ import uuid
 
 import pytest
 import pytest_asyncio
-
-from settings import settings
-from testdata.dto_models import ElasticFilm, Genre, Person
-
-# es_three_films_the_star = [
-#     {
-#         "id": str(uuid.uuid4()),
-#         "imdb_rating": 8.5,
-#         "rars_rating": 18,
-#         "fw_type": "movie",
-#         "genre": ["Action", "Sci-Fi"],
-#         "genres": [{"id": str(uuid.uuid4()), "name": "g1"}, {"id": str(uuid.uuid4()), "name": "g2"}],
-#         "title": "The Star",
-#         "description": "New World",
-#         "directors_names": ["Stan"],
-#         "actors_names": ["Ann", "Bob"],
-#         "writers_names": ["Ben", "Howard"],
-#         "actors": [{"id": str(uuid.uuid4()), "name": "Ann"}, {"id": str(uuid.uuid4()), "name": "Bob"}],
-#         "writers": [{"id": str(uuid.uuid4()), "name": "Ben"}, {"id": str(uuid.uuid4()), "name": "Howard"}],
-#         "directors": [{"id": str(uuid.uuid4()), "name": "Dir1"}, {"id": str(uuid.uuid4()), "name": "Dir2"}],
-#     }
-#     for _ in range(3)
-# ]
+from ..settings import settings
+from ..testdata.dto_models import ElasticFilm, Genre, Person
 
 
 @pytest_asyncio.fixture(scope='module', autouse=True)
-async def prepare_data(es_write_data2, flush_data):
+async def prepare_data(es_write_data, flush_data):
     def create_data(index_name):
         films = [
             ElasticFilm(
@@ -67,20 +46,18 @@ async def prepare_data(es_write_data2, flush_data):
             )
             for _ in range(2)
         ])
-
-        result = []
-        for row in films:
-            doc = [{"index": {"_index": index_name, "_id": row.id}}, row.dict(exclude={'id'})]
-            result.extend(doc)
-        return result
+        return films
+        # result = []
+        # for row in films:
+        #     #doc = [{"index": {"_index": index_name, "_id": row.id}}, row.dict(exclude={'id'})]
+        #     doc = [{"index": {"_index": index_name, "_id": row.id}}, row.dict()]
+        #     result.extend(doc)
+        # return result
 
     es_index = settings.ES_MOVIES_INDEX
     data = create_data(es_index)
 
-    response = await es_write_data2(data)
-    if response['errors']:
-        print(response)
-        raise Exception('Ошибка записи данных в Elasticsearch')
+    response = await es_write_data(index=es_index, documents=data, id_key='id', exclude={})
 
 
 @pytest.mark.parametrize(
