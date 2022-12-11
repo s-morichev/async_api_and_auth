@@ -43,3 +43,17 @@ class ExtendedFilm(Film):
     actors: list[Person]
     writers: list[Person]
     directors: list[Person]
+
+class ElasticFilm(Film):
+    imdb_rating: float
+    rars_rating: int
+    fw_type: str
+    genre: list[str]
+    genres: list[Genre]
+    description: str
+    directors_names: list[str]
+    actors_names: list[str]
+    writers_names: list[str]
+    actors: list[Person]
+    writers: list[Person]
+    directors: list[Person]

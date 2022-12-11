@@ -3,7 +3,6 @@ from http.client import HTTPConnection
 
 from settings import settings
 
-
 if __name__ == "__main__":
     cut_off = len("http://")
     connection = HTTPConnection(settings.API_URI[cut_off:])
