@@ -10,7 +10,7 @@ from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from pathlib import Path
 
-from .settings import settings
+from settings import settings
 # from src.testdata import genres_schema, movies_schema, persons_schema
 
 
@@ -67,19 +67,21 @@ async def create_es_indices(es_client: AsyncElasticsearch):
     """Запускается один раз на все тесты автоматически"""
 
     # удаляем индексы на всякий случай - а надо?
-    await es_client.indices.delete(index=settings.ES_ALL_INDICES)
+    # можно не удалять, нужно проверить существование перед созданием индексов
+    #await es_client.indices.delete(index=settings.ES_ALL_INDICES)
 
     # создаем индексы по списку. В /testdata должны лежать файлы json со схемами
     path = Path(__file__).parent / 'testdata/'
     for index in settings.ES_ALL_INDICES:
-        with open(path / f'{index}_schema.json', 'r') as json_file:
-            print(f'create index {index}')
-            schema = json.loads(json_file.read())
-            await es_client.indices.create(
-                index=index,
-                settings=schema.get("settings"),
-                mappings=schema.get("mappings"),
-            )
+        if not await es_client.indices.exists(index=index):
+            with open(path / f'{index}_schema.json', 'r') as json_file:
+                print(f'create index {index}')
+                schema = json.loads(json_file.read())
+                await es_client.indices.create(
+                    index=index,
+                    settings=schema.get("settings"),
+                    mappings=schema.get("mappings"),
+                )
 
 
 @pytest_asyncio.fixture(scope='module', autouse=True)

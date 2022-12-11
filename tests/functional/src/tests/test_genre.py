@@ -2,8 +2,8 @@ import uuid
 import pytest
 import pytest_asyncio
 
-from src.testdata.dto_models import Person, Genre, ExtendedFilm
-from src.settings import settings
+from testdata.dto_models import Person, Genre, ExtendedFilm
+from settings import settings
 
 pytestmark = pytest.mark.asyncio
 # ------------------------------------------------------------------------------ #
