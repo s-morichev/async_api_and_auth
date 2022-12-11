@@ -2,7 +2,7 @@ import time
 
 from redis import Redis, ConnectionError
 
-from functional.src.settings import settings
+from settings import settings
 
 if __name__ == "__main__":
     redis = Redis.from_url(settings.REDIS_URI)
