@@ -2,7 +2,7 @@ import uuid
 import pytest
 import pytest_asyncio
 
-from ..testdata.dto_models import Person, Genre, ExtendedFilm
+from ..testdata.dto_models import Genre
 from ..settings import settings
 
 pytestmark = pytest.mark.asyncio
@@ -22,7 +22,7 @@ async def prepare_data(es_write_data, flush_data):
     es_index = settings.ES_GENRES_INDEX
     data = create_data(es_index)
 
-    response = await es_write_data(index=es_index, documents=data, id_key='id', exclude={'id'})
+    await es_write_data(index=es_index, documents=data, id_key='id', exclude={'id'})
 
 
 testdata = [

@@ -4,6 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent
 ENV_FILE = BASE_DIR.parent / '.env.local'
 
+
 class Settings(BaseSettings):
     REDIS_URI: str = Field(..., env="REDIS_DSN")
     ES_URI: str = Field(..., env="ELK_DSN")
