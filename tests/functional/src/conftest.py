@@ -2,7 +2,9 @@ import asyncio
 from typing import Any, Iterator
 import json
 
-import aioredis
+#from redis import asyncio as aioredis
+import redis.asyncio as aioredis
+#import aioredis
 import aiohttp
 import pytest
 import pytest_asyncio
@@ -21,6 +23,7 @@ def get_es_bulk_actions(documents: list[dict[str, Any]], index: str) -> Iterator
 @pytest.fixture(scope="session")
 def event_loop():
     loop = asyncio.get_event_loop_policy().new_event_loop()
+    asyncio.set_event_loop(loop)
     yield loop
     loop.close()
 
@@ -37,7 +40,7 @@ async def es_client():
 async def redis_client() -> aioredis.Redis:
     client = await aioredis.from_url(settings.REDIS_URI)
     yield client
-
+    await client.connection_pool.disconnect()
     await client.close()
 
 
@@ -66,8 +69,8 @@ async def aiohttp_session():
 async def create_es_indices(es_client: AsyncElasticsearch):
     """Запускается один раз на все тесты автоматически"""
 
-    # удаляем индексы на всякий случай - а надо?
-    await es_client.indices.delete(index=settings.ES_ALL_INDICES)
+    # удаляем индексы на всякий случай - а надо? Игнорируем ошибки если индексов нет
+    await es_client.options(ignore_status=[400, 404]).indices.delete(index=settings.ES_ALL_INDICES)
 
     # создаем индексы по списку. В /testdata должны лежать файлы json со схемами
     path = Path(__file__).parent / 'testdata/'
@@ -80,6 +83,7 @@ async def create_es_indices(es_client: AsyncElasticsearch):
                 settings=schema.get("settings"),
                 mappings=schema.get("mappings"),
             )
+            await es_client.indices.refresh()
 
 
 @pytest_asyncio.fixture(scope='module', autouse=True)

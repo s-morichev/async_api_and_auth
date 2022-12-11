@@ -1,7 +1,8 @@
 import time
 from http.client import HTTPConnection
 
-from functional.src.settings import settings
+from settings import settings
+
 
 if __name__ == "__main__":
     cut_off = len("http://")

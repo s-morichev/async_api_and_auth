@@ -2,7 +2,7 @@ import time
 
 from elasticsearch import Elasticsearch
 
-from functional.src.settings import settings
+from settings import settings
 
 if __name__ == "__main__":
     es_client = Elasticsearch(settings.ES_URI)
