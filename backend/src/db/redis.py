@@ -1,8 +1,9 @@
 from aioredis import Redis
 
+from core.cache_service import RedisCacheService
 redis: Redis | None
 
 
 # Функция понадобится при внедрении зависимостей
 async def get_redis() -> Redis:
-    return redis  # noqa: F821
+    return RedisCacheService(redis=redis)
