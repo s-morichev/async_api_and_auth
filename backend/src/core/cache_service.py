@@ -1,8 +1,10 @@
 import logging
 from abc import abstractmethod
+
 from aioredis import Redis, RedisError
 
 from core.singletone import Singleton
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +29,7 @@ class RedisCacheService(BaseCacheService):
 
     def __init__(self, redis: Redis):
         self.redis = redis
-        logger.debug('create redis_cache')
+        logger.debug("create redis_cache")
 
     async def get(self, key: str) -> str:
         try:
@@ -37,7 +39,7 @@ class RedisCacheService(BaseCacheService):
             data = None
         return data
 
-    async def put(self, key: str, value: str,  expire: int = 0) -> None:
+    async def put(self, key: str, value: str, expire: int = 0) -> None:
         try:
             await self.redis.set(key, value, ex=expire)
         except RedisError as err:
@@ -48,5 +50,5 @@ class RedisCacheService(BaseCacheService):
             await self.redis.ping()
             return True
         except RedisError:
-            logger.debug(f'No ping for redis:{self.redis}')
+            logger.debug(f"No ping for redis:{self.redis}")
             return False

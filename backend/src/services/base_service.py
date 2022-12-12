@@ -1,13 +1,12 @@
-from typing import Type
 import logging
-from aioredis import Redis
+from typing import Type
+
 from elasticsearch import AsyncElasticsearch
-from aioredis.exceptions import RedisError
 from fastapi import Depends
 
+from core.cache_service import RedisCacheService
 from core.constants import DEFAULT_CACHE_EXPIRE_IN_SECONDS
 from core.singletone import Singleton
-from core.cache_service import RedisCacheService
 from core.utils import classproperty, hash_dict
 from db.elastic import get_elastic
 from db.redis import get_redis
@@ -83,8 +82,11 @@ class BaseService(metaclass=Singleton):
         await self.cache_service.put(key, result.json(), self.CACHE_EXPIRE_IN_SECONDS)
 
     @classmethod
-    async def get_service(cls: Type["BaseService"], redis: RedisCacheService = Depends(get_redis),
-                          elastic: AsyncElasticsearch = Depends(get_elastic)) -> "BaseService":
+    async def get_service(
+        cls: Type["BaseService"],
+        redis: RedisCacheService = Depends(get_redis),
+        elastic: AsyncElasticsearch = Depends(get_elastic),
+    ) -> "BaseService":
         """return instance of Service and its must be the same, its a SINGLETONE!!!"""
 
         return cls(redis, elastic)
