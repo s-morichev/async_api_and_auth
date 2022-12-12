@@ -6,7 +6,7 @@ from ..settings import settings
 from ..testdata.dto_models import ElasticFilm, Genre, Person
 
 
-@pytest_asyncio.fixture(scope='module', autouse=True)
+@pytest_asyncio.fixture(scope="module", autouse=True)
 async def prepare_data(es_write_data):
     films = [
         ElasticFilm(
@@ -26,7 +26,7 @@ async def prepare_data(es_write_data):
             directors=[Person(id=uuid.uuid4(), name="d1")],
         )
     ]
-    await es_write_data(index=settings.ES_MOVIES_INDEX, documents=films, id_key='id', exclude={})
+    await es_write_data(index=settings.ES_MOVIES_INDEX, documents=films, id_key="id", exclude={})
 
 
 @pytest.mark.parametrize(

@@ -6,7 +6,7 @@ from ..settings import settings
 from ..testdata.dto_models import ElasticFilm, Genre, Person
 
 
-@pytest_asyncio.fixture(scope='module', autouse=True)
+@pytest_asyncio.fixture(scope="module", autouse=True)
 async def prepare_data(es_write_data):
 
     films = [
@@ -16,8 +16,10 @@ async def prepare_data(es_write_data):
             rars_rating=18,
             fw_type="movie",
             genre=["Action", "Drama"],
-            genres=[Genre(id="14450430-fc1b-4010-830d-f30c944c7175", name="Action"),
-                    Genre(id="3a9fe666-f161-4612-9b0a-874d2e87f2e3", name="Drama")],
+            genres=[
+                Genre(id="14450430-fc1b-4010-830d-f30c944c7175", name="Action"),
+                Genre(id="3a9fe666-f161-4612-9b0a-874d2e87f2e3", name="Drama"),
+            ],
             title="title consisting of apple carrot",
             description="description carrot cabbage",
             directors_names=["d1"],
@@ -49,8 +51,10 @@ async def prepare_data(es_write_data):
             rars_rating=18,
             fw_type="movie",
             genre=["Action", "Genre"],
-            genres=[Genre(id="14450430-fc1b-4010-830d-f30c944c7175", name="Action"),
-                    Genre(id="61d34c09-08da-44e7-93d2-0c2bb3a9a068", name="Genre")],
+            genres=[
+                Genre(id="14450430-fc1b-4010-830d-f30c944c7175", name="Action"),
+                Genre(id="61d34c09-08da-44e7-93d2-0c2bb3a9a068", name="Genre"),
+            ],
             title="title consisting of apple",
             description="description carrot",
             directors_names=["d1"],
@@ -66,8 +70,10 @@ async def prepare_data(es_write_data):
             rars_rating=18,
             fw_type="movie",
             genre=["Action", "Drama"],
-            genres=[Genre(id="14450430-fc1b-4010-830d-f30c944c7175", name="Action"),
-                    Genre(id="3a9fe666-f161-4612-9b0a-874d2e87f2e3", name="Drama")],
+            genres=[
+                Genre(id="14450430-fc1b-4010-830d-f30c944c7175", name="Action"),
+                Genre(id="3a9fe666-f161-4612-9b0a-874d2e87f2e3", name="Drama"),
+            ],
             title="random",
             description="random",
             directors_names=["d1"],
@@ -79,7 +85,7 @@ async def prepare_data(es_write_data):
         ),
     ]
 
-    await es_write_data(index=settings.ES_MOVIES_INDEX, documents=films, id_key='id', exclude={})
+    await es_write_data(index=settings.ES_MOVIES_INDEX, documents=films, id_key="id", exclude={})
 
 
 @pytest.mark.parametrize(
@@ -169,8 +175,28 @@ async def test_search_by_genre(search_params, expected_answer, make_get_request)
 @pytest.mark.parametrize(
     "search_query, expected_answer",
     [
-        ("apple", {"status": 200, "order": ["edde24a9-65eb-45f4-ac57-e22dfbe4dc2c", "d35093b8-dd2d-434a-8848-e8765da10a15",  "40285ba8-ca04-4112-ae18-050659a838d6"]}),
-        ("apple carrot", {"status": 200, "order": ["40285ba8-ca04-4112-ae18-050659a838d6", "d35093b8-dd2d-434a-8848-e8765da10a15", "edde24a9-65eb-45f4-ac57-e22dfbe4dc2c"]}),
+        (
+            "apple",
+            {
+                "status": 200,
+                "order": [
+                    "edde24a9-65eb-45f4-ac57-e22dfbe4dc2c",
+                    "d35093b8-dd2d-434a-8848-e8765da10a15",
+                    "40285ba8-ca04-4112-ae18-050659a838d6",
+                ],
+            },
+        ),
+        (
+            "apple carrot",
+            {
+                "status": 200,
+                "order": [
+                    "40285ba8-ca04-4112-ae18-050659a838d6",
+                    "d35093b8-dd2d-434a-8848-e8765da10a15",
+                    "edde24a9-65eb-45f4-ac57-e22dfbe4dc2c",
+                ],
+            },
+        ),
     ],
 )
 @pytest.mark.asyncio
@@ -180,4 +206,3 @@ async def test_order_of_search_results(search_query, expected_answer, make_get_r
     assert status == expected_answer["status"]
     for i, film_id in enumerate(expected_answer["order"]):
         assert body["result"][i]["uuid"] == film_id
-
