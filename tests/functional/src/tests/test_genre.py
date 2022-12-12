@@ -37,8 +37,8 @@ testdata = [
     ({'page[number]': 500, 'page[size]': 10}, {'status': 200}, 'big page_number=500'),
     ({'page[number]': -1, 'page[size]': 3}, {'status': 422}, 'page_num=-1'),
     ({'page[number]': 0, 'page[size]': 3}, {'status': 422}, 'page_num=0'),
-    ({'page[number]': 1000, 'page[size]': 1000}, {'status': 422}, 'big page size and page num'),
-    ({'page[number]': 2, 'page[size]': 500}, {'status': 422}, 'big page_size=500')
+    ({'page[number]': 1000, 'page[size]': 1000}, {'status': 400}, 'big page size and page num'),
+    ({'page[number]': 2, 'page[size]': 500}, {'status': 200}, 'big page_size=500')
 ]
 
 
