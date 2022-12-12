@@ -1,21 +1,20 @@
 import logging
-from abc import ABC, abstractmethod
-from typing import Any
+from abc import abstractmethod
 from aioredis import Redis, RedisError
 
 from core.singletone import Singleton
 logger = logging.getLogger(__name__)
 
 
-class BaseCacheService(ABC):
+class BaseCacheService(metaclass=Singleton):
     """Абстрактный класс для службы кэша"""
 
     @abstractmethod
-    async def get(self, key: dict[str, int | str]) -> str:
+    async def get(self, key: str) -> str:
         pass
 
     @abstractmethod
-    async def put(self, key: dict[str, int | str], value: str, expire: int = 0) -> None:
+    async def put(self, key: str, value: str, expire: int = 0) -> None:
         pass
 
     @abstractmethod
@@ -24,12 +23,11 @@ class BaseCacheService(ABC):
 
 
 class RedisCacheService(BaseCacheService):
-    __metaclass__ = Singleton
-
     redis: Redis
 
     def __init__(self, redis: Redis):
         self.redis = redis
+        logger.debug('create redis_cache')
 
     async def get(self, key: str) -> str:
         try:
