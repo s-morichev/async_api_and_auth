@@ -4,7 +4,7 @@ from typing import Type
 from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 
-from core.cache_service import RedisCacheService
+from core.cache_service import BaseCacheService
 from core.constants import DEFAULT_CACHE_EXPIRE_IN_SECONDS
 from core.singletone import Singleton
 from core.utils import classproperty, hash_dict
@@ -31,7 +31,7 @@ class BaseService(metaclass=Singleton):
     CACHE_EXPIRE_IN_SECONDS = DEFAULT_CACHE_EXPIRE_IN_SECONDS
     RESULT_MODEL: ServiceSingeResult | ServiceListResult
 
-    def __init__(self, cache: RedisCacheService, elastic: AsyncElasticsearch):
+    def __init__(self, cache: BaseCacheService, elastic: AsyncElasticsearch):
         self.cache_service = cache
         self.elastic = elastic
 
@@ -84,11 +84,11 @@ class BaseService(metaclass=Singleton):
     @classmethod
     async def get_service(
         cls: Type["BaseService"],
-        redis: RedisCacheService = Depends(get_redis),
+        cache: BaseCacheService = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
     ) -> "BaseService":
         """return instance of Service and its must be the same, its a SINGLETONE!!!"""
 
-        return cls(redis, elastic)
+        return cls(cache, elastic)
 
     # ------------------------------------------------------------------------------ #

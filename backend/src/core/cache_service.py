@@ -12,7 +12,7 @@ class BaseCacheService(metaclass=Singleton):
     """Абстрактный класс для службы кэша"""
 
     @abstractmethod
-    async def get(self, key: str) -> str:
+    async def get(self, key: str) -> str | None:
         pass
 
     @abstractmethod
@@ -31,7 +31,7 @@ class RedisCacheService(BaseCacheService):
         self.redis = redis
         logger.debug("create redis_cache")
 
-    async def get(self, key: str) -> str:
+    async def get(self, key: str) -> str | None:
         try:
             data = await self.redis.get(key)
         except RedisError as err:
