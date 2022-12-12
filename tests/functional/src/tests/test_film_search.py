@@ -181,8 +181,8 @@ async def test_search_by_genre(search_params, expected_answer, make_get_request)
                 "status": 200,
                 "order": [
                     "edde24a9-65eb-45f4-ac57-e22dfbe4dc2c",
-                    "d35093b8-dd2d-434a-8848-e8765da10a15",
                     "40285ba8-ca04-4112-ae18-050659a838d6",
+                    "d35093b8-dd2d-434a-8848-e8765da10a15",
                 ],
             },
         ),
