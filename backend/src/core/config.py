@@ -2,7 +2,6 @@ from pathlib import Path
 
 from pydantic import BaseSettings, Field
 
-
 BASE_DIR = Path(__file__).parent.parent
 ENV_FILE = BASE_DIR.parent / ".env.local"
 VAR_DIR = BASE_DIR / "var/"

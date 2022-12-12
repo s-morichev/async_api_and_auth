@@ -1,10 +1,10 @@
-from typing import Type
 import logging
-from aioredis import Redis
+from typing import Type
+
 from elasticsearch import AsyncElasticsearch
-from aioredis.exceptions import RedisError
 from fastapi import Depends
 
+from core.cache_service import BaseCacheService
 from core.constants import DEFAULT_CACHE_EXPIRE_IN_SECONDS
 from core.singletone import Singleton
 from core.utils import classproperty, hash_dict
@@ -31,8 +31,8 @@ class BaseService(metaclass=Singleton):
     CACHE_EXPIRE_IN_SECONDS = DEFAULT_CACHE_EXPIRE_IN_SECONDS
     RESULT_MODEL: ServiceSingeResult | ServiceListResult
 
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
+    def __init__(self, cache: BaseCacheService, elastic: AsyncElasticsearch):
+        self.cache_service = cache
         self.elastic = elastic
 
     @classproperty
@@ -40,7 +40,7 @@ class BaseService(metaclass=Singleton):
         """return base model from Result_model"""
         return self.RESULT_MODEL.__fields__["result"].type_
 
-    def get_redis_key(self, keys: dict):
+    def get_hash_key(self, keys: dict):
         return hash_dict(self.NAME, keys)
 
     async def get(self, **kwargs) -> MaybeResult:
@@ -64,17 +64,12 @@ class BaseService(metaclass=Singleton):
     async def get_from_cache(self, query_dict: dict) -> MaybeResult:
         if not self.USE_CACHE:
             return None
-
-        key = self.get_redis_key(query_dict)
-        try:
-            data = await self.redis.get(key)
-        except RedisError as err:
-            logger.error(f"Error get from cache: {err}")
-            data = None
-
+        key = self.get_hash_key(query_dict)
+        logger.debug(f"get from cache, key: {key}")
+        data = await self.cache_service.get(key)
         if not data:
             return None
-        logger.debug(f"get from cache key: {key}")
+
         result = self.RESULT_MODEL.parse_raw(data)
         return result
 
@@ -82,19 +77,18 @@ class BaseService(metaclass=Singleton):
         if not self.USE_CACHE:
             return
 
-        key = self.get_redis_key(query_dict)
-        logger.debug(f"save to cache key: {key}")
-
-        try:
-            await self.redis.set(key, result.json(), ex=self.CACHE_EXPIRE_IN_SECONDS)
-        except RedisError as err:
-            logger.error(f"Error put to cache: {err}")
+        key = self.get_hash_key(query_dict)
+        logger.debug(f"save to cache, key: {key}")
+        await self.cache_service.put(key, result.json(), self.CACHE_EXPIRE_IN_SECONDS)
 
     @classmethod
-    async def get_service(cls: Type["BaseService"], redis: Redis = Depends(get_redis),
-                          elastic: AsyncElasticsearch = Depends(get_elastic)) -> "BaseService":
+    async def get_service(
+        cls: Type["BaseService"],
+        cache: BaseCacheService = Depends(get_redis),
+        elastic: AsyncElasticsearch = Depends(get_elastic),
+    ) -> "BaseService":
         """return instance of Service and its must be the same, its a SINGLETONE!!!"""
 
-        return cls(redis, elastic)
+        return cls(cache, elastic)
 
     # ------------------------------------------------------------------------------ #

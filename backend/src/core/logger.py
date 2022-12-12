@@ -1,6 +1,7 @@
 import logging
 import logging.config as logging_config
-from core.config import settings, LOG_FILE
+
+from core.config import LOG_FILE, settings
 
 if settings.DEBUG:
     LOG_FORMAT = "%(asctime)s - [%(levelname)s] - %(name)s - %(message)s -- (%(filename)s).%(funcName)s(%(lineno)d)"
