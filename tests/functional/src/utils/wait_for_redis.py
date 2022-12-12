@@ -1,13 +1,15 @@
 import time
 
-from redis import Redis
+from redis import Redis, ConnectionError
 
 from settings import settings
 
 if __name__ == "__main__":
     redis = Redis.from_url(settings.REDIS_URI)
     while True:
-        if redis.ping():
-            break
-        print("wait redis, sleep 1s")
-        time.sleep(1)
+        try:
+            if redis.ping():
+                break
+        except ConnectionError:
+            print("wait redis, sleep 1s")
+            time.sleep(1)

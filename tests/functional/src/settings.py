@@ -1,4 +1,8 @@
 from pydantic import BaseSettings, Field
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent
+ENV_FILE = BASE_DIR.parent / '.env.local'
 
 
 class Settings(BaseSettings):
@@ -14,4 +18,4 @@ class Settings(BaseSettings):
         return [self.ES_MOVIES_INDEX, self.ES_PERSONS_INDEX, self.ES_GENRES_INDEX]
 
 
-settings = Settings(_env_file=".env.local")
+settings = Settings(_env_file=ENV_FILE)

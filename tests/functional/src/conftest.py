@@ -1,18 +1,17 @@
 import asyncio
 from typing import Any, Iterator
+import json
 
+import redis.asyncio as aioredis
 import aiohttp
 import pytest
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
+from pathlib import Path
 
-from settings import settings
-from testdata import genres_schema, movies_schema, persons_schema
-
-
-def get_es_bulk_actions(documents: list[dict[str, Any]], index: str) -> Iterator[dict[str, Any]]:
-    return ({"_index": index, "_id": document["id"], "_source": document} for document in documents)
+from .settings import settings
+from .testdata.core_model import CoreModel
 
 
 @pytest.fixture(scope="session")
@@ -27,7 +26,14 @@ async def es_client():
     client = AsyncElasticsearch(settings.ES_URI)
     yield client
 
-    await client.indices.delete(index=settings.ES_ALL_INDICES)
+    await client.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def redis_client() -> aioredis.Redis:
+    client = await aioredis.from_url(settings.REDIS_URI)
+    yield client
+    await client.connection_pool.disconnect()
     await client.close()
 
 
@@ -40,40 +46,59 @@ async def aiohttp_session():
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
-async def create_es_indices(es_client):
-    for index, schema in [
-        (settings.ES_MOVIES_INDEX, movies_schema),
-        (settings.ES_PERSONS_INDEX, persons_schema),
-        (settings.ES_GENRES_INDEX, genres_schema),
-    ]:
-        await es_client.indices.create(
-            index=index,
-            settings=schema.get("settings"),
-            mappings=schema.get("mappings"),
+async def create_es_indices(es_client: AsyncElasticsearch):
+    """Запускается один раз на все тесты автоматически"""
+
+    # удаляем индексы на всякий случай - а надо? Игнорируем ошибки если индексов нет
+    # удаляем - вдруг схема поменялась?
+    await es_client.options(ignore_status=[400, 404]).indices.delete(index=settings.ES_ALL_INDICES)
+
+    # создаем индексы по списку. В /testdata должны лежать файлы json со схемами
+    path = Path(__file__).parent / 'testdata/'
+    for index in settings.ES_ALL_INDICES:
+        with open(path / f'{index}_schema.json', 'r') as json_file:
+            print(f'create index {index}')
+            schema = json.loads(json_file.read())
+            await es_client.indices.create(
+                index=index,
+                settings=schema.get("settings"),
+                mappings=schema.get("mappings"),
+            )
+
+
+@pytest_asyncio.fixture(scope='module', autouse=True)
+async def flush_data(es_client: AsyncElasticsearch, redis_client: aioredis.Redis):
+#async def flush_data(es_client: AsyncElasticsearch):
+    """ Запускается на каждый модуль автоматически """
+
+    async def clear_redis():
+        await redis_client.flushall()
+
+    async def clear_es_indices():
+        await es_client.delete_by_query(
+            index=settings.ES_ALL_INDICES,
+            query={"match_all": {}},
         )
 
+    await clear_redis()
+    await clear_es_indices()
 
-@pytest.fixture()
-def es_write_data(es_client, request, event_loop):
-    async def inner(documents: list[dict[str, Any]], index: str):
-        es_actions = get_es_bulk_actions(documents, index)
-        loaded, errors = await async_bulk(client=es_client, actions=es_actions)
+
+@pytest.fixture(scope='session')
+def es_write_data(es_client):
+    async def inner(documents: list[CoreModel], index: str, id_key: str = 'id', exclude: set[str] = {'id'}):
+        def make_action(index: str, document: CoreModel, id_key: str, exclude: set[str]):
+            return {"_index": index, "_id": getattr(document, id_key), "_source": document.dict(exclude=exclude)}
+
+        docs = [make_action(index, doc, id_key, exclude) for doc in documents]
+
+        loaded, errors = await async_bulk(client=es_client, actions=docs)
 
         if errors:
             raise Exception("Ошибка записи данных в Elasticsearch")
+
         await es_client.indices.refresh()
-
-    def finalizer():
-        async def clear_es_indices():
-            await es_client.delete_by_query(
-                index=settings.ES_ALL_INDICES,
-                query={"match_all": {}},
-            )
-
-        # для выполнения корутины внутри finalizer
-        event_loop.run_until_complete(clear_es_indices())
-
-    request.addfinalizer(finalizer)
+        return loaded
 
     return inner
 
