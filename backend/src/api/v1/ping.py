@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/ping", summary="ping, answer-pong")
+@router.get("", summary="ping, answer-pong")
 async def ping(redis: Redis = Depends(get_redis),
                elastic: AsyncElasticsearch = Depends(get_elastic)):
 
@@ -22,4 +22,4 @@ async def ping(redis: Redis = Depends(get_redis),
         redis_ok = False
 
     logger.debug(f'ping received, es:{elastic_ok} redis:{redis_ok}')
-    return {'result': 'pong', 'es': elastic_ok, 'redis': redis_ok}
+    return {'result': 'pong', 'base_service': elastic_ok, 'cache_service': redis_ok}
