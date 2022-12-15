@@ -1,8 +1,7 @@
 from uuid import UUID
 
-from pydantic import Field
-
 from core.core_model import CoreModel
+from pydantic import Field
 
 
 class IdModel(CoreModel):

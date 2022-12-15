@@ -28,7 +28,7 @@ def redis_cache():
 @pytest.mark.asyncio
 async def test_put(redis_cache):
     cache, redis = redis_cache
-    key = '11111'
+    key = "11111"
     value1 = "{'test value': 'test'}"
     await cache.put(key, value1)
     value2 = await cache.get(key)

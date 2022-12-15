@@ -1,15 +1,14 @@
 import logging
 from typing import Type
 
-from elasticsearch import AsyncElasticsearch
-from fastapi import Depends
-
 from core.cache_service import BaseCacheService
 from core.constants import DEFAULT_CACHE_EXPIRE_IN_SECONDS
+from core.database_service import BaseDatabaseService
 from core.singletone import Singleton
 from core.utils import classproperty, hash_dict
-from db.elastic import get_elastic
+from db.elastic import get_es_database_service
 from db.redis import get_redis
+from fastapi import Depends
 from models.service_result import ServiceListResult, ServiceSingeResult
 
 logger = logging.getLogger(__name__)
@@ -31,9 +30,9 @@ class BaseService(metaclass=Singleton):
     CACHE_EXPIRE_IN_SECONDS = DEFAULT_CACHE_EXPIRE_IN_SECONDS
     RESULT_MODEL: ServiceSingeResult | ServiceListResult
 
-    def __init__(self, cache: BaseCacheService, elastic: AsyncElasticsearch):
+    def __init__(self, cache: BaseCacheService, database: BaseDatabaseService):
         self.cache_service = cache
-        self.elastic = elastic
+        self.database_service = database
 
     @classproperty
     def BASE_MODEL(self):
@@ -50,15 +49,15 @@ class BaseService(metaclass=Singleton):
             return result
 
         # 2. try to get data from es
-        elif result := await self.get_from_elastic(**kwargs):
-            logger.debug(f"get from ES: {result}")
+        elif result := await self.get_from_database(**kwargs):
+            logger.debug(f"get from database: {result}")
             await self.put_to_cache(kwargs, result)
             return result
         else:
             logger.debug("Nothing find")
             return None
 
-    async def get_from_elastic(self, **kwargs) -> MaybeResult:
+    async def get_from_database(self, **kwargs) -> MaybeResult:
         pass
 
     async def get_from_cache(self, query_dict: dict) -> MaybeResult:
@@ -85,10 +84,10 @@ class BaseService(metaclass=Singleton):
     async def get_service(
         cls: Type["BaseService"],
         cache: BaseCacheService = Depends(get_redis),
-        elastic: AsyncElasticsearch = Depends(get_elastic),
+        database: BaseDatabaseService = Depends(get_es_database_service),
     ) -> "BaseService":
         """return instance of Service and its must be the same, its a SINGLETONE!!!"""
 
-        return cls(cache, elastic)
+        return cls(cache, database)
 
     # ------------------------------------------------------------------------------ #
