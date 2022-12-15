@@ -1,7 +1,6 @@
 import hashlib
 
 import orjson
-
 from core.constants import DEFAULT_PAGE_SIZE, ES_PAGINATION_LIMIT, KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE
 
 

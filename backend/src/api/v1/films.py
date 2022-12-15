@@ -3,11 +3,10 @@ import logging
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-
 from api.v1.params import PageParams, QueryPageParams
 from api.v1.schemas import ExtendedImdbFilm, ImdbFilm, ManyResponse
 from core.constants import KEY_FILTER_GENRE, KEY_SORT
+from fastapi import APIRouter, Depends, HTTPException, Query
 from services.films import FilmByIdService, PopularFilmsService, SearchFilmsService, SimilarFilmsService
 
 logger = logging.getLogger(__name__)
