@@ -1,14 +1,13 @@
 import asyncio
-from typing import Any, Iterator
 import json
+from pathlib import Path
 
-import redis.asyncio as aioredis
 import aiohttp
 import pytest
 import pytest_asyncio
+import redis.asyncio as aioredis
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
-from pathlib import Path
 
 from .settings import settings
 from .testdata.core_model import CoreModel
@@ -30,7 +29,7 @@ async def es_client():
     await client.close()
 
 
-@pytest_asyncio.fixture(scope='session')
+@pytest_asyncio.fixture(scope="session")
 async def redis_client() -> aioredis.Redis:
     client = await aioredis.from_url(settings.REDIS_URI)
     yield client
@@ -55,10 +54,10 @@ async def create_es_indices(es_client: AsyncElasticsearch):
     await es_client.options(ignore_status=[400, 404]).indices.delete(index=settings.ES_ALL_INDICES)
 
     # создаем индексы по списку. В /testdata должны лежать файлы json со схемами
-    path = Path(__file__).parent / 'testdata/'
+    path = Path(__file__).parent / "testdata/"
     for index in settings.ES_ALL_INDICES:
-        with open(path / f'{index}_schema.json', 'r') as json_file:
-            print(f'create index {index}')
+        with open(path / f"{index}_schema.json", "r") as json_file:
+            print(f"create index {index}")
             schema = json.loads(json_file.read())
             await es_client.indices.create(
                 index=index,
@@ -68,27 +67,31 @@ async def create_es_indices(es_client: AsyncElasticsearch):
             await es_client.indices.refresh()
 
 
-@pytest_asyncio.fixture(scope='module', autouse=True)
+async def clear_es_indices(es_client: AsyncElasticsearch):
+    await es_client.delete_by_query(index=settings.ES_ALL_INDICES, query={"match_all": {}})
+    # обязательно, или будет conflict error
+    await es_client.indices.refresh()
+
+
+async def clear_redis(redis_client: aioredis.Redis):
+    await redis_client.flushall()
+
+
+@pytest_asyncio.fixture  # пришлось делать и фикстуру и функцию, иначе по scope конфликты шли c flush_data
+async def clear_indices(es_client: AsyncElasticsearch):
+    await clear_es_indices(es_client)
+
+
+@pytest_asyncio.fixture(scope="module", autouse=True)
 async def flush_data(es_client: AsyncElasticsearch, redis_client: aioredis.Redis):
-#async def flush_data(es_client: AsyncElasticsearch):
-    """ Запускается на каждый модуль автоматически """
-
-    async def clear_redis():
-        await redis_client.flushall()
-
-    async def clear_es_indices():
-        await es_client.delete_by_query(
-            index=settings.ES_ALL_INDICES,
-            query={"match_all": {}},
-        )
-
-    await clear_redis()
-    await clear_es_indices()
+    """Запускается на каждый модуль автоматически"""
+    await clear_es_indices(es_client)
+    await clear_redis(redis_client)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def es_write_data(es_client):
-    async def inner(documents: list[CoreModel], index: str, id_key: str = 'id', exclude: set[str] = {'id'}):
+    async def inner(documents: list[CoreModel], index: str, id_key: str = "id", exclude: set[str] = {"id"}):
         def make_action(index: str, document: CoreModel, id_key: str, exclude: set[str]):
             return {"_index": index, "_id": getattr(document, id_key), "_source": document.dict(exclude=exclude)}
 

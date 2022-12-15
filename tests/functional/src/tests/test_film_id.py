@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 import pytest_asyncio
+
 from ..settings import settings
 from ..testdata.dto_models import ElasticFilm, Genre, Person
 

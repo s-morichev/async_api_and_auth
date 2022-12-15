@@ -1,8 +1,9 @@
-from pydantic import BaseSettings, Field
 from pathlib import Path
 
+from pydantic import BaseSettings, Field
+
 BASE_DIR = Path(__file__).parent
-ENV_FILE = BASE_DIR.parent / '.env.local'
+ENV_FILE = BASE_DIR.parent / ".env.local"
 
 
 class Settings(BaseSettings):

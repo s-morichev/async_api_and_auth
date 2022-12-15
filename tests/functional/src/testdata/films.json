@@ -1,0 +1,974 @@
+[
+    {
+        "id": "e74282ce-0986-456d-b660-f58dfce2d3cb",
+        "title": "First film",
+        "description": "random film",
+        "imdb_rating": 1.6,
+        "fw_type": "movie",
+        "rars_rating": 18,
+        "genres": [
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            }
+        ],
+        "actors": [],
+        "writers": [],
+        "directors": [
+            {
+                "id": "f5f392e0-af6d-43a7-8027-401aab0f2e13",
+                "name": "Person 4"
+            }
+        ]
+    },
+    {
+        "id": "04895df7-5fb4-4106-9d07-365e0a5a4427",
+        "title": "Movie 1",
+        "description": "random film",
+        "imdb_rating": 2.4,
+        "fw_type": "movie",
+        "rars_rating": 0,
+        "genres": [
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            }
+        ],
+        "actors": [
+            {
+                "id": "f5f392e0-af6d-43a7-8027-401aab0f2e13",
+                "name": "Person 4"
+            },
+            {
+                "id": "f5f392e0-af6d-43a7-8027-401aab0f2e13",
+                "name": "Person 4"
+            },
+            {
+                "id": "f5f392e0-af6d-43a7-8027-401aab0f2e13",
+                "name": "Person 4"
+            },
+            {
+                "id": "494b0e11-8def-43b2-b808-991312da0803",
+                "name": "Person 14"
+            },
+            {
+                "id": "2538214c-4c19-4315-9770-3a84da13d04e",
+                "name": "Person 17"
+            }
+        ],
+        "writers": [
+            {
+                "id": "84e32670-b7f2-4e30-94dc-c516ef296ad3",
+                "name": "Person 11"
+            }
+        ],
+        "directors": []
+    },
+    {
+        "id": "e6e046a1-4a40-451a-a327-4c28e9442471",
+        "title": "Movie 2",
+        "description": "random film",
+        "imdb_rating": 2.2,
+        "fw_type": "tv show",
+        "rars_rating": 0,
+        "genres": [
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            },
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            }
+        ],
+        "actors": [
+            {
+                "id": "782027dc-861f-4253-9440-17a961711b64",
+                "name": "Person 9"
+            },
+            {
+                "id": "cc462baa-cdef-4b87-94ce-71466ee4fee4",
+                "name": "Middle"
+            },
+            {
+                "id": "2538214c-4c19-4315-9770-3a84da13d04e",
+                "name": "Person 17"
+            }
+        ],
+        "writers": [
+            {
+                "id": "c5b287e1-c866-4b28-8234-e3f0a656424f",
+                "name": "Person 6"
+            },
+            {
+                "id": "84e32670-b7f2-4e30-94dc-c516ef296ad3",
+                "name": "Person 11"
+            }
+        ],
+        "directors": [
+            {
+                "id": "aff15adc-dd27-4ea9-8b50-50e7e1c2e35d",
+                "name": "Person 2"
+            },
+            {
+                "id": "494b0e11-8def-43b2-b808-991312da0803",
+                "name": "Person 14"
+            }
+        ]
+    },
+    {
+        "id": "61e9359d-24e8-430b-b1ba-7ad9c2e709b0",
+        "title": "Movie 3",
+        "description": "random film",
+        "imdb_rating": 9.5,
+        "fw_type": "tv show",
+        "rars_rating": 12,
+        "genres": [
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            },
+            {
+                "id": "6d7598d0-0d71-4654-a81e-de6eaa54f5f4",
+                "name": "Genre 1"
+            },
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            },
+            {
+                "id": "6d7598d0-0d71-4654-a81e-de6eaa54f5f4",
+                "name": "Genre 1"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            }
+        ],
+        "actors": [
+            {
+                "id": "d1c9714b-8e3e-43b9-b504-a33984f39905",
+                "name": "Person 1"
+            },
+            {
+                "id": "84e32670-b7f2-4e30-94dc-c516ef296ad3",
+                "name": "Person 11"
+            },
+            {
+                "id": "494b0e11-8def-43b2-b808-991312da0803",
+                "name": "Person 14"
+            },
+            {
+                "id": "61a4ee5d-5585-4e9b-9130-9805b474c7a4",
+                "name": "Person Last"
+            }
+        ],
+        "writers": [
+            {
+                "id": "29e42782-6ae4-4d3e-b900-c79250188b6a",
+                "name": "Person 5"
+            },
+            {
+                "id": "782027dc-861f-4253-9440-17a961711b64",
+                "name": "Person 9"
+            },
+            {
+                "id": "782027dc-861f-4253-9440-17a961711b64",
+                "name": "Person 9"
+            }
+        ],
+        "directors": []
+    },
+    {
+        "id": "6f270ff9-02bf-491b-b8dc-9e0afb7b8cf7",
+        "title": "Movie 4",
+        "description": "random film",
+        "imdb_rating": 2.8,
+        "fw_type": "movie",
+        "rars_rating": 12,
+        "genres": [
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            },
+            {
+                "id": "6d7598d0-0d71-4654-a81e-de6eaa54f5f4",
+                "name": "Genre 1"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            }
+        ],
+        "actors": [
+            {
+                "id": "f5f392e0-af6d-43a7-8027-401aab0f2e13",
+                "name": "Person 4"
+            },
+            {
+                "id": "22642457-786e-4f55-9eb8-8f26a42ac6ba",
+                "name": "Person 7"
+            }
+        ],
+        "writers": [],
+        "directors": [
+            {
+                "id": "ebff13a2-c650-436b-9459-0dbe3936982b",
+                "name": "Person 15"
+            }
+        ]
+    },
+    {
+        "id": "d2d89b94-4522-4a98-8a3b-ecade74c952d",
+        "title": "Movie 5",
+        "description": "random film",
+        "imdb_rating": 8.7,
+        "fw_type": "tv show",
+        "rars_rating": 16,
+        "genres": [
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            },
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            }
+        ],
+        "actors": [
+            {
+                "id": "22642457-786e-4f55-9eb8-8f26a42ac6ba",
+                "name": "Person 7"
+            },
+            {
+                "id": "22642457-786e-4f55-9eb8-8f26a42ac6ba",
+                "name": "Person 7"
+            },
+            {
+                "id": "22642457-786e-4f55-9eb8-8f26a42ac6ba",
+                "name": "Person 7"
+            },
+            {
+                "id": "84e32670-b7f2-4e30-94dc-c516ef296ad3",
+                "name": "Person 11"
+            }
+        ],
+        "writers": [
+            {
+                "id": "2538214c-4c19-4315-9770-3a84da13d04e",
+                "name": "Person 17"
+            }
+        ],
+        "directors": []
+    },
+    {
+        "id": "caa11505-31f4-4bd1-8419-3128edde9f57",
+        "title": "Movie 6",
+        "description": "random film",
+        "imdb_rating": 4.0,
+        "fw_type": "movie",
+        "rars_rating": 16,
+        "genres": [
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            }
+        ],
+        "actors": [
+            {
+                "id": "22642457-786e-4f55-9eb8-8f26a42ac6ba",
+                "name": "Person 7"
+            },
+            {
+                "id": "24b47a99-e4e4-47c8-8e03-a097f08f3c64",
+                "name": "Person 8"
+            },
+            {
+                "id": "96e39dca-1a7e-4267-a650-351007c92bd1",
+                "name": "Person 12"
+            },
+            {
+                "id": "2538214c-4c19-4315-9770-3a84da13d04e",
+                "name": "Person 17"
+            }
+        ],
+        "writers": [
+            {
+                "id": "8eee6729-02fd-4180-9593-a6934ae6c4b4",
+                "name": "First Person"
+            }
+        ],
+        "directors": [
+            {
+                "id": "494b0e11-8def-43b2-b808-991312da0803",
+                "name": "Person 14"
+            },
+            {
+                "id": "494b0e11-8def-43b2-b808-991312da0803",
+                "name": "Person 14"
+            }
+        ]
+    },
+    {
+        "id": "c8f0b683-f9b7-47f8-a756-6864a528c39f",
+        "title": "Movie 7",
+        "description": "random film",
+        "imdb_rating": 1.5,
+        "fw_type": "tv show",
+        "rars_rating": 16,
+        "genres": [
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            },
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            }
+        ],
+        "actors": [
+            {
+                "id": "ebff13a2-c650-436b-9459-0dbe3936982b",
+                "name": "Person 15"
+            }
+        ],
+        "writers": [
+            {
+                "id": "addfe501-095b-4a43-aa08-6860946a0bc0",
+                "name": "Person 3"
+            },
+            {
+                "id": "24b47a99-e4e4-47c8-8e03-a097f08f3c64",
+                "name": "Person 8"
+            },
+            {
+                "id": "84e32670-b7f2-4e30-94dc-c516ef296ad3",
+                "name": "Person 11"
+            }
+        ],
+        "directors": []
+    },
+    {
+        "id": "99556e49-11db-44c8-8f2f-c6c1c795b788",
+        "title": "Movie 8",
+        "description": "random film",
+        "imdb_rating": 4.3,
+        "fw_type": "movie",
+        "rars_rating": 16,
+        "genres": [
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            }
+        ],
+        "actors": [
+            {
+                "id": "2538214c-4c19-4315-9770-3a84da13d04e",
+                "name": "Person 17"
+            },
+            {
+                "id": "2538214c-4c19-4315-9770-3a84da13d04e",
+                "name": "Person 17"
+            }
+        ],
+        "writers": [
+            {
+                "id": "aff15adc-dd27-4ea9-8b50-50e7e1c2e35d",
+                "name": "Person 2"
+            },
+            {
+                "id": "addfe501-095b-4a43-aa08-6860946a0bc0",
+                "name": "Person 3"
+            },
+            {
+                "id": "ebff13a2-c650-436b-9459-0dbe3936982b",
+                "name": "Person 15"
+            }
+        ],
+        "directors": [
+            {
+                "id": "494b0e11-8def-43b2-b808-991312da0803",
+                "name": "Person 14"
+            }
+        ]
+    },
+    {
+        "id": "7a1e9578-0f29-4629-8473-e20ea8c5c095",
+        "title": "Movie 9",
+        "description": "random film",
+        "imdb_rating": 2.6,
+        "fw_type": "movie",
+        "rars_rating": 16,
+        "genres": [
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            },
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            }
+        ],
+        "actors": [],
+        "writers": [
+            {
+                "id": "8eee6729-02fd-4180-9593-a6934ae6c4b4",
+                "name": "First Person"
+            }
+        ],
+        "directors": []
+    },
+    {
+        "id": "7fc5b067-2b07-426f-8024-e439edfe55e6",
+        "title": "Middle movie",
+        "description": "random film",
+        "imdb_rating": 5.6,
+        "fw_type": "tv show",
+        "rars_rating": 0,
+        "genres": [
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            },
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            },
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            }
+        ],
+        "actors": [
+            {
+                "id": "782027dc-861f-4253-9440-17a961711b64",
+                "name": "Person 9"
+            },
+            {
+                "id": "782027dc-861f-4253-9440-17a961711b64",
+                "name": "Person 9"
+            }
+        ],
+        "writers": [],
+        "directors": [
+            {
+                "id": "addfe501-095b-4a43-aa08-6860946a0bc0",
+                "name": "Person 3"
+            },
+            {
+                "id": "22642457-786e-4f55-9eb8-8f26a42ac6ba",
+                "name": "Person 7"
+            }
+        ]
+    },
+    {
+        "id": "9c764c29-5f46-40b9-be24-50de791bcf56",
+        "title": "Movie 11",
+        "description": "random film",
+        "imdb_rating": 0.6,
+        "fw_type": "tv show",
+        "rars_rating": 0,
+        "genres": [
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            }
+        ],
+        "actors": [
+            {
+                "id": "f5f392e0-af6d-43a7-8027-401aab0f2e13",
+                "name": "Person 4"
+            },
+            {
+                "id": "c5b287e1-c866-4b28-8234-e3f0a656424f",
+                "name": "Person 6"
+            },
+            {
+                "id": "c5b287e1-c866-4b28-8234-e3f0a656424f",
+                "name": "Person 6"
+            },
+            {
+                "id": "782027dc-861f-4253-9440-17a961711b64",
+                "name": "Person 9"
+            },
+            {
+                "id": "782027dc-861f-4253-9440-17a961711b64",
+                "name": "Person 9"
+            },
+            {
+                "id": "f66b5484-d190-4803-9e78-9e4a2cd946c7",
+                "name": "Person 13"
+            }
+        ],
+        "writers": [],
+        "directors": [
+            {
+                "id": "cc462baa-cdef-4b87-94ce-71466ee4fee4",
+                "name": "Middle"
+            },
+            {
+                "id": "2538214c-4c19-4315-9770-3a84da13d04e",
+                "name": "Person 17"
+            }
+        ]
+    },
+    {
+        "id": "4e2b29b4-61d9-45b4-b7cf-5925aedf6233",
+        "title": "Movie 12",
+        "description": "random film",
+        "imdb_rating": 4.2,
+        "fw_type": "tv show",
+        "rars_rating": 0,
+        "genres": [
+            {
+                "id": "6d7598d0-0d71-4654-a81e-de6eaa54f5f4",
+                "name": "Genre 1"
+            }
+        ],
+        "actors": [
+            {
+                "id": "782027dc-861f-4253-9440-17a961711b64",
+                "name": "Person 9"
+            },
+            {
+                "id": "782027dc-861f-4253-9440-17a961711b64",
+                "name": "Person 9"
+            }
+        ],
+        "writers": [],
+        "directors": []
+    },
+    {
+        "id": "be8b456f-35f4-4a63-b850-d122059c2fde",
+        "title": "Movie 13",
+        "description": "random film",
+        "imdb_rating": 8.9,
+        "fw_type": "tv show",
+        "rars_rating": 12,
+        "genres": [
+            {
+                "id": "6d7598d0-0d71-4654-a81e-de6eaa54f5f4",
+                "name": "Genre 1"
+            },
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            }
+        ],
+        "actors": [
+            {
+                "id": "f66b5484-d190-4803-9e78-9e4a2cd946c7",
+                "name": "Person 13"
+            }
+        ],
+        "writers": [
+            {
+                "id": "aff15adc-dd27-4ea9-8b50-50e7e1c2e35d",
+                "name": "Person 2"
+            }
+        ],
+        "directors": [
+            {
+                "id": "f5f392e0-af6d-43a7-8027-401aab0f2e13",
+                "name": "Person 4"
+            }
+        ]
+    },
+    {
+        "id": "06d6b304-a408-4909-a811-7b66ea390bd4",
+        "title": "Movie 14",
+        "description": "random film",
+        "imdb_rating": 9.7,
+        "fw_type": "movie",
+        "rars_rating": 18,
+        "genres": [
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            },
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            },
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            },
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            }
+        ],
+        "actors": [
+            {
+                "id": "96e39dca-1a7e-4267-a650-351007c92bd1",
+                "name": "Person 12"
+            },
+            {
+                "id": "96e39dca-1a7e-4267-a650-351007c92bd1",
+                "name": "Person 12"
+            },
+            {
+                "id": "f66b5484-d190-4803-9e78-9e4a2cd946c7",
+                "name": "Person 13"
+            },
+            {
+                "id": "2538214c-4c19-4315-9770-3a84da13d04e",
+                "name": "Person 17"
+            }
+        ],
+        "writers": [],
+        "directors": [
+            {
+                "id": "addfe501-095b-4a43-aa08-6860946a0bc0",
+                "name": "Person 3"
+            },
+            {
+                "id": "29e42782-6ae4-4d3e-b900-c79250188b6a",
+                "name": "Person 5"
+            },
+            {
+                "id": "84e32670-b7f2-4e30-94dc-c516ef296ad3",
+                "name": "Person 11"
+            }
+        ]
+    },
+    {
+        "id": "c75ec7cb-1e50-4c8a-b258-d744f885a4b2",
+        "title": "Movie 15",
+        "description": "random film",
+        "imdb_rating": 1.1,
+        "fw_type": "movie",
+        "rars_rating": 16,
+        "genres": [
+            {
+                "id": "e94077dd-c3b7-4d01-9304-6df22f930ee1",
+                "name": "Genre 2"
+            },
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            }
+        ],
+        "actors": [
+            {
+                "id": "96e39dca-1a7e-4267-a650-351007c92bd1",
+                "name": "Person 12"
+            }
+        ],
+        "writers": [],
+        "directors": [
+            {
+                "id": "addfe501-095b-4a43-aa08-6860946a0bc0",
+                "name": "Person 3"
+            },
+            {
+                "id": "782027dc-861f-4253-9440-17a961711b64",
+                "name": "Person 9"
+            }
+        ]
+    },
+    {
+        "id": "a9f827a7-7b46-4df9-8726-cb1a002ea6af",
+        "title": "Movie 16",
+        "description": "random film",
+        "imdb_rating": 4.3,
+        "fw_type": "movie",
+        "rars_rating": 0,
+        "genres": [
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            },
+            {
+                "id": "6d7598d0-0d71-4654-a81e-de6eaa54f5f4",
+                "name": "Genre 1"
+            }
+        ],
+        "actors": [
+            {
+                "id": "e9e32af2-6eb9-4d68-a63f-ab381994b9eb",
+                "name": "Person 16"
+            }
+        ],
+        "writers": [
+            {
+                "id": "8eee6729-02fd-4180-9593-a6934ae6c4b4",
+                "name": "First Person"
+            },
+            {
+                "id": "22642457-786e-4f55-9eb8-8f26a42ac6ba",
+                "name": "Person 7"
+            },
+            {
+                "id": "84e32670-b7f2-4e30-94dc-c516ef296ad3",
+                "name": "Person 11"
+            }
+        ],
+        "directors": [
+            {
+                "id": "494b0e11-8def-43b2-b808-991312da0803",
+                "name": "Person 14"
+            },
+            {
+                "id": "494b0e11-8def-43b2-b808-991312da0803",
+                "name": "Person 14"
+            },
+            {
+                "id": "2538214c-4c19-4315-9770-3a84da13d04e",
+                "name": "Person 17"
+            }
+        ]
+    },
+    {
+        "id": "5cd039e7-7a13-4f5c-8583-8bb518b43dd5",
+        "title": "Movie 17",
+        "description": "random film",
+        "imdb_rating": 0.7,
+        "fw_type": "tv show",
+        "rars_rating": 18,
+        "genres": [
+            {
+                "id": "6d7598d0-0d71-4654-a81e-de6eaa54f5f4",
+                "name": "Genre 1"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            },
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            },
+            {
+                "id": "6d7598d0-0d71-4654-a81e-de6eaa54f5f4",
+                "name": "Genre 1"
+            }
+        ],
+        "actors": [
+            {
+                "id": "22642457-786e-4f55-9eb8-8f26a42ac6ba",
+                "name": "Person 7"
+            },
+            {
+                "id": "22642457-786e-4f55-9eb8-8f26a42ac6ba",
+                "name": "Person 7"
+            },
+            {
+                "id": "620ea0fc-9e87-4b0e-9587-c6bbb4afaaec",
+                "name": "Person 18"
+            }
+        ],
+        "writers": [],
+        "directors": []
+    },
+    {
+        "id": "648e33c0-bfa7-4575-b4cb-e323d6298542",
+        "title": "Movie 18",
+        "description": "random film",
+        "imdb_rating": 7.8,
+        "fw_type": "tv show",
+        "rars_rating": 16,
+        "genres": [
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "ebce2a35-a423-4fd1-96eb-180740d8c919",
+                "name": "Genre 4"
+            }
+        ],
+        "actors": [
+            {
+                "id": "620ea0fc-9e87-4b0e-9587-c6bbb4afaaec",
+                "name": "Person 18"
+            },
+            {
+                "id": "61a4ee5d-5585-4e9b-9130-9805b474c7a4",
+                "name": "Person Last"
+            }
+        ],
+        "writers": [
+            {
+                "id": "addfe501-095b-4a43-aa08-6860946a0bc0",
+                "name": "Person 3"
+            }
+        ],
+        "directors": []
+    },
+    {
+        "id": "4bdfa83b-eeb6-4b0d-8bc9-28e30ece889a",
+        "title": "Film Last",
+        "description": "random film",
+        "imdb_rating": 2.6,
+        "fw_type": "movie",
+        "rars_rating": 12,
+        "genres": [
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "a6121119-76bc-4d65-9693-efcdc9b56056",
+                "name": "Genre Last"
+            },
+            {
+                "id": "c44b71d9-5c6f-4367-9993-89e805c44bcd",
+                "name": "First Genre"
+            },
+            {
+                "id": "6d7598d0-0d71-4654-a81e-de6eaa54f5f4",
+                "name": "Genre 1"
+            },
+            {
+                "id": "ccb8fb65-5d48-4034-96ce-722e1b452e41",
+                "name": "Middle"
+            }
+        ],
+        "actors": [
+            {
+                "id": "d1c9714b-8e3e-43b9-b504-a33984f39905",
+                "name": "Person 1"
+            },
+            {
+                "id": "aff15adc-dd27-4ea9-8b50-50e7e1c2e35d",
+                "name": "Person 2"
+            },
+            {
+                "id": "2538214c-4c19-4315-9770-3a84da13d04e",
+                "name": "Person 17"
+            }
+        ],
+        "writers": [],
+        "directors": []
+    }
+]

@@ -1,7 +1,6 @@
 import time
 
-from redis import Redis, ConnectionError
-
+from redis import ConnectionError, Redis
 from settings import settings
 
 if __name__ == "__main__":

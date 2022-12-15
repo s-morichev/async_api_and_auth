@@ -30,7 +30,8 @@ class Person(IdModel):
     name: str = Field(..., alias="full_name")
 
 
-class ExtendedPerson(Person):
+class ExtendedPerson(IdModel):
+    full_name: str
     movies: list[RoleMovies]
 
 
