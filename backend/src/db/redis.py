@@ -1,4 +1,5 @@
 from aioredis import Redis
+
 from core.cache_service import RedisCacheService
 
 redis: Redis | None

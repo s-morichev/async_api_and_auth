@@ -1,9 +1,10 @@
 from http import HTTPStatus
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, HTTPException
+
 from api.v1.params import PageParams
 from api.v1.schemas import Genre, ManyResponse
-from fastapi import APIRouter, Depends, HTTPException
 from services.genres import GenreByIdService, GenresAllService
 
 router = APIRouter()

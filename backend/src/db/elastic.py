@@ -1,5 +1,6 @@
-from core.database_service import ESDatabaseService
 from elasticsearch import AsyncElasticsearch
+
+from core.database_service import ESDatabaseService
 
 es: AsyncElasticsearch | None
 

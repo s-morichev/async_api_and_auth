@@ -1,9 +1,10 @@
 from http import HTTPStatus
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, HTTPException
+
 from api.v1.params import PageParams, QueryPageParams
 from api.v1.schemas import ExtendedPerson, ImdbFilm, ManyResponse
-from fastapi import APIRouter, Depends, HTTPException
 from services.persons import FilmsByPersonService, PersonByIdService, PersonSearchService
 
 router = APIRouter()

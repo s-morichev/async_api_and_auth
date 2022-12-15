@@ -3,9 +3,10 @@ from abc import abstractmethod
 from typing import TypeVar
 from uuid import UUID
 
+from elasticsearch import AsyncElasticsearch, NotFoundError
+
 from core.constants import ES_GENRES_INDEX, ES_MOVIES_INDEX, ES_PERSONS_INDEX
 from core.singletone import Singleton
-from elasticsearch import AsyncElasticsearch, NotFoundError
 from models.dto_models import ExtendedFilm, ExtendedPerson, Genre, IdModel, ImdbFilm
 
 ModelT = TypeVar("ModelT", bound=IdModel)

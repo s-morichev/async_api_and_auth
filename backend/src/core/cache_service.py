@@ -2,6 +2,7 @@ import logging
 from abc import abstractmethod
 
 from aioredis import Redis, RedisError
+
 from core.singletone import Singleton
 
 logger = logging.getLogger(__name__)

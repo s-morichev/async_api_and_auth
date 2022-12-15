@@ -2,13 +2,14 @@ import logging
 
 import aioredis
 import uvicorn as uvicorn
+from elasticsearch import AsyncElasticsearch
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
+
 from api.v1 import films, genres, persons, ping
 from core.config import settings
 from core.logger import LOGGING
 from db import elastic, redis
-from elasticsearch import AsyncElasticsearch
-from fastapi import FastAPI
-from fastapi.responses import ORJSONResponse
 
 tags_metadata = [
     {"name": "Фильмы", "description": "Запросы по фильмам"},

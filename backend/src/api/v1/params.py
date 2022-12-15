@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from http import HTTPStatus
 
+from fastapi import HTTPException, Query
+
 from core.constants import DEFAULT_PAGE_SIZE, KEY_PAGE_NUM, KEY_PAGE_SIZE, KEY_QUERY, MAX_PAGE_SIZE
 from core.utils import validate_pagination
-from fastapi import HTTPException, Query
 
 
 @dataclass
