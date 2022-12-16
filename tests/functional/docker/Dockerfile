@@ -12,7 +12,5 @@ RUN pip install -r requirements.txt
 
 COPY ./src .
 
-ENTRYPOINT ["sh", "-c", "python3 ./utils/wait_for_backend.py \
-                         && python3 ./utils/wait_for_redis.py \
-                         && python3 ./utils/wait_for_es.py \
+ENTRYPOINT ["sh", "-c", "python3 ./utils/wait_for_services.py \
                          && pytest ."]
