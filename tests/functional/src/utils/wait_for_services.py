@@ -4,7 +4,7 @@ from http.client import HTTPConnection
 from elasticsearch import Elasticsearch
 
 import backoff
-from redis import Redis
+from redis import Redis, RedisError
 from settings import settings
 
 LOGGING = {
@@ -31,18 +31,24 @@ logging.config.dictConfig(LOGGING)
 logger = logging.getLogger(__name__)
 
 
-@backoff.on_predicate(backoff.expo, logger=logger, max_time=300, max_value=5)
-def check_elasticsearch(es_client):
+def fake_send_email(details: dict):
+    logger.debug("Send email")
+
+
+@backoff.on_predicate(backoff.expo, logger=logger, max_time=300, on_giveup=fake_send_email, max_value=5)
+def check_elasticsearch(es_client: Elasticsearch) -> bool:
     return es_client.ping()
 
 
-@backoff.on_predicate(backoff.expo, logger=logger, max_time=300, max_value=5)
-def check_redis(redis_client):
-    return redis_client.ping()
+@backoff.on_predicate(backoff.expo, logger=logger, max_time=300, on_giveup=fake_send_email, max_value=5)
+def check_redis(redis_client: Redis) -> bool:
+    try:
+        return redis_client.ping()
+    except RedisError:
+        return False
 
-
-@backoff.on_predicate(backoff.expo, logger=logger, max_time=300, max_value=5)
-def check_backend(backend_conn):
+@backoff.on_predicate(backoff.expo, logger=logger, max_time=300, on_giveup=fake_send_email, max_value=5)
+def check_backend(backend_conn: HTTPConnection) -> bool:
     try:
         backend_conn.connect()
         return True

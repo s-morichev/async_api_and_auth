@@ -18,10 +18,6 @@ logger = logging.getLogger(__name__)
 
 MaybeResult = ServiceSingeResult | ServiceListResult | None
 
-async def raise_service_unavailable(details: dict):
-    logger.debug("Raise 503 Service unavailable after waiting for %.1f s", details["elapsed"])
-    raise HTTPException(status_code=503, detail="Service is unavailable. Please try a few minutes later.")
-
 
 # ------------------------------------------------------------------------------ #
 class BaseService(metaclass=Singleton):
@@ -49,7 +45,6 @@ class BaseService(metaclass=Singleton):
     def get_hash_key(self, keys: dict):
         return hash_dict(self.NAME, keys)
 
-    @backoff.on_exception(backoff.expo, exception=DatabaseConnectionError, logger=logger, max_time=1.0, on_giveup=raise_service_unavailable, factor=0.1)
     async def get(self, **kwargs) -> MaybeResult:
         # 1. try to get data from cache
         if result := await self.get_from_cache(kwargs):
@@ -57,7 +52,12 @@ class BaseService(metaclass=Singleton):
             return result
 
         # 2. try to get data from es
-        if result := await self.get_from_database(**kwargs):
+        try:
+            result = await self.get_from_database(**kwargs)
+        except DatabaseConnectionError:
+            raise HTTPException(status_code=503, detail="Service is unavailable. Please try a few minutes later.")
+
+        if result:
             logger.debug(f"get from database: {result}")
             await self.put_to_cache(kwargs, result)
             return result

@@ -33,7 +33,7 @@ app = FastAPI(
 async def startup():
     logger.info("service start")
     redis.redis = await aioredis.from_url(settings.REDIS_URI)
-    elastic.es = AsyncElasticsearch(hosts=[settings.ES_URI])
+    elastic.es = AsyncElasticsearch(hosts=[settings.ES_URI], request_timeout=settings.DATABASE_WAIT_TIME)
 
 
 @app.on_event("shutdown")
