@@ -1,11 +1,13 @@
 import logging
 from typing import Type
 
-from fastapi import Depends
+import backoff
+from fastapi import Depends, HTTPException
 
 from core.cache_service import BaseCacheService
 from core.constants import DEFAULT_CACHE_EXPIRE_IN_SECONDS
 from core.database_service import BaseDatabaseService
+from core.exceptions import DatabaseConnectionError
 from core.singletone import Singleton
 from core.utils import classproperty, hash_dict
 from db.elastic import get_es_database_service
@@ -15,6 +17,10 @@ from models.service_result import ServiceListResult, ServiceSingeResult
 logger = logging.getLogger(__name__)
 
 MaybeResult = ServiceSingeResult | ServiceListResult | None
+
+async def raise_service_unavailable(details: dict):
+    logger.debug("Raise 503 Service unavailable after waiting for %.1f s", details["elapsed"])
+    raise HTTPException(status_code=503, detail="Service is unavailable. Please try a few minutes later.")
 
 
 # ------------------------------------------------------------------------------ #
@@ -43,6 +49,7 @@ class BaseService(metaclass=Singleton):
     def get_hash_key(self, keys: dict):
         return hash_dict(self.NAME, keys)
 
+    @backoff.on_exception(backoff.expo, exception=DatabaseConnectionError, logger=logger, max_time=1.0, on_giveup=raise_service_unavailable, factor=0.1)
     async def get(self, **kwargs) -> MaybeResult:
         # 1. try to get data from cache
         if result := await self.get_from_cache(kwargs):
@@ -50,7 +57,7 @@ class BaseService(metaclass=Singleton):
             return result
 
         # 2. try to get data from es
-        elif result := await self.get_from_database(**kwargs):
+        if result := await self.get_from_database(**kwargs):
             logger.debug(f"get from database: {result}")
             await self.put_to_cache(kwargs, result)
             return result
