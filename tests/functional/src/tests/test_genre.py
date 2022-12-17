@@ -56,9 +56,9 @@ async def test_list(make_get_request, query_data: dict[str, str | int], expected
 # ------------------------------------------------------------------------------ #
 # GENRE BY ID, /api/v1/genres/:UUID
 testdata = [
-    ({"uuid": "c44b71d9-5c6f-4367-9993-89e805c44bcd"}, {"status": 200, "name": "First Genre"}, "First test"),
-    ({"uuid": "a6121119-76bc-4d65-9693-efcdc9b56056"}, {"status": 200, "name": "Genre Last"}, "Last test"),
-    ({"uuid": "ccb8fb65-5d48-4034-96ce-722e1b452e41"}, {"status": 200, "name": "Middle"}, "Middle test"),
+    ({"uuid": "715b726d-2239-4984-99d6-89420a6634c0"}, {"status": 200, "name": "First Genre"}, "First test"),
+    ({"uuid": "3fbed5ed-1e53-45f6-ae0f-91f63eda6b7d"}, {"status": 200, "name": "Genre Last"}, "Last test"),
+    ({"uuid": "d5e9fd46-d89f-403f-b685-c1f1c9643748"}, {"status": 200, "name": "Middle"}, "Middle test"),
     ({"uuid": "88d41c11-8e7a-46f6-9890-205848809f34"}, {"status": 404}, "Not found test"),
     ({"uuid": "invalid uuid is that"}, {"status": 422}, "Invalid uuid"),
 ]
@@ -79,7 +79,7 @@ async def test_cache(clear_indices, make_get_request):
     body, header, status = await make_get_request(url, query_data)
     assert status == 200
 
-    url = "/api/v1/genres/" + "a6121119-76bc-4d65-9693-efcdc9b56056"
+    url = "/api/v1/genres/" + "3fbed5ed-1e53-45f6-ae0f-91f63eda6b7d"
     body, header, status = await make_get_request(url)
     assert status == 200
     assert body["name"] == "Genre Last"

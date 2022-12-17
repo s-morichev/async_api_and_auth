@@ -85,7 +85,7 @@ extended_films = [
         id=film.id,
         title=film.title,
         genres=random.choices(genres, k=random.randint(1, len(genres))),
-        description="random film",
+        description="random description",
         imdb_rating=random.randint(0, 100) / 10,
         rars_rating=random.choice([0, 6, 12, 16, 18]),
         fw_type=random.choice(["movie", "tv show"]),
