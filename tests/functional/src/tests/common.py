@@ -4,8 +4,6 @@ from typing import Type
 from ..settings import BASE_DIR
 from ..utils.core_model import CoreModel
 
-# список общих ключей, остальные ключи будут искаться в результате
-# common_keys = ['status', 'total', 'length']
 
 # ------------------------------------------------------------------------------ #
 def check_single_response(status, body, expected_result):

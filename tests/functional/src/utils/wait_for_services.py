@@ -2,9 +2,9 @@ import logging.config
 from http.client import HTTPConnection
 
 from elasticsearch import Elasticsearch
+from redis import Redis, RedisError
 
 import backoff
-from redis import Redis, RedisError
 from settings import settings
 
 LOGGING = {
@@ -46,6 +46,7 @@ def check_redis(redis_client: Redis) -> bool:
         return redis_client.ping()
     except RedisError:
         return False
+
 
 @backoff.on_predicate(backoff.expo, logger=logger, max_time=300, on_giveup=fake_send_email, max_value=5)
 def check_backend(backend_conn: HTTPConnection) -> bool:

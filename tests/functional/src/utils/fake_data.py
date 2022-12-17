@@ -1,12 +1,12 @@
 import json
 import random
 import uuid
-from pprint import pprint
+# from pprint import pprint
 
 from utils.dto_models import ElasticFilm, ExtendedFilm, ExtendedPerson, Film, Genre, Person, RoleMovies
 
 # ------------------------------------------------------------------------------ #
-#print = pprint
+# print = pprint
 persons_count = 20
 genres_count = 6
 films_count = 20
@@ -43,7 +43,7 @@ def gen_roles_movies(roles, movies):
     roles_movies = []
     count = 0
     for role in roles:
-        k = random.randint(0, len(movies)//2)
+        k = random.randint(0, len(movies) // 2)
         count += k
         random_choice = random.sample(movies, k=k)
         if random_choice:
@@ -119,14 +119,14 @@ class UUIDEncoder(json.JSONEncoder):
 data = [el.dict() for el in persons]
 with open("persons.json", "w") as file:
     file.write(json.dumps(data, indent=4, cls=UUIDEncoder))
-    print(f'write {file.name}')
+    print(f"write {file.name}")
 
 data = [el.dict() for el in elastic_films]
 with open("films.json", "w") as file:
     file.write(json.dumps(data, indent=4, cls=UUIDEncoder))
-    print(f'write {file.name}')
+    print(f"write {file.name}")
 
 data = [el.dict() for el in genres]
 with open("genres.json", "w") as file:
     file.write(json.dumps(data, indent=4, cls=UUIDEncoder))
-    print(f'write {file.name}')
+    print(f"write {file.name}")
