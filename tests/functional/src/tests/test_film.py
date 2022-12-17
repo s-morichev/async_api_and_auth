@@ -59,7 +59,7 @@ testdata = [
     ({}, {"status": 404}, "default parameters"),
     ({"query": "movie"}, {"status": 200, "total": 18}, "search by title"),
     ({"query": "description"}, {"status": 200, "total": 20}, "search by description"),
-    ({"query": "genre"}, {"status": 200, "total": 20}, "search by genre"),
+    ({"query": "Genre 2"}, {"status": 200, "total": 16}, "search by genre"), # ищет только по полному соответствию
     ({"query": "FiRsT"}, {"status": 200, "total": 1}, "search case insensitive"),
     ({"query": "desription"}, {"status": 200, "total": 20}, "fuzzy without letter"),
     ({"query": "dsecription"}, {"status": 200, "total": 20}, "fuzzy replaced letters"),
