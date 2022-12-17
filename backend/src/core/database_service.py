@@ -77,7 +77,7 @@ class ESDatabaseService(BaseDatabaseService):
         try:
             response = await self.elastic.search(**es_query_params)
         except ConnectionError as err:
-            raise DatabaseConnectionError(f"Cannot connect to elasticsearch") from err
+            raise DatabaseConnectionError("Cannot connect to elasticsearch") from err
 
         total = response["hits"]["total"]["value"]
         result = [model(uuid=doc["_id"], **doc["_source"]) for doc in response["hits"]["hits"]]
