@@ -74,7 +74,7 @@ async def test_person_search(make_get_request, query_data: dict[str, str | int],
 # PERSON FILMS, /api/v1/persons/:UUID/film
 
 testdata = [
-    ({"uuid": "d7bb0cd3-7fb0-4c71-bf97-25538c005f66"}, {"status": 200, "total": 2}, "First Person films"),
+    ({"uuid": "d7bb0cd3-7fb0-4c71-bf97-25538c005f66"}, {"status": 200, "total": 1}, "First Person films"),
     ({"uuid": "very bad uuid"}, {"status": 422}, "Bad uuid"),
     ({"uuid": "ebce2a35-a423-4fd1-96eb-180740d8c919"}, {"status": 404}, "Not present person"),
     (
