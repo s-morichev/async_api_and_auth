@@ -9,7 +9,7 @@ from core.database_service import BaseDatabaseService
 from core.singletone import Singleton
 from core.utils import classproperty, hash_dict
 from db.elastic import get_es_database_service
-from db.redis import get_redis
+from db.redis_ import get_redis
 from models.service_result import ServiceListResult, ServiceSingeResult
 
 logger = logging.getLogger(__name__)

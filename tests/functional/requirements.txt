@@ -1,7 +1,6 @@
 pytest==7.2.0
 pytest-asyncio==0.20.2
 aiohttp==3.8.3
-aioredis==2.0.1
 redis==4.4.0
 elastic-transport==8.4.0
 elasticsearch[async]==8.5.2

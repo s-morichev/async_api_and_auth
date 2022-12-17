@@ -1,7 +1,7 @@
 import logging
 from abc import abstractmethod
 
-from aioredis import Redis, RedisError
+from redis.asyncio import Redis, RedisError
 
 from core.singletone import Singleton
 
