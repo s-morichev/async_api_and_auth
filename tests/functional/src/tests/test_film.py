@@ -14,7 +14,7 @@ total_rows = 20
 @pytest_asyncio.fixture(scope="module", autouse=True)
 async def prepare_data(es_write_data, flush_data):
 
-    films = load_from_json("films.json", ElasticFilm)
+    films = load_from_json("films2.json", ElasticFilm)
     assert len(films) == total_rows
     es_index = settings.ES_MOVIES_INDEX
 
