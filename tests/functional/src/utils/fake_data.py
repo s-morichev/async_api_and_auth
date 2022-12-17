@@ -3,7 +3,7 @@ import random
 import uuid
 from pprint import pprint
 
-from testdata.dto_models import ElasticFilm, ExtendedFilm, ExtendedPerson, Film, Genre, Person, RoleMovies
+from .dto_models import ElasticFilm, ExtendedFilm, ExtendedPerson, Film, Genre, Person, RoleMovies
 
 # ------------------------------------------------------------------------------ #
 print = pprint

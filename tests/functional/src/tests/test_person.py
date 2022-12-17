@@ -1,11 +1,8 @@
-import json
-import logging
-
 import pytest
 import pytest_asyncio
 
 from ..settings import settings
-from ..testdata.dto_models import ExtendedFilm, ExtendedPerson
+from ..utils.dto_models import ExtendedFilm, ExtendedPerson
 from .common import args, check_multi_response, check_single_response, get_pagination_test_data, ids, load_from_json
 
 pytestmark = pytest.mark.asyncio

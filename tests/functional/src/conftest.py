@@ -10,7 +10,7 @@ from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 
 from .settings import settings
-from .testdata.core_model import CoreModel
+from .utils.core_model import CoreModel
 
 
 @pytest.fixture(scope="session")

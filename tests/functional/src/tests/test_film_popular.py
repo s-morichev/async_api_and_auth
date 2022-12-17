@@ -4,7 +4,7 @@ import pytest
 import pytest_asyncio
 
 from ..settings import settings
-from ..testdata.dto_models import ElasticFilm, Genre, Person
+from ..utils.dto_models import ElasticFilm, Genre, Person
 
 
 @pytest_asyncio.fixture(scope="module", autouse=True)
