@@ -86,7 +86,7 @@ testdata = [
     ),
     (
         {"uuid": "6cb72cd8-eef7-4abc-b4c9-53a57cc77adc"},
-        {"status": 200, "total": 4, "length": 4, "0#imdb_rating": 8.9},
+        {"status": 200, "total": 4, "length": 4, "0#imdb_rating": 7.7},
         "Person 9",
     ),
 ]
