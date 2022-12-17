@@ -3,9 +3,10 @@ from abc import abstractmethod
 from typing import TypeVar
 from uuid import UUID
 
-from elasticsearch import AsyncElasticsearch, NotFoundError
+from elasticsearch import AsyncElasticsearch, ConnectionError, NotFoundError
 
 from core.constants import ES_GENRES_INDEX, ES_MOVIES_INDEX, ES_PERSONS_INDEX
+from core.exceptions import DatabaseConnectionError
 from core.singletone import Singleton
 from models.dto_models import ExtendedFilm, ExtendedPerson, Genre, IdModel, ImdbFilm
 
@@ -73,7 +74,11 @@ class ESDatabaseService(BaseDatabaseService):
         return await self.elastic.ping()
 
     async def _process_many_docs_query(self, model: type[ModelT], es_query_params: dict) -> tuple[int, list[ModelT]]:
-        response = await self.elastic.search(**es_query_params)
+        try:
+            response = await self.elastic.search(**es_query_params)
+        except ConnectionError as err:
+            raise DatabaseConnectionError(f"Cannot connect to elasticsearch") from err
+
         total = response["hits"]["total"]["value"]
         result = [model(uuid=doc["_id"], **doc["_source"]) for doc in response["hits"]["hits"]]
         return total, result
@@ -83,6 +88,8 @@ class ESDatabaseService(BaseDatabaseService):
             response = await self.elastic.get(**es_query_params)
         except NotFoundError:
             return None
+        except ConnectionError as err:
+            raise DatabaseConnectionError(f"Cannot connect to elasticsearch {self.elastic}") from err
 
         return model(uuid=response["_id"], **response["_source"])
 

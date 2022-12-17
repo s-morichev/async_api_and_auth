@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     DEBUG: bool = Field(False, env="BACKEND_DEBUG")
     REDIS_URI: str = Field(..., env="REDIS_DSN")
     ES_URI: str = Field(..., env="ELK_DSN")
+    DATABASE_WAIT_TIME: float = 1.0
 
 
 settings = Settings(_env_file=ENV_FILE)

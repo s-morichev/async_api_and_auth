@@ -1,11 +1,13 @@
 import logging
 from typing import Type
 
-from fastapi import Depends
+import backoff
+from fastapi import Depends, HTTPException
 
 from core.cache_service import BaseCacheService
 from core.constants import DEFAULT_CACHE_EXPIRE_IN_SECONDS
 from core.database_service import BaseDatabaseService
+from core.exceptions import DatabaseConnectionError
 from core.singletone import Singleton
 from core.utils import classproperty, hash_dict
 from db.elastic import get_es_database_service
@@ -50,7 +52,12 @@ class BaseService(metaclass=Singleton):
             return result
 
         # 2. try to get data from es
-        elif result := await self.get_from_database(**kwargs):
+        try:
+            result = await self.get_from_database(**kwargs)
+        except DatabaseConnectionError:
+            raise HTTPException(status_code=503, detail="Service is unavailable. Please try a few minutes later.")
+
+        if result:
             logger.debug(f"get from database: {result}")
             await self.put_to_cache(kwargs, result)
             return result
