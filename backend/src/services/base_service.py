@@ -1,7 +1,6 @@
 import logging
 from typing import Type
 
-import backoff
 from fastapi import Depends, HTTPException
 
 from core.cache_service import BaseCacheService
