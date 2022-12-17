@@ -3,10 +3,10 @@ import random
 import uuid
 from pprint import pprint
 
-from .dto_models import ElasticFilm, ExtendedFilm, ExtendedPerson, Film, Genre, Person, RoleMovies
+from utils.dto_models import ElasticFilm, ExtendedFilm, ExtendedPerson, Film, Genre, Person, RoleMovies
 
 # ------------------------------------------------------------------------------ #
-print = pprint
+#print = pprint
 persons_count = 20
 genres_count = 6
 films_count = 20
@@ -39,20 +39,19 @@ def gen_roles_movies(roles, movies):
     :param movies:
     :return:
     """
-    movies_list = random.choices(movies, k=random.randint(1, len(movies) // 2))
-    roles_movies = []
 
-    # для всех, кроме последней роли
-    for role in roles[:-1]:
-        random_choice = random.choices(movies_list, k=random.randint(0, len(movies_list)))
+    roles_movies = []
+    count = 0
+    for role in roles:
+        k = random.randint(0, len(movies)//2)
+        count += k
+        random_choice = random.sample(movies, k=k)
         if random_choice:
             roles_movies.append(RoleMovies(role=role, movies=random_choice))
 
-        movies_list = [movie for movie in movies_list if movie not in random_choice]
-
-    # для последней роли записываем все что осталось
-    if movies_list:
-        roles_movies.append(RoleMovies(role=roles[-1], movies=movies_list))
+    if not count:  # так получилось, что человек без фильмов
+        # то добавляем для первой роли два фильма
+        roles_movies.append(RoleMovies(role=roles[0], movies=random.sample(movies, k=2)))
 
     return roles_movies
 
@@ -100,7 +99,7 @@ extended_films = [
 elastic_films = [
     ElasticFilm(
         **film.dict(),
-        genre = [genre.name for genre in film.genres],
+        genre=[genre.name for genre in film.genres],
         directors_names=[director.name for director in film.directors],
         actors_names=[actor.name for actor in film.actors],
         writers_names=[writer.name for writer in film.writers],
@@ -120,12 +119,14 @@ class UUIDEncoder(json.JSONEncoder):
 data = [el.dict() for el in persons]
 with open("persons.json", "w") as file:
     file.write(json.dumps(data, indent=4, cls=UUIDEncoder))
+    print(f'write {file.name}')
 
 data = [el.dict() for el in elastic_films]
 with open("films.json", "w") as file:
     file.write(json.dumps(data, indent=4, cls=UUIDEncoder))
+    print(f'write {file.name}')
 
 data = [el.dict() for el in genres]
-#print(data)
 with open("genres.json", "w") as file:
     file.write(json.dumps(data, indent=4, cls=UUIDEncoder))
+    print(f'write {file.name}')
