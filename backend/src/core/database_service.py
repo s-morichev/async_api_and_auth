@@ -128,6 +128,8 @@ class ESDatabaseService(BaseDatabaseService):
 
         es = {
             "index": ES_MOVIES_INDEX,
+            "from_": (page_number - 1) * page_size,
+            "size": page_size,
             "source_includes": ["imdb_rating", "title"],
             "query": query,
         }
