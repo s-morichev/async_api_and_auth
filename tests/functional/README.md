@@ -1,10 +1,13 @@
+## Функциональные тесты
+
 /testdata схемы индексов эластика и тестовые сгенерированные наборы данных  
 /tests тесты pytest  
 /utils вспомогательные модули  
 
 запуск локально:
-`.env.local.example` переименовать в `env.local` и поменять пути на правильные  
+`.env.local.example` переименовать в `env.local` и поменять пути на правильные (если необходимо)  
 выполнить: `pytest .` 
 
-запуск в докере:
-docker compose -f docker-compose.test.yaml up
+запуск в докере:  
+`.env.example` переименовать в `.env`, поменять если надо пути и пароли  
+выполнить: `docker compose -f docker-compose.test.yaml up`
