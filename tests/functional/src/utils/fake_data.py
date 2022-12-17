@@ -3,7 +3,7 @@ import random
 import uuid
 from pprint import pprint
 
-from testdata.dto_models import ExtendedFilm, ExtendedPerson, Film, Genre, Person, RoleMovies
+from testdata.dto_models import ElasticFilm, ExtendedFilm, ExtendedPerson, Film, Genre, Person, RoleMovies
 
 # ------------------------------------------------------------------------------ #
 print = pprint
@@ -97,6 +97,18 @@ extended_films = [
 ]
 
 
+elastic_films = [
+    ElasticFilm(
+        **film.dict(),
+        genre = [genre.name for genre in film.genres],
+        directors_names=[director.name for director in film.directors],
+        actors_names=[actor.name for actor in film.actors],
+        writers_names=[writer.name for writer in film.writers],
+    )
+    for film in extended_films
+]
+
+
 class UUIDEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, uuid.UUID):
@@ -109,11 +121,11 @@ data = [el.dict() for el in persons]
 with open("persons.json", "w") as file:
     file.write(json.dumps(data, indent=4, cls=UUIDEncoder))
 
-data = [el.dict() for el in extended_films]
+data = [el.dict() for el in elastic_films]
 with open("films.json", "w") as file:
     file.write(json.dumps(data, indent=4, cls=UUIDEncoder))
 
 data = [el.dict() for el in genres]
-print(data)
+#print(data)
 with open("genres.json", "w") as file:
     file.write(json.dumps(data, indent=4, cls=UUIDEncoder))
