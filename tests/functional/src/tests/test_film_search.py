@@ -95,7 +95,7 @@ async def prepare_data(es_write_data):
         ("title", {"status": 200, "total": 3}),
         ("description", {"status": 200, "total": 3}),
         ("genre", {"status": 200, "total": 1}),
-        ("non existent", {"status": 200, "total": 0}),
+        ("non existent", {"status": 404}),
     ],
 )
 @pytest.mark.asyncio
@@ -103,7 +103,8 @@ async def test_basic_search(search_query, expected_answer, make_get_request):
     body, headers, status = await make_get_request("/api/v1/films/search/", query_data={"query": search_query})
 
     assert status == expected_answer["status"]
-    assert body["total"] == expected_answer["total"]
+    if "total" in body:
+        assert body["total"] == expected_answer["total"]
 
 
 @pytest.mark.parametrize(
@@ -127,8 +128,7 @@ async def test_search_by_word_forms(search_query, expected_answer, make_get_requ
 async def test_search_without_parameters(make_get_request):
     body, headers, status = await make_get_request("/api/v1/films/search/")
 
-    assert status == 200
-    assert body["total"] == 0
+    assert status == 404
 
 
 @pytest.mark.asyncio
@@ -145,7 +145,7 @@ async def test_search_is_case_indifferent(make_get_request):
         ("dsecription", {"status": 200, "total": 3}),
         ("escription", {"status": 200, "total": 3}),
         ("ffdescription", {"status": 200, "total": 3}),
-        ("fffdescription", {"status": 200, "total": 0}),
+        ("fffdescription", {"status": 404}),
     ],
 )
 @pytest.mark.asyncio
@@ -153,19 +153,20 @@ async def test_fuzzy_search(search_query, expected_answer, make_get_request):
     body, headers, status = await make_get_request("/api/v1/films/search/", query_data={"query": search_query})
 
     assert status == expected_answer["status"]
-    assert body["total"] == expected_answer["total"]
+    if "total" in body:
+        assert body["total"] == expected_answer["total"]
 
 
 @pytest.mark.parametrize(
     "search_params, expected_answer",
     [
         ({"query": "title", "filter[genre]": "3a9fe666-f161-4612-9b0a-874d2e87f2e3"}, {"status": 200, "total": 1}),
-        ({"query": "title", "filter[genre]": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"}, {"status": 200, "total": 0}),
+        ({"query": "title", "filter[genre]": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"}, {"status": 404}),
         ({"query": "title", "filter[genre]": "not uuid"}, {"status": 422}),
     ],
 )
 @pytest.mark.asyncio
-async def test_search_by_genre(search_params, expected_answer, make_get_request):
+async def test_search_filter_by_genre(search_params, expected_answer, make_get_request):
     body, headers, status = await make_get_request("/api/v1/films/search/", query_data=search_params)
 
     assert status == expected_answer["status"]

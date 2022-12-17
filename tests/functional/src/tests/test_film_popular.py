@@ -131,7 +131,7 @@ async def test_order_of_popular_results(query_params, expected_answer, make_get_
             {"filter[genre]": "3a9fe666-f161-4612-9b0a-874d2e87f2e3"},
             {"status": 200, "order": ["40285ba8-ca04-4112-ae18-050659a838d6", "edde24a9-65eb-45f4-ac57-e22dfbe4dc2c"]},
         ),
-        ({"filter[genre]": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"}, {"status": 200, "order": []}),
+        ({"filter[genre]": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"}, {"status": 404}),
         ({"filter[genre]": "not uuid"}, {"status": 422}),
     ],
 )

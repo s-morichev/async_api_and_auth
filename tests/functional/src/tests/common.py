@@ -110,20 +110,20 @@ def get_pagination_test_data(
     # размер страницы 2
     page_2 = max(0, min(total_row_count - default_page_size, default_page_size))
     testdata = [
-        ({"page[number]": 1, "page[size]": 50}, {"status": 200, "total": total_row_count}, "default pagination"),
-        ({}, {"status": 200, "length": page_1, "total": total_row_count}, "no pages send"),
         ({"page[number]": -1, "page[size]": 3}, {"status": 422}, "page_num=-1"),
         ({"page[number]": -1}, {"status": 422}, "page_num=-1 without page_size"),
         ({"page[number]": 0, "page[size]": 3}, {"status": 422}, "page_num=0"),
         ({"page[number]": 0}, {"status": 422}, "page_num=0 without page_size"),
         ({"page[number]": 1000000, "page[size]": default_page_size}, {"status": 400}, "big page_size*page_num"),
         ({"page[number]": 2, "page[size]": max_page_size + 1}, {"status": 422}, "page_size>max_page_size"),
-        ({"page[number]": 1}, {"status": 200, "length": page_1}, "only page number=1"),
-        ({"page[number]": 2}, {"status": 200, "length": page_2}, "page number=2"),
     ]
     # эти тесты применимы если не пустой список
     if total_row_count > 0:
         testdata += [
+            ({"page[number]": 1, "page[size]": 50}, {"status": 200, "total": total_row_count}, "default pagination"),
+            ({}, {"status": 200, "length": page_1, "total": total_row_count}, "no pages send"),
+            ({"page[number]": 1}, {"status": 200, "length": page_1}, "only page number=1"),
+            ({"page[number]": 2}, {"status": 200, "length": page_2}, "page number=2"),
             (
                 {"page[number]": 1, "page[size]": page_1 - 1},
                 {"status": 200, "length": page_1 - 1},

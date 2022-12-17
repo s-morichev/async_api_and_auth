@@ -1,3 +1,6 @@
+import json
+import logging
+
 import pytest
 import pytest_asyncio
 
@@ -47,7 +50,7 @@ async def test_person_by_id(make_get_request, query_data: dict[str, str | int], 
 
 testdata = [
     ({"query": "First Person"}, {"status": 200, "full_name": "First Person"}, "First record test"),
-    ({"query": "Lucas"}, {"status": 200, "total": 0, "length": 0}, "Not found"),
+    ({"query": "Lucas"}, {"status": 404}, "Not found"),
     ({"query": "Person Last"}, {"status": 200, "full_name": "Person Last"}, "Last record test"),
     ({"query": "First"}, {"status": 200, "full_name": "First Person", "total": 1, "length": 1}, "Exactly one found"),
     ({"query": "Person"}, {"status": 200, "total": total_rows - 1}, "all found, exсlude 1"),
@@ -73,7 +76,7 @@ async def test_person_search(make_get_request, query_data: dict[str, str | int],
 testdata = [
     ({"uuid": "8eee6729-02fd-4180-9593-a6934ae6c4b4"}, {"status": 200, "total": 3}, "First Person films"),
     ({"uuid": "very bad uuid"}, {"status": 422}, "Bad uuid"),
-    ({"uuid": "ebce2a35-a423-4fd1-96eb-180740d8c919"}, {"status": 200, "total": 0}, "Not present person"),
+    ({"uuid": "ebce2a35-a423-4fd1-96eb-180740d8c919"}, {"status": 404}, "Not present person"),
     (
         {"uuid": "61a4ee5d-5585-4e9b-9130-9805b474c7a4"},
         {"status": 200, "total": 2, "length": 2, "title": "Movie 3"},
