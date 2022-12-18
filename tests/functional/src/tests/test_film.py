@@ -13,7 +13,6 @@ total_rows = 20
 
 @pytest_asyncio.fixture(scope="module", autouse=True)
 async def prepare_data(es_write_data, flush_data):
-
     films = load_from_json("films2.json", ElasticFilm)
     assert len(films) == total_rows
     es_index = settings.ES_MOVIES_INDEX
@@ -121,3 +120,30 @@ async def test_films_similar(make_get_request, query_data: dict[str, str | int],
 
     # проверяем ответ
     check_multi_response(status, body, expected_result)
+
+
+async def test_cache(clear_indices, make_get_request):
+    """кэш проверять только после тестов! Отдельно нельзя!"""
+
+    url = "/api/v1/films/"
+    body, header, status = await make_get_request(url)
+    assert status == 200
+    assert body["total"] == 20
+
+    url = "/api/v1/films/search/"
+    query_data = {"query": "movie"}
+    body, header, status = await make_get_request(url, query_data)
+    assert status == 200
+    assert body["total"] == 18
+
+    film_id = "edbb87fd-bfdb-458d-852d-61d6f3f67551"
+    url = f"/api/v1/films/{film_id}/"
+    body, header, status = await make_get_request(url)
+    assert status == 200
+    assert body["title"] == "First film"
+
+    film_id = "edbb87fd-bfdb-458d-852d-61d6f3f67551"
+    url = f"/api/v1/films/{film_id}/similar"
+    body, header, status = await make_get_request(url)
+    assert status == 200
+    assert body["total"] == 9
