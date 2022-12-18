@@ -89,7 +89,7 @@ async def flush_data(es_client: AsyncElasticsearch, redis_client: aioredis.Redis
 
 @pytest.fixture(scope="session")
 def es_write_data(es_client):
-    async def inner(documents: list[CoreModel], index: str, id_key: str = "id", exclude: set[str] = {"id"}):
+    async def inner(documents: list[CoreModel], index: str, exclude: set[str], id_key: str = "id"):
         def make_action(index: str, document: CoreModel, id_key: str, exclude: set[str]):
             return {"_index": index, "_id": getattr(document, id_key), "_source": document.dict(exclude=exclude)}
 
