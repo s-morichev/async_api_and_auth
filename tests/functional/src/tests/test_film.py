@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import pytest
 import pytest_asyncio
 
@@ -21,25 +23,33 @@ async def prepare_data(es_write_data, flush_data):
 
 
 testdata = [
-    ({}, {"status": 200, "total": 20, "0#title": "First film", "19#title": "Film Last"}, "default parameters"),
+    (
+        {},
+        {"status": HTTPStatus.OK, "total": 20, "0#title": "First film", "19#title": "Film Last"},
+        "default parameters",
+    ),
     (
         {"sort": "-imdb_rating"},
-        {"status": 200, "total": 20, "0#title": "First film", "19#title": "Film Last"},
+        {"status": HTTPStatus.OK, "total": 20, "0#title": "First film", "19#title": "Film Last"},
         "increasing sort order",
     ),
     (
         {"sort": "+imdb_rating"},
-        {"status": 200, "total": 20, "0#title": "Film Last", "19#title": "First film"},
+        {"status": HTTPStatus.OK, "total": 20, "0#title": "Film Last", "19#title": "First film"},
         "decreasing sort order",
     ),
-    ({"sort": "invalid sort key"}, {"status": 422}, "invalid sort parameter"),
+    ({"sort": "invalid sort key"}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "invalid sort parameter"),
     (
         {"filter[genre]": "715b726d-2239-4984-99d6-89420a6634c0"},
-        {"status": 200, "total": 13, "0#title": "First film", "12#title": "Movie 13"},
+        {"status": HTTPStatus.OK, "total": 13, "0#title": "First film", "12#title": "Movie 13"},
         "filter by genre",
     ),
-    ({"filter[genre]": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"}, {"status": 404}, "filter by non existent genre"),
-    ({"filter[genre]": "not uuid"}, {"status": 422}, "filter by genre invalid uuid"),
+    (
+        {"filter[genre]": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"},
+        {"status": HTTPStatus.NOT_FOUND},
+        "filter by non existent genre",
+    ),
+    ({"filter[genre]": "not uuid"}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "filter by genre invalid uuid"),
 ]
 testdata += get_pagination_test_data(20)
 
@@ -53,27 +63,35 @@ async def test_films_popular(make_get_request, query_data: dict[str, str | int],
 
 
 testdata = [
-    ({}, {"status": 404}, "default parameters"),
-    ({"query": "movie"}, {"status": 200, "total": 18}, "search by title"),
-    ({"query": "description"}, {"status": 200, "total": 20}, "search by description"),
-    ({"query": "Genre 2"}, {"status": 200, "total": 16}, "search by genre"),  # ищет только по полному соответствию
-    ({"query": "FiRsT"}, {"status": 200, "total": 1}, "search case insensitive"),
-    ({"query": "desription"}, {"status": 200, "total": 20}, "fuzzy without letter"),
-    ({"query": "dsecription"}, {"status": 200, "total": 20}, "fuzzy replaced letters"),
-    ({"query": "desctiption"}, {"status": 200, "total": 20}, "fuzzy invalid letter"),
-    ({"query": "descript"}, {"status": 200, "total": 20}, "different word forms"),
-    ({"query": "non existent"}, {"status": 404}, "nothing found"),
+    ({}, {"status": HTTPStatus.NOT_FOUND}, "default parameters"),
+    ({"query": "movie"}, {"status": HTTPStatus.OK, "total": 18}, "search by title"),
+    ({"query": "description"}, {"status": HTTPStatus.OK, "total": 20}, "search by description"),
+    (
+        {"query": "Genre 2"},
+        {"status": HTTPStatus.OK, "total": 16},
+        "search by genre",
+    ),  # ищет только по полному соответствию
+    ({"query": "FiRsT"}, {"status": HTTPStatus.OK, "total": 1}, "search case insensitive"),
+    ({"query": "desription"}, {"status": HTTPStatus.OK, "total": 20}, "fuzzy without letter"),
+    ({"query": "dsecription"}, {"status": HTTPStatus.OK, "total": 20}, "fuzzy replaced letters"),
+    ({"query": "desctiption"}, {"status": HTTPStatus.OK, "total": 20}, "fuzzy invalid letter"),
+    ({"query": "descript"}, {"status": HTTPStatus.OK, "total": 20}, "different word forms"),
+    ({"query": "non existent"}, {"status": HTTPStatus.NOT_FOUND}, "nothing found"),
     (
         {"query": "movie", "filter[genre]": "715b726d-2239-4984-99d6-89420a6634c0"},
-        {"status": 200, "total": 12},
+        {"status": HTTPStatus.OK, "total": 12},
         "filter by genre",
     ),
     (
         {"query": "movie", "filter[genre]": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"},
-        {"status": 404},
+        {"status": HTTPStatus.NOT_FOUND},
         "filter by non existent genre",
     ),
-    ({"query": "movie", "filter[genre]": "not uuid"}, {"status": 422}, "filter by genre invalid uuid"),
+    (
+        {"query": "movie", "filter[genre]": "not uuid"},
+        {"status": HTTPStatus.UNPROCESSABLE_ENTITY},
+        "filter by genre invalid uuid",
+    ),
 ]
 testdata += get_pagination_test_data(18, mixin={"query": "movie"})
 
@@ -87,9 +105,9 @@ async def test_films_search(make_get_request, query_data: dict[str, str | int], 
 
 
 testdata = [
-    ({"uuid": "edbb87fd-bfdb-458d-852d-61d6f3f67551"}, {"status": 200, "title": "First film"}, "get film"),
-    ({"uuid": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"}, {"status": 404}, "non existent film"),
-    ({"uuid": "not uuid"}, {"status": 422}, "invalid film uuid"),
+    ({"uuid": "edbb87fd-bfdb-458d-852d-61d6f3f67551"}, {"status": HTTPStatus.OK, "title": "First film"}, "get film"),
+    ({"uuid": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"}, {"status": HTTPStatus.NOT_FOUND}, "non existent film"),
+    ({"uuid": "not uuid"}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "invalid film uuid"),
 ]
 
 
@@ -102,9 +120,13 @@ async def test_films_by_id(make_get_request, query_data: dict[str, str | int], e
 
 
 testdata = [
-    ({"uuid": "edbb87fd-bfdb-458d-852d-61d6f3f67551"}, {"status": 200, "total": 9}, "get similar films"),
-    ({"uuid": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"}, {"status": 404}, "no similar for non existent film"),
-    ({"uuid": "not uuid"}, {"status": 422}, "invalid film uuid"),
+    ({"uuid": "edbb87fd-bfdb-458d-852d-61d6f3f67551"}, {"status": HTTPStatus.OK, "total": 9}, "get similar films"),
+    (
+        {"uuid": "a48f8db2-7ae2-4bea-8f55-be6590c5b8d4"},
+        {"status": HTTPStatus.NOT_FOUND},
+        "no similar for non existent film",
+    ),
+    ({"uuid": "not uuid"}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "invalid film uuid"),
 ]
 testdata += get_pagination_test_data(9, mixin={"uuid": "edbb87fd-bfdb-458d-852d-61d6f3f67551"})
 
@@ -122,23 +144,23 @@ async def test_cache(clear_indices, make_get_request):
 
     url = "/api/v1/films/"
     body, header, status = await make_get_request(url)
-    assert status == 200
+    assert status == HTTPStatus.OK
     assert body["total"] == 20
 
     url = "/api/v1/films/search/"
     query_data = {"query": "movie"}
     body, header, status = await make_get_request(url, query_data)
-    assert status == 200
+    assert status == HTTPStatus.OK
     assert body["total"] == 18
 
     film_id = "edbb87fd-bfdb-458d-852d-61d6f3f67551"
     url = f"/api/v1/films/{film_id}/"
     body, header, status = await make_get_request(url)
-    assert status == 200
+    assert status == HTTPStatus.OK
     assert body["title"] == "First film"
 
     film_id = "edbb87fd-bfdb-458d-852d-61d6f3f67551"
     url = f"/api/v1/films/{film_id}/similar"
     body, header, status = await make_get_request(url)
-    assert status == 200
+    assert status == HTTPStatus.OK
     assert body["total"] == 9
