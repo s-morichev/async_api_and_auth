@@ -112,6 +112,9 @@ def get_pagination_test_data(
         ({"page[number]": -1}, {"status": 422}, "page_num=-1 without page_size"),
         ({"page[number]": 0, "page[size]": 3}, {"status": 422}, "page_num=0"),
         ({"page[number]": 0}, {"status": 422}, "page_num=0 without page_size"),
+        ({"page[number]": 'aaa'}, {"status": 422}, "page_num=string"),
+        ({"page[size]": 'bbb'}, {"status": 422}, "page_size=string"),
+        ({"page[number]": 'qwerty', "page[size]": 'qwerty'}, {"status": 422}, "page_size and page_num=string"),
         ({"page[number]": 1000000, "page[size]": default_page_size}, {"status": 400}, "big page_size*page_num"),
         ({"page[number]": 2, "page[size]": max_page_size + 1}, {"status": 422}, "page_size>max_page_size"),
     ]
