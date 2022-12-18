@@ -57,7 +57,7 @@ testdata = [
     ({"uuid": "715b726d-2239-4984-99d6-89420a6634c0"}, {"status": HTTPStatus.OK, "name": "First Genre"}, "First test"),
     ({"uuid": "3fbed5ed-1e53-45f6-ae0f-91f63eda6b7d"}, {"status": HTTPStatus.OK, "name": "Genre Last"}, "Last test"),
     ({"uuid": "d5e9fd46-d89f-403f-b685-c1f1c9643748"}, {"status": HTTPStatus.OK, "name": "Middle"}, "Middle test"),
-    ({"uuid": "88d41c11-8e7a-46f6-9890-205848809f34"}, {"status": HTTPStatus.BAD_REQUEST}, "Not found test"),
+    ({"uuid": "88d41c11-8e7a-46f6-9890-205848809f34"}, {"status": HTTPStatus.NOT_FOUND}, "Not found test"),
     ({"uuid": "invalid uuid is that"}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "Invalid uuid"),
 ]
 
