@@ -1,15 +1,15 @@
 import logging
 
-import aioredis
+import redis.asyncio as aioredis
 import uvicorn as uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import films, genres, persons
+from api.v1 import films, genres, persons, ping
 from core.config import settings
 from core.logger import LOGGING
-from db import elastic, redis
+from db import elastic, redis_
 
 tags_metadata = [
     {"name": "Фильмы", "description": "Запросы по фильмам"},
@@ -32,18 +32,19 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup():
     logger.info("service start")
-    redis.redis = await aioredis.from_url(settings.REDIS_URI)
+    redis_.redis = await aioredis.from_url(settings.REDIS_URI)
     elastic.es = AsyncElasticsearch(hosts=[settings.ES_URI])
 
 
 @app.on_event("shutdown")
 async def shutdown():
     # Отключаемся от баз при выключении сервера
-    await redis.redis.close()
+    await redis_.redis.close()
     await elastic.es.close()
     logger.info("service shutdown")
 
 
+app.include_router(ping.router, prefix="/api/v1/ping", tags=["Пинг"])
 app.include_router(films.router, prefix="/api/v1/films", tags=["Фильмы"])
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["Персоны"])
 app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])

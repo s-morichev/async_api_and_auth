@@ -1,7 +1,7 @@
 import enum
+import logging
 from http import HTTPStatus
 from uuid import UUID
-import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 

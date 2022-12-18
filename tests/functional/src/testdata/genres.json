@@ -1,0 +1,26 @@
+[
+    {
+        "id": "715b726d-2239-4984-99d6-89420a6634c0",
+        "name": "First Genre"
+    },
+    {
+        "id": "dca9d234-6b1f-4a21-bc98-3e601d190f88",
+        "name": "Genre 1"
+    },
+    {
+        "id": "60969f21-b461-4c6a-a5bd-377c9a35e716",
+        "name": "Genre 2"
+    },
+    {
+        "id": "d5e9fd46-d89f-403f-b685-c1f1c9643748",
+        "name": "Middle"
+    },
+    {
+        "id": "9fdc283f-8cb0-470c-b9d2-810d85e409b5",
+        "name": "Genre 4"
+    },
+    {
+        "id": "3fbed5ed-1e53-45f6-ae0f-91f63eda6b7d",
+        "name": "Genre Last"
+    }
+]

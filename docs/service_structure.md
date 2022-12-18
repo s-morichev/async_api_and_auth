@@ -5,5 +5,5 @@
 .env.local.example (.env.local) - для запуска сервиса локально  
 Makefile - для манипуляций с сервисом  
 requirements.txt - список зависимостей  
-Dockerfile - файл для создания контейнера
+/docker/Dockerfile - файл для создания контейнера
 

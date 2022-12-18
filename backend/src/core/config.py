@@ -2,7 +2,6 @@ from pathlib import Path
 
 from pydantic import BaseSettings, Field
 
-
 BASE_DIR = Path(__file__).parent.parent
 ENV_FILE = BASE_DIR.parent / ".env.local"
 VAR_DIR = BASE_DIR / "var/"
@@ -15,6 +14,7 @@ class Settings(BaseSettings):
     DEBUG: bool = Field(False, env="BACKEND_DEBUG")
     REDIS_URI: str = Field(..., env="REDIS_DSN")
     ES_URI: str = Field(..., env="ELK_DSN")
+    DATABASE_WAIT_TIME: float = 1.0
 
 
 settings = Settings(_env_file=ENV_FILE)
