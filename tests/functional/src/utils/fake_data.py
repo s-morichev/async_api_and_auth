@@ -61,6 +61,7 @@ def filter_roles(persons: list[ExtendedPerson], person_list: dict[uuid, Person])
 # ------------------------------------------------------------------------------ #
 class UUIDEncoder(json.JSONEncoder):
     """класс для сериализации UUID, иначе ругается json"""
+
     def default(self, obj):
         if isinstance(obj, uuid.UUID):
             # if the obj is uuid, we simply return the value of uuid
@@ -141,5 +142,5 @@ def main():
 
 
 # ------------------------------------------------------------------------------ #
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
