@@ -6,13 +6,17 @@ from ..utils.core_model import CoreModel
 
 
 # ------------------------------------------------------------------------------ #
-def check_single_response(status, body, expected_result):
-    """
-    для ответа из одной позиции. проверяем результат на соответствие
-    'status' - проверяет статус ответа
-     key - остальные ключи проверяются на [key]
-     '!key' - пропускается (можно сделать отдельную обработку)
+def check_single_response(status: int, body: dict, expected_result: dict) -> None:
+    """Проверка ответа при запросе одного объекта.
 
+    Проверяем результат на соответствие значениям ключей в expected_result:
+    'status' - проверяет статус ответа
+    key - остальные ключи проверяются на body[key]
+    '!key' - пропускается (можно сделать отдельную обработку)
+
+    :param status: статус ответа от сервера
+    :param body: тело ответа от сервера
+    :param expected_result: ожидаемые данные от сервера
     """
     for key in expected_result:
         if key[0] == "!":
@@ -26,15 +30,20 @@ def check_single_response(status, body, expected_result):
                 assert (body[key]) == expected_result[key]
 
 
-def check_multi_response(status, body, expected_result):
-    """
-    для ответа из многих позиций. проверяем результат на соответствие
+def check_multi_response(status: int, body: dict, expected_result: dict) -> None:
+    """Проверка ответа при запросе списка объектов.
+
+    Проверяем результат на соответствие значениям ключей в expected_result:
     'status' - проверяет статус ответа
     'total' - количество записей всего (поле total в ответе)
-    'length' - количество вернувшихся записей в result
-     key - остальные ключи проверяются на result[0..len][key] (то есть в любой позиции)
-         - 'num#key' - result[num][key] - в позиции num
+    'length' - количество вернувшихся записей в body['result']
+     key - остальные ключи проверяются на body['result'][0..len][key] (то есть в любой позиции)
+         - 'num#key' - body['result'][num][key] - в позиции num
          - '!key' - пропускается (можно сделать отдельную обработку)
+
+    :param status: статус ответа от сервера
+    :param body: тело ответа от сервера
+    :param expected_result: ожидаемые данные от сервера
     """
 
     for key in expected_result:
@@ -142,7 +151,6 @@ def get_pagination_test_data(
     if mixin:
         for row in testdata:
             row[0].update(mixin)
-        # testdata = [(row[0] | mixin, row[1:]) for row in testdata]
 
     return testdata
 

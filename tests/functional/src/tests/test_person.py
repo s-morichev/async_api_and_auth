@@ -64,6 +64,7 @@ testdata += get_pagination_test_data(0, mixin={"query": "Lucas"})
 async def test_person_search(make_get_request, query_data: dict[str, str | int], expected_result: dict[str, str | int]):
     url = "/api/v1/persons/search"
     body, header, status = await make_get_request(url, query_data)
+
     check_multi_response(status, body, expected_result)
 
 
@@ -103,7 +104,7 @@ async def test_persons_film(make_get_request, query_data: dict[str, str | int], 
     person_id = query_data["uuid"]
     url = f"/api/v1/persons/{person_id}/film"
     body, header, status = await make_get_request(url, query_data)
-    print(body)
+
     check_multi_response(status, body, expected_result)
 
 

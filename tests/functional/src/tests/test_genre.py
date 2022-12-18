@@ -30,11 +30,9 @@ testdata = get_pagination_test_data(total_row_count=total_rows, default_page_siz
 async def test_list_pagination(
     make_get_request, query_data: dict[str, str | int], expected_result: dict[str, str | int]
 ):
-    # шлем запрос
     url = "/api/v1/genres/"
     body, header, status = await make_get_request(url, query_data)
 
-    # проверяем ответ
     check_multi_response(status, body, expected_result)
 
 
@@ -45,11 +43,9 @@ testdata = [({"page[number]": 1, "page[size]": 50}, {"status": 200, "total": tot
 
 @pytest.mark.parametrize("query_data, expected_result", argvalues=args(testdata), ids=ids(testdata))
 async def test_list(make_get_request, query_data: dict[str, str | int], expected_result: dict[str, str | int]):
-    # шлем запрос
     url = "/api/v1/genres/"
     body, header, status = await make_get_request(url, query_data)
 
-    # проверяем ответ
     check_multi_response(status, body, expected_result)
 
 

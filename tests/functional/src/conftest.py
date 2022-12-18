@@ -49,8 +49,6 @@ async def aiohttp_session():
 async def create_es_indices(es_client: AsyncElasticsearch):
     """Запускается один раз на все тесты автоматически"""
 
-    # удаляем индексы на всякий случай - а надо? Игнорируем ошибки если индексов нет
-    # удаляем - вдруг схема поменялась?
     await es_client.options(ignore_status=[400, 404]).indices.delete(index=settings.ES_ALL_INDICES)
 
     # создаем индексы по списку. В /testdata должны лежать файлы json со схемами

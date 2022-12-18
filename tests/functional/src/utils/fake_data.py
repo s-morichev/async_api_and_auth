@@ -1,12 +1,15 @@
+"""Вспомогательный модуль для генерации тестовых данных.
+
+Сгененированные файлы json записываются в текущую папку. Их необходимо перенести
+в папку /testdata и вручную изменить для тестирования краевых случаев.
+"""
 import json
 import random
 import uuid
-# from pprint import pprint
 
 from utils.dto_models import ElasticFilm, ExtendedFilm, ExtendedPerson, Film, Genre, Person, RoleMovies
 
 # ------------------------------------------------------------------------------ #
-# print = pprint
 persons_count = 20
 genres_count = 6
 films_count = 20

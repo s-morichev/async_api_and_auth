@@ -46,11 +46,9 @@ testdata += get_pagination_test_data(20)
 
 @pytest.mark.parametrize("query_data, expected_result", argvalues=args(testdata), ids=ids(testdata))
 async def test_films_popular(make_get_request, query_data: dict[str, str | int], expected_result: dict[str, str | int]):
-    # шлем запрос
     url = "/api/v1/films/"
     body, header, status = await make_get_request(url, query_data)
 
-    # проверяем ответ
     check_multi_response(status, body, expected_result)
 
 
@@ -82,10 +80,9 @@ testdata += get_pagination_test_data(18, mixin={"query": "movie"})
 
 @pytest.mark.parametrize("query_data, expected_result", argvalues=args(testdata), ids=ids(testdata))
 async def test_films_search(make_get_request, query_data: dict[str, str | int], expected_result: dict[str, str | int]):
-    # шлем запрос
     url = "/api/v1/films/search/"
     body, header, status = await make_get_request(url, query_data)
-    # проверяем ответ
+
     check_multi_response(status, body, expected_result)
 
 
@@ -114,11 +111,9 @@ testdata += get_pagination_test_data(9, mixin={"uuid": "edbb87fd-bfdb-458d-852d-
 
 @pytest.mark.parametrize("query_data, expected_result", argvalues=args(testdata), ids=ids(testdata))
 async def test_films_similar(make_get_request, query_data: dict[str, str | int], expected_result: dict[str, str | int]):
-    # шлем запрос
     url = f"/api/v1/films/{query_data['uuid']}/similar"
     body, header, status = await make_get_request(url, query_data)
 
-    # проверяем ответ
     check_multi_response(status, body, expected_result)
 
 
