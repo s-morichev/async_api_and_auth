@@ -1,4 +1,5 @@
 import logging
+from http import HTTPStatus
 from typing import Type
 
 from fastapi import Depends, HTTPException
@@ -54,7 +55,10 @@ class BaseService(metaclass=Singleton):
         try:
             result = await self.get_from_database(**kwargs)
         except DatabaseConnectionError:
-            raise HTTPException(status_code=503, detail="Service is unavailable. Please try a few minutes later.")
+            raise HTTPException(
+                status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+                detail="Service is unavailable. Please try a few minutes later.",
+            )
 
         if result:
             logger.debug(f"get from database: {result}")
