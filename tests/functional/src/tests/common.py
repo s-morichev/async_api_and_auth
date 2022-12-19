@@ -1,4 +1,5 @@
 import json
+from http import HTTPStatus
 from typing import Type
 
 from ..settings import BASE_DIR
@@ -102,7 +103,7 @@ def load_from_json(filename: str, Model: Type[CoreModel]):
 
 # ------------------------------------------------------------------------------ #
 def get_pagination_test_data(
-    total_row_count: int, default_page_size: int = 50, max_page_size: int = 200, mixin: dict | None = None
+    total_row_count: int, default_page_size: int = 50, max_page_size: int = HTTPStatus.OK, mixin: dict | None = None
 ):
     """
     Готовим тестовый набор для проверки пагинации
@@ -117,35 +118,51 @@ def get_pagination_test_data(
     # размер страницы 2
     page_2 = max(0, min(total_row_count - default_page_size, default_page_size))
     testdata = [
-        ({"page[number]": -1, "page[size]": 3}, {"status": 422}, "page_num=-1"),
-        ({"page[number]": -1}, {"status": 422}, "page_num=-1 without page_size"),
-        ({"page[number]": 0, "page[size]": 3}, {"status": 422}, "page_num=0"),
-        ({"page[number]": 0}, {"status": 422}, "page_num=0 without page_size"),
-        ({"page[number]": 'aaa'}, {"status": 422}, "page_num=string"),
-        ({"page[size]": 'bbb'}, {"status": 422}, "page_size=string"),
-        ({"page[number]": 'qwerty', "page[size]": 'qwerty'}, {"status": 422}, "page_size and page_num=string"),
-        ({"page[number]": 1000000, "page[size]": default_page_size}, {"status": 400}, "big page_size*page_num"),
-        ({"page[number]": 2, "page[size]": max_page_size + 1}, {"status": 422}, "page_size>max_page_size"),
+        ({"page[number]": -1, "page[size]": 3}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "page_num=-1"),
+        ({"page[number]": -1}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "page_num=-1 without page_size"),
+        ({"page[number]": 0, "page[size]": 3}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "page_num=0"),
+        ({"page[number]": 0}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "page_num=0 without page_size"),
+        ({"page[number]": "aaa"}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "page_num=string"),
+        ({"page[size]": "bbb"}, {"status": HTTPStatus.UNPROCESSABLE_ENTITY}, "page_size=string"),
+        (
+            {"page[number]": "qwerty", "page[size]": "qwerty"},
+            {"status": HTTPStatus.UNPROCESSABLE_ENTITY},
+            "page_size and page_num=string",
+        ),
+        (
+            {"page[number]": 1000000, "page[size]": default_page_size},
+            {"status": HTTPStatus.BAD_REQUEST},
+            "big page_size*page_num",
+        ),
+        (
+            {"page[number]": 2, "page[size]": max_page_size + 1},
+            {"status": HTTPStatus.UNPROCESSABLE_ENTITY},
+            "page_size>max_page_size",
+        ),
     ]
     # эти тесты применимы если не пустой список
     if total_row_count > 0:
         testdata += [
-            ({"page[number]": 1, "page[size]": 50}, {"status": 200, "total": total_row_count}, "default pagination"),
-            ({}, {"status": 200, "length": page_1, "total": total_row_count}, "no pages send"),
-            ({"page[number]": 1}, {"status": 200, "length": page_1}, "only page number=1"),
-            ({"page[number]": 2}, {"status": 200, "length": page_2}, "page number=2"),
+            (
+                {"page[number]": 1, "page[size]": 50},
+                {"status": HTTPStatus.OK, "total": total_row_count},
+                "default pagination",
+            ),
+            ({}, {"status": HTTPStatus.OK, "length": page_1, "total": total_row_count}, "no pages send"),
+            ({"page[number]": 1}, {"status": HTTPStatus.OK, "length": page_1}, "only page number=1"),
+            ({"page[number]": 2}, {"status": HTTPStatus.OK, "length": page_2}, "page number=2"),
             (
                 {"page[number]": 1, "page[size]": page_1 - 1},
-                {"status": 200, "length": page_1 - 1},
+                {"status": HTTPStatus.OK, "length": page_1 - 1},
                 "limit page full_page",
             ),
-            ({"page[number]": 1, "page[size]": 1}, {"status": 200, "length": 1}, "limit page=1"),
+            ({"page[number]": 1, "page[size]": 1}, {"status": HTTPStatus.OK, "length": 1}, "limit page=1"),
             (
                 {"page[number]": 2, "page[size]": page_1 - 1},
-                {"status": 200, "length": 1},
+                {"status": HTTPStatus.OK, "length": 1},
                 "page=2, page_size must be 1",
             ),
-            ({"page[size]": 1}, {"status": 200, "length": 1}, "only page size=1"),
+            ({"page[size]": 1}, {"status": HTTPStatus.OK, "length": 1}, "only page size=1"),
         ]
 
     if mixin:
