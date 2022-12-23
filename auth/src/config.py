@@ -11,11 +11,11 @@ LOG_FILE = LOG_DIR / "auth.log"
 
 class Config(BaseSettings):
     # PROJECT_NAME: str = Field("auth", env="AUTH_PROJECT_NAME")
-    SECRET_KEY: str = Field(..., env="FLASK_SECRET_KEY")
+    SECRET_KEY: str = Field(..., env="AUTH_SECRET_KEY")
     DEBUG: bool = Field(False, env="AUTH_DEBUG")
     # REDIS_URI: str = Field(..., env="REDIS_DSN")
     SQLALCHEMY_DATABASE_URI: str = Field(..., env="PG_AUTH_DSN")
-    JWT_SECRET_KEY: str = Field(..., env="FLASK_JWT_KEY")
+    JWT_SECRET_KEY: str = Field(..., env="AUTH_JWT_KEY")
 
     class Config:
         env_file = ENV_FILE

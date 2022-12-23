@@ -13,4 +13,4 @@ def create_super_user(email, password):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=5000)

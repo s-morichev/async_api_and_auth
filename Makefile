@@ -15,6 +15,9 @@ build-backend:
 build-etl:
 	docker --log-level=debug build  --tag=etl_movies --target=production -f ./etl/docker/Dockerfile   ./etl
 
+build-auth:
+	docker --log-level=debug build --tag=auth --target=production -f ./auth/docker/Dockerfile  ./auth
+
 build-nginx:
 	docker --log-level=debug build --tag=nginx_all_services ./docker/nginx/
 

@@ -10,7 +10,7 @@ services:
 
   backend:
     restart: "always"
-    image: "backend_sprint_4"
+    image: "backend"
     container_name: backend
     env_file:
       - .env
@@ -63,6 +63,18 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+
+  auth:
+    restart: "always"
+    image: "auth"
+    container_name: auth
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres_auth
+      - redis_auth
 
   redis_auth:
     image: redis:7.0.5-alpine

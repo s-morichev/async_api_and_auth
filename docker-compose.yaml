@@ -82,6 +82,25 @@ services:
         soft: 65536
         hard: 65536
 
+  auth:
+    restart: "always"
+    build:
+      context: ./auth
+      dockerfile: ./docker/Dockerfile
+      target: development
+      tags:
+        - "auth"
+    container_name: auth
+    volumes:
+      - ./auth/src/:/opt/app/
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres_auth
+      - redis_auth
+
   redis_auth:
     image: redis:7.0.5-alpine
     container_name: redis_auth
