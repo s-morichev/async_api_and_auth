@@ -15,7 +15,7 @@ class Config(BaseSettings):
     DEBUG: bool = Field(False, env="AUTH_DEBUG")
     # REDIS_URI: str = Field(..., env="REDIS_DSN")
     SQLALCHEMY_DATABASE_URI: str = Field(..., env="PG_AUTH_DSN")
-    TESTING: bool = False
+    JWT_SECRET_KEY: str = Field(..., env="FLASK_JWT_KEY")
 
     class Config:
         env_file = ENV_FILE
