@@ -14,7 +14,7 @@ class Config(BaseSettings):
     SECRET_KEY: str = Field(..., env="FLASK_SECRET_KEY")
     DEBUG: bool = Field(False, env="AUTH_DEBUG")
     # REDIS_URI: str = Field(..., env="REDIS_DSN")
-    SQLALCHEMY_DATABASE_URI: str = Field(..., env="PG_DSN")
+    SQLALCHEMY_DATABASE_URI: str = Field(..., env="PG_AUTH_DSN")
     TESTING: bool = False
 
     class Config:

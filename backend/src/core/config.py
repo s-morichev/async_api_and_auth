@@ -12,8 +12,8 @@ LOG_FILE = LOG_DIR / "backend.log"
 class Settings(BaseSettings):
     PROJECT_NAME: str = Field("movies", env="BACKEND_PROJECT_NAME")
     DEBUG: bool = Field(False, env="BACKEND_DEBUG")
-    REDIS_URI: str = Field(..., env="REDIS_DSN")
-    ES_URI: str = Field(..., env="ELK_DSN")
+    REDIS_URI: str = Field(..., env="REDIS_BACKEND_DSN")
+    ES_URI: str = Field(..., env="ELK_MOVIES_DSN")
     DATABASE_WAIT_TIME: float = 1.0
 
 

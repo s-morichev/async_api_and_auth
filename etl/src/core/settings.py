@@ -18,17 +18,17 @@ LOG_FILE = LOG_DIR / "etl.log"
 
 
 class Settings(BaseSettings):
-    DEBUG: bool = Field(False, env="ETL_DEBUG")
-    PG_URI: str = Field(..., env="PG_DSN")
-    ES_URI: str = Field(..., env="ELK_DSN")
+    DEBUG: bool = Field(False, env="ETL_MOVIES_DEBUG")
+    PG_URI: str = Field(..., env="PG_MOVIES_DSN")
+    ES_URI: str = Field(..., env="ELK_MOVIES_DSN")
     ES_INDEX_MOVIES: str = "movies"
     ES_INDEX_PERSONS: str = "persons"
     ES_INDEX_GENRES: str = "genres"
-    ETL_SLEEP_TIME: int
+    ETL_SLEEP_TIME: int = Field(..., env="ETL_MOVIES_SLEEP_TIME")
 
     # ES_BATCH_SIZE >= PG_BATCH_SIZE !!!
-    PG_BATCH_SIZE: int = Field(500, env="ETL_PG_SIZE")
-    ES_BATCH_SIZE: int = Field(1000, env="ETL_ES_SIZE")
+    PG_BATCH_SIZE: int = Field(500, env="ETL_MOVIES_PG_SIZE")
+    ES_BATCH_SIZE: int = Field(1000, env="ETL_MOVIES_ES_SIZE")
 
 
 settings = Settings(_env_file=ENV_FILE)

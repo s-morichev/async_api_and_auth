@@ -3,7 +3,7 @@ services:
     build:
       context: ./docker/nginx
       tags:
-        - "nginx_sprint_4"
+        - "nginx_all_services"
     container_name: nginx
     ports:
       - "80:80"
@@ -17,7 +17,7 @@ services:
       dockerfile: ./docker/Dockerfile
       target: development
       tags:
-        - "backend_sprint_4"
+        - "backend"
     container_name: backend
     volumes:
       - ./backend/src/:/opt/app/
@@ -26,54 +26,53 @@ services:
     env_file:
       - .env
     depends_on:
-      - elasticsearch
+      - elasticsearch_movies
+      - redis_backend
 
-  etl:
-    restart: always
+  redis_backend:
+    image: redis:7.0.5-alpine
+    container_name: redis_backend
+    command: redis-server --requirepass ${REDIS_BACKEND_PASSWORD} --maxmemory ${REDIS_BACKEND_MAXMEMORY} --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_BACKEND_PORT}:6379"
+
+  etl_movies:
+    restart: "always"
     build:
       context: ./etl
       dockerfile: ./docker/Dockerfile
       target: development
       tags:
-        - "etl_sprint_4"
-    container_name: etl
+        - "etl_movies"
+    container_name: etl_movies
     volumes:
-      - etl_data:/opt/app/var/
+      - etl_movies_data:/opt/app/var/
     env_file:
       - .env
     depends_on:
-      - postgres
-      - elasticsearch
+      - postgres_movies
+      - elasticsearch_movies
 
-  redis:
-    image: redis:7.0.5
-    container_name: redis
-    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory ${REDIS_MAXMEMORY} --maxmemory-policy allkeys-lru
-    ports:
-      - "${REDIS_PORT}:6379"
-
-  postgres:
-    build:
-      context: ./docker/postgres
-      tags:
-        - "postgres_sprint_4"
-    container_name: postgres
+  postgres_movies:
+    image: postgres:15.1-alpine
+    container_name: postgres_movies
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_movies_data:/var/lib/postgresql/data/
+      - ./docker/postgres/dump.gz:/docker-entrypoint-initdb.d/dump.sql.gz
     ports:
-      - "${PG_PORT}:5432"
+      - "${PG_MOVIES_PORT}:5432"
     environment:
-      - POSTGRES_USER=${PG_USER}
-      - POSTGRES_PASSWORD=${PG_PASSWORD}
-      - POSTGRES_DB=${PG_DB_NAME}
+      - POSTGRES_USER=${PG_MOVIES_USER}
+      - POSTGRES_PASSWORD=${PG_MOVIES_PASSWORD}
+      - POSTGRES_DB=${PG_MOVIES_DB_NAME}
 
-  elasticsearch:
+  elasticsearch_movies:
     image: elasticsearch:8.5.1
-    container_name: elasticsearch
+    container_name: elasticsearch_movies
     volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
+      - elasticsearch_movies_data:/usr/share/elasticsearch/data
     ports:
-      - "${ELK_PORT}:9200"
+      - "${ELK_MOVIES_PORT}:9200"
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
@@ -83,7 +82,30 @@ services:
         soft: 65536
         hard: 65536
 
+  redis_auth:
+    image: redis:7.0.5-alpine
+    container_name: redis_auth
+    command: redis-server --requirepass ${REDIS_AUTH_PASSWORD} --save 20 1
+    volumes:
+      - redis_auth_data:/data
+    ports:
+      - "${REDIS_AUTH_PORT}:6379"
+
+  postgres_auth:
+    image: postgres:15.1-alpine
+    container_name: postgres_auth
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data/
+    ports:
+      - "${PG_AUTH_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${PG_AUTH_USER}
+      - POSTGRES_PASSWORD=${PG_AUTH_PASSWORD}
+      - POSTGRES_DB=${PG_AUTH_DB_NAME}
+
 volumes:
-  postgres_data:
-  elasticsearch_data:
-  etl_data:
+  postgres_movies_data:
+  elasticsearch_movies_data:
+  etl_movies_data:
+  postgres_auth_data:
+  redis_auth_data:
