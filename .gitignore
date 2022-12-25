@@ -130,5 +130,5 @@ dmypy.json
 
 # PyCharm
 .idea/
-/tests/functional/.env.local
+**/.env.local
 /tests/functional/allure-results/

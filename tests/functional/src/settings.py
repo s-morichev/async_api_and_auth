@@ -7,8 +7,8 @@ ENV_FILE = BASE_DIR.parent / ".env.local"
 
 
 class Settings(BaseSettings):
-    REDIS_URI: str = Field(..., env="REDIS_DSN")
-    ES_URI: str = Field(..., env="ELK_DSN")
+    REDIS_URI: str = Field(..., env="REDIS_BACKEND_DSN")
+    ES_URI: str = Field(..., env="ELK_MOVIES_DSN")
     API_URI: str = Field(..., env="API_DSN")
     ES_MOVIES_INDEX: str = "movies"
     ES_GENRES_INDEX: str = "genres"
