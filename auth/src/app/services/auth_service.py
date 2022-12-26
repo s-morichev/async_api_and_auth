@@ -42,8 +42,8 @@ def login(email: str, password: str, user_agent: str, access_jti: str | None) ->
 
     # сохраняем в редис валидный refresh токен с информацией об устройстве, с которого пришел юзер
     refresh_jti = get_jti(refresh)
-    value = str(user.id) + "#" + device_id
-    jwt_redis.set(refresh_jti, value, ex=flask_config.JWT_REFRESH_TOKEN_EXPIRES)
+    key = str(user.id) + "#" + device_id
+    jwt_redis.set(key, refresh_jti, ex=flask_config.JWT_REFRESH_TOKEN_EXPIRES)
 
     # TODO добавить в постгрес инфо о логине
 
@@ -52,12 +52,12 @@ def login(email: str, password: str, user_agent: str, access_jti: str | None) ->
 
 def logout(access_payload):
     access_jti = access_payload["jti"]
-    refresh_jti = access_payload["refresh_jti"]
+    refresh_key = access_payload["sub"] + "#" + access_payload["device_id"]
 
     # сохраняем в редис невалидный access токен
     jwt_redis.set(access_jti, "", ex=flask_config.JWT_ACCESS_TOKEN_EXPIRES)
     # удаляем из редиса валидный refresh токен
-    jwt_redis.delete(refresh_jti)
+    jwt_redis.delete(refresh_key)
 
     # TODO добавить в постгрес инфо о логауте
 
@@ -74,8 +74,8 @@ def refresh(refresh_payload):
 
     # сохраняем в редис валидный новый refresh токен с информацией об устройстве, с которого пришел юзер
     refresh_jti = get_jti(refresh)
-    value = user_id + "#" + device_id
-    jwt_redis.set(refresh_jti, value, ex=flask_config.JWT_REFRESH_TOKEN_EXPIRES)
+    key = user_id + "#" + device_id
+    jwt_redis.set(key, refresh_jti, ex=flask_config.JWT_REFRESH_TOKEN_EXPIRES)
 
     return access, refresh
 
@@ -99,7 +99,7 @@ def generate_access_refresh_tokens(user_id, device_id, user=None):
     refresh_claims = {"device_id": device_id}
     refresh_token = create_refresh_token(identity=user.id, additional_claims=refresh_claims)
 
-    access_claims = {"roles": [str(role) for role in user.roles], "refresh_jti": get_jti(refresh_token)}
+    access_claims = {"roles": [str(role) for role in user.roles], "device_id": device_id}
     access_token = create_access_token(identity=user.id, additional_claims=access_claims)
 
     return access_token, refresh_token

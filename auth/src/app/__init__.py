@@ -26,9 +26,9 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
         jti = jwt_payload["jti"]
         user_id = jwt_payload["sub"]
         device_id = jwt_payload["device_id"]
-        value_in_redis = jwt_redis.get(jti)
-
-        return not value_in_redis == (user_id + "#" + device_id).encode("utf8")
+        key = user_id + "#" + device_id
+        value_in_redis = jwt_redis.get(key)
+        return not value_in_redis == jti.encode("utf8")
 
 
 def create_app():
