@@ -23,6 +23,12 @@ class Role(db.Model):
     def __repr__(self):
         return self.name
 
+    @classmethod
+    def find_by_name(cls, name):
+        query = cls.query.filter_by(name=name).first()
+        return query
+
+
 
 user_roles = db.Table(
     "user_roles",
@@ -44,6 +50,16 @@ class User(db.Model):
     is_confirmed = Column(Boolean, default=False)
     is_root = Column(Boolean, default=False)
     roles = relationship("Role", secondary=user_roles, lazy="subquery", backref=backref("roles", lazy=True))
+
+    @classmethod
+    def find_by_email(cls, email):
+        query = cls.query.filter_by(email=email).first()
+        return query
+
+    @classmethod
+    def find_by_id(cls, user_id):
+        query = cls.query.filter_by(id=user_id).first()
+        return query
 
 
 class UserAction(db.Model):

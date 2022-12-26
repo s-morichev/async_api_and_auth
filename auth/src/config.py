@@ -19,7 +19,7 @@ class Config(BaseSettings):
     JWT_SECRET_KEY: str = Field(..., env="AUTH_JWT_KEY")
     JWT_COOKIE_SECURE: bool = Field(..., env="AUTH_JWT_COOKIE_SECURE")
     JWT_COOKIE_CSRF_PROTECT: bool = True
-    JWT_CSRF_IN_COOKIES: bool = True
+    JWT_CSRF_IN_COOKIES: bool = False
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES: timedelta = timedelta(days=30)
 
