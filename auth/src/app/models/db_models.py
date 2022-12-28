@@ -6,7 +6,7 @@ from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
 
-from app import db
+from app.flask_db import db
 
 
 def now_with_tz_info():
