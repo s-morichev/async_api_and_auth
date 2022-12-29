@@ -21,7 +21,7 @@ def register():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
     # если имя не указано, используем e-mail
-    name = request.json.get("password", email)
+    name = request.json.get("name", email)
 
     if email is None or password is None:
         return msg("No email or password"), HTTPStatus.BAD_REQUEST
