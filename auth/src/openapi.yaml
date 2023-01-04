@@ -1,0 +1,353 @@
+openapi: 3.0.3
+info:
+  title: Authentication service
+  description: Authentication service
+  version: 1.0.0
+tags:
+  - name: auth
+    description: Authentication related operations
+  - name: roles
+    description: Operations with user roles
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    RolesList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Role'
+    UserRegistrationRequest:
+      type: object
+      description: Data for registration of new user
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+    UserLoginRequest:
+      type: object
+      description: Data for login of existing user
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    ChangeEmailRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+    ChangePasswordRequest:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+    ApiErrorResponse:
+      type: object
+      properties:
+        msg:
+          type: string
+    TokensResponse:
+      type: object
+      required:
+        - access_token
+        - refresh_token
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+    LoginRecord:
+      type: object
+      required:
+        - date
+        - device
+      properties:
+        date:
+          type: string
+          format: date
+        device:
+          type: string
+    LoginRecordList:
+      type: array
+      items:
+        $ref: '#/components/schemas/LoginRecord'
+  responses:
+    200-PairOfTokens:
+      description: Response with access and refresh token
+      headers:
+        Set-Cookie:
+          description: refresh token in cookie
+          schema:
+            type: string
+        WWW-Authenticate:
+          description: access token
+          schema:
+            type: string
+      # TODO убрать токены? для браузера куки и заголовки
+      content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokensResponse'
+    400-BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    401-Unauthorized:
+      description: Invalid or missing access token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    404-NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+paths:
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: Register new user
+      requestBody:
+        description: User registration data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Log in user, get access and refresh tokens
+      requestBody:
+        description: Login data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/200-PairOfTokens'
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+  /auth/logout:
+    post:
+      tags:
+        - auth
+      summary: Log out user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Succesful operation
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+  /auth/refresh:
+    post:
+      tags:
+        - auth
+      summary: Get new access and refresh tokens
+      parameters:
+        - in: cookie
+          name: JWT_REFRESH_COOKIE_NAME # TODO добавить ключ в конфиг фласка
+          schema:
+            type: string
+      # TODO добавить requestBody (для мобильных приложений)
+      responses:
+        '200':
+          $ref: '#/components/responses/200-PairOfTokens'
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+  /auth/change-email:
+    post:
+      tags:
+        - auth
+      summary: Change user email
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeEmailRequest'
+      responses:
+        '200':
+          description: succesful operation
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+  /auth/change-password:
+    post:
+      tags:
+        - auth
+      summary: Change user password
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: succesful operation
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+  /auth/login-history:
+    get:
+      tags:
+        - auth
+      summary: Get login history
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of login records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginRecordList'
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+  /roles:
+    get:
+      tags:
+        - roles
+      summary: Get list of all roles
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolesList'
+    post:
+      tags:
+        - roles
+      summary: Add a new role
+      requestBody:
+        description: Data for creating a new role
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: A new role created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+  /roles/{role_id}:
+    parameters:
+      - name: role_id
+        in: path
+        description: UUID of role
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+       - roles
+      summary: Get role by id
+      responses:
+        '200':
+          description: An existing role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+    patch:
+      tags:
+       - roles
+      summary: Update role
+      requestBody:
+        description: Data for updating role
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Role updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+    delete:
+      tags:
+        - roles
+      summary: Delete role
+      responses:
+        '200':
+          description: Role deleted
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+
