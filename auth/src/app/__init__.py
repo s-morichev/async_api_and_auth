@@ -1,6 +1,7 @@
 from flask import Flask
 
 from flask_migrate import Migrate
+from flasgger import Swagger
 
 from .db.storage import Storage
 from .db.database import Database
@@ -27,6 +28,7 @@ def create_app():
     # обертка DB
     database = Database()
 
+    swagger = Swagger(app, template_file=flask_config.OPENAPI_YAML)
     migrate = Migrate(app, db)
     init_jwt(app, storage, database)
     init_cli(app)
