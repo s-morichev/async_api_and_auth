@@ -2,7 +2,7 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 
 
-def init_jwt(app: Flask, storage, database):
+def init_jwt(app: Flask, token_srv, database):
     jwt = JWTManager()
     jwt.init_app(app)
 
@@ -21,7 +21,7 @@ def init_jwt(app: Flask, storage, database):
             device_id = jwt_payload["device_id"]
 
             # если токен проходит, значит не отозван
-            return not storage.check_token(user_id, device_id, jti)
+            return not token_srv.check_token(user_id, device_id, jti)
 
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):

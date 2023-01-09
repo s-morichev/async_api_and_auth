@@ -33,7 +33,6 @@ def create_app():
     database = Database()
 
     migrate = Migrate(app, db)
-    init_jwt(app, storage, database)
     init_cli(app)
 
     # внедряем зависимости в модули
@@ -41,6 +40,8 @@ def create_app():
     auth_srv.storage = storage
     token_srv.storage = storage
     role_srv.database = database
+
+    init_jwt(app, token_srv, database)
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     from app.views.role_routes import Roles, RolesList, UserRoles

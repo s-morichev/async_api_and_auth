@@ -7,9 +7,6 @@ from ..services import role_service
 parser = reqparse.RequestParser()
 parser.add_argument('name')
 
-stub = {'id': 1, 'name': 'Admin'}
-stub_lst = [stub]
-
 
 class RolesList(Resource):
     def get(self):

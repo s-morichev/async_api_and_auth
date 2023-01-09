@@ -63,4 +63,8 @@ def is_valid_device(device_name, token_payload):
     device_id = device_id_from_name(device_name)
     return device_id == token_payload.get("device_id")
 
+def check_token(user_id, device_id, token_id):
+    """Проверяем не отозван ли refresh токен"""
+    return storage.check_token(user_id, device_id, token_id)
+
 
