@@ -30,7 +30,7 @@ class Storage(AbstractStorage):
 
     def set_token(self, user_id, device_id, token_id, expires):
         key = self._key(user_id, device_id)
-        self.redis.set(name=key, value=token_id, ex=expires)
+        self.redis.set(name=key, value=token_id, exat=expires)
 
     def check_token(self, user_id, device_id, token_id):
         key = self._key(user_id, device_id)
