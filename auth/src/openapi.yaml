@@ -314,7 +314,7 @@ paths:
           $ref: '#/components/responses/400-BadRequest'
         '404':
           $ref: '#/components/responses/404-NotFound'
-    patch:
+    put:
       tags:
        - roles
       summary: Update role
@@ -350,4 +350,63 @@ paths:
           $ref: '#/components/responses/400-BadRequest'
         '404':
           $ref: '#/components/responses/404-NotFound'
-
+  /user/{user_id}/roles:
+    parameters:
+      - name: user_id
+        in: path
+        description: UUID of user
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - roles
+      summary: Get list of user roles
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolesList'
+  /users/{user_id}/roles/{role_id}:
+    parameters:
+      - name: role_id
+        in: path
+        description: UUID of role
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: user_id
+        in: path
+        description: UUID of user
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags:
+        - roles
+      summary: Add a role to user
+      responses:
+        '201':
+          description: A role added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+    delete:
+      tags:
+        - roles
+      summary: Delete role from user
+      responses:
+        '200':
+          description: Role deleted
+        '400':
+          $ref: '#/components/responses/400-BadRequest'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
