@@ -10,7 +10,7 @@ def test_login(client):
             "password":"test"
         }
     )
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert "access_token" in response.json
     assert "refresh_token" in response.json
     assert "refresh_token_cookie" in response.headers["Set-Cookie"]
