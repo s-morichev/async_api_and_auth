@@ -27,7 +27,14 @@ class Config(BaseSettings):
         env_file = ENV_FILE
 
 
+class TestConfig(Config):
+    TESTING: bool = True
+    REDIS_URI: str = Field(..., env="REDIS_AUTH_TEST_DSN")
+    SQLALCHEMY_DATABASE_URI: str = Field(..., env="PG_AUTH_TEST_DSN")
+
+
 flask_config = Config()
+test_config = TestConfig()
 
 # def create_work_dirs_if_not_exists():
 #     """

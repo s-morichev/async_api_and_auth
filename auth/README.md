@@ -28,3 +28,12 @@
 - http :5000/auth/login email=example1 password=password
 - http :5000/auth/me Authorization:"Bearer $ACCESS_TOKEN"
 - http :5000/auth/refresh Authorization:"Bearer $REFRESH_TOKEN"
+
+### Тесты
+
+Локальный запуск тестов
+Контейнеры (номер порта на 20000 больше, чтобы не было конфликта с не тестовыми контейнерами)
+- `docker run --env POSTGRES_USER=app --env POSTGRES_PASSWORD=123qwe --env POSTGRES_DB=test_users_database --name postgres_auth_test -p 25432:5432 -d postgres:15.1-alpine`
+- `docker run --name redis_auth_test -p 26379:6379 -d redis:7.0.5-alpine`
+
+Выполнение тестов `pytest auth` из корневой папки
