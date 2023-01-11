@@ -94,6 +94,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def is_role_exists(self, name):
+        pass
+
+    @abstractmethod
     def delete_role(self, role_id: UUID):
         pass
 
@@ -172,6 +176,9 @@ class Database(AbstractDatabase):
         data.db.session.add(db_role)
         data.db.session.commit()
         return Role.from_db(db_role)
+
+    def is_role_exists(self, name):
+        return data.Role.find_by_name(name)
 
     def delete_role(self, role_id: UUID):
         data.Role.query.filter_by(id=role_id).delete()

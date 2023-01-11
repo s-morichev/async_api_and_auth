@@ -3,6 +3,7 @@ from http import HTTPStatus
 from flask import Blueprint, abort, make_response, request
 from flask_restful import reqparse, abort, Api, Resource
 from ..services import role_service
+from .auth_routes import msg  # TODO move msg to common module, e.g. utils
 
 parser = reqparse.RequestParser()
 parser.add_argument('name')
@@ -14,8 +15,10 @@ class RolesList(Resource):
 
     def post(self):
         name = parser.parse_args()['name']
-        # todo проверять на уже существующие роли. Сделать индекс в базе?
-        result = role_service.add_role(name)
+        try:
+            result = role_service.add_role(name)
+        except role_service.RoleError as err:
+            return msg(str(err)), HTTPStatus.CONFLICT
         return result, HTTPStatus.CREATED
 
 
