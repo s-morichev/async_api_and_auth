@@ -92,7 +92,7 @@ def logout():
     return response
 
 
-@auth_bp.post("/refresh")
+@auth_bp.route("/refresh",  methods=["GET", "POST"])
 @jwt_required(refresh=True)
 def refresh():
     payload = get_jwt()
@@ -107,7 +107,10 @@ def refresh():
     auth_service.refresh(user_id, device_id)
     access_token, refresh_token = token_service.refresh_tokens(payload)
 
-    return jsonify(access_token=access_token, refresh_token=refresh_token)
+    response = jsonify(access_token=access_token, refresh_token=refresh_token)
+    set_refresh_cookies(response, refresh_token)
+
+    return response
 
 
 @jwt_required(fresh=True)
