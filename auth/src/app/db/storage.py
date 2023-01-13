@@ -26,7 +26,7 @@ class Storage(AbstractStorage):
 
     @staticmethod
     def _key(user_id, device_id):
-        return f'{user_id}#{device_id}'
+        return f'user:{user_id}:device:{device_id}'
 
     def set_token(self, user_id, device_id, token_id, expires):
         key = self._key(user_id, device_id)
@@ -41,3 +41,4 @@ class Storage(AbstractStorage):
     def remove_session(self, user_id, device_id):
         key = self._key(user_id, device_id)
         self.redis.delete(key)
+
