@@ -1,5 +1,6 @@
 from flask_jwt_extended import decode_token, create_refresh_token, create_access_token
 
+import config
 from ..db.storage import AbstractStorage
 from ..db.database import User
 from ..utils.utils import device_id_from_name
@@ -63,8 +64,12 @@ def is_valid_device(device_name, token_payload):
     device_id = device_id_from_name(device_name)
     return device_id == token_payload.get("device_id")
 
+
 def check_token(user_id, device_id, token_id):
     """Проверяем не отозван ли refresh токен"""
     return storage.check_token(user_id, device_id, token_id)
 
 
+def get_refresh_token_expires():
+    """return time of life refresh_token"""
+    return config.flask_config.JWT_REFRESH_TOKEN_EXPIRES
