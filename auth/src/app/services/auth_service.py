@@ -1,4 +1,3 @@
-
 from ..db.storage import AbstractStorage
 from ..db.database import AbstractDatabase, User
 from ..utils.utils import device_id_from_name
@@ -32,21 +31,26 @@ def register_user(email: str, password: str, name: str):
     # mailer.send_notification(email)
 
 
-def login(email: str, password: str, device_name: str, remote_ip=None) -> User:
+def auth(email: str, password: str) -> User | None:
+    """check user auth and return user if OK"""
     user = database.auth_user(email, password)
     if not user:
         raise CredentialError('Error login/password')
-
-    device_id = device_id_from_name(device_name)
-    #TODO return UserSession
-    database.user_add_session(user.id, device_name, device_id, remote_ip)
     return user
 
 
+def login(user_id, device_name: str, remote_ip, expires):
+    """save info about new user session"""
+    device_id = device_id_from_name(device_name)
+    # TODO return UserSession
+    database.user_add_session(user_id, device_name, device_id, remote_ip, expires)
+
+
 def logout(user_id, device_id):
+    """save info about close user session"""
     database.user_close_session(user_id, device_id)
 
 
-def refresh(user_id, device_id):
+def refresh(user_id, device_id, expires):
     """ можно сделать апдейт в базе если надо"""
-    pass
+    database.user_refresh_session(user_id, device_id, expires)
