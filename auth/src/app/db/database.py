@@ -45,11 +45,21 @@ class User(BaseModel):
 class UserSession(BaseModel):
     id: UUID
     user_id: UUID
-    user_name: str
-    login: str
     device_name: str
     device_id: str
     remote_ip: str
+
+    @classmethod
+    def from_db(cls, db_session: data.UserSession):
+        return cls(id=db_session.id,
+                   user_id=db_session.user_id,
+                   device_name=db_session.device_name,
+                   device_id=db_session.device_id,
+                   remote_ip=db_session.remote_ip)
+
+
+
+
 
 
 # ------------------------------------------------------------------------------ #
@@ -77,7 +87,7 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def user_add_session(self, user_id, device_name, device_id, remote_ip):
+    def user_add_session(self, user_id, device_name, device_id, remote_ip, expires):
         """сохраняем вход пользователя"""
         pass
 
@@ -85,6 +95,12 @@ class AbstractDatabase(ABC):
     def user_close_session(self, user_id, device_id):
         """сохраняем выход пользователя"""
         pass
+
+    @abstractmethod
+    def user_refresh_session(self, user_id, device_id, expires):
+        """ сохраняем информацию об активности и продлеваем сессию"""
+        pass
+
     @abstractmethod
     def get_all_roles(self):
         pass
@@ -160,10 +176,22 @@ class Database(AbstractDatabase):
         else:
             return User.from_db(db_user)
 
-    def user_add_session(self, user_id, device_name, device_id, remote_ip):
-        pass
+    def user_add_session(self, user_id, device_name, device_id, remote_ip, expires):
+        db_user_session = data.UserSession(user_id=user_id,
+                                   device_id=device_id,
+                                   device_name=device_name,
+                                   remote_ip=remote_ip,
+                                   active_till=expires)
+
+        data.db.session.add(db_user_session)
+        data.db.session.commit()
+        session = UserSession.from_db(db_user_session)
+        return session
 
     def user_close_session(self, user_id, device_id):
+        pass
+
+    def user_refresh_session(self, user_id, device_id, expires):
         pass
 
     def get_all_roles(self):
@@ -202,14 +230,13 @@ class Database(AbstractDatabase):
         user = data.User.find_by_id(user_id)
         user.roles.append(role)
         data.db.session.commit()
-        #return self.get_user_roles(user_id)
         return [Role.from_db(db_role) for db_role in user.roles]
+
     def delete_user_role(self, user_id, role_id):
         role = data.Role.query.filter_by(id=role_id).first()
         user = data.User.find_by_id(user_id)
         user.roles.remove(role)
         data.db.session.commit()
-        #return self.get_user_roles(user_id)
         return [Role.from_db(db_role) for db_role in user.roles]
 
 
