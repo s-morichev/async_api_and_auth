@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from flask import Blueprint, abort, make_response, request
+from flask import Blueprint, abort, make_response, request, jsonify
 from flask_restful import reqparse, abort, Api, Resource
 from ..services import role_service
 
@@ -15,8 +15,10 @@ class RolesList(Resource):
     def post(self):
         name = parser.parse_args()['name']
         # todo проверять на уже существующие роли. Сделать индекс в базе?
-        result = role_service.add_role(name)
-        return result, HTTPStatus.CREATED
+        if name:
+            result = role_service.add_role(name)
+            return result, HTTPStatus.CREATED
+        return jsonify({"msg": "No role name provided"}), HTTPStatus.BAD_REQUEST
 
 
 class Roles(Resource):

@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+
 import pytest
 
 src_path = Path(__file__).parent.parent / "src/"
@@ -8,8 +9,7 @@ if src_path not in sys.path:
 
 from app import create_app
 from app.flask_db import db
-from app.models.db_models import Role
-
+from app.services import auth_service, role_service
 from config import test_config
 
 
@@ -21,11 +21,13 @@ def app():
 
     with app.app_context():
         db.create_all()
-        for role_name in ("admin", "subscriber", "user"):
-            db.session.add(Role(name=role_name))
         db.session.commit()
 
-        database.add_user("test", "test", "test")
+        for role_name in ("admin", "subscriber", "user"):
+            role_service.add_role(role_name)
+        db.session.commit()
+
+        auth_service.register_user("example", "example", "example")
 
         yield app
         db.session.remove()

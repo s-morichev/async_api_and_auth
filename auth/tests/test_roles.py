@@ -1,9 +1,10 @@
-import pytest
 from http import HTTPStatus
+
+import pytest
 
 
 def test_get_basic_roles(client):
-    response = client.get('/roles')
+    response = client.get("/roles")
 
     assert response.status_code == HTTPStatus.OK
     for role in response.json:
@@ -16,10 +17,7 @@ def test_get_basic_roles(client):
 
 
 def test_create_role(client):
-    response = client.post(
-        '/roles',
-        json={"name": "test"}
-    )
+    response = client.post("/roles", json={"name": "test"})
 
     assert response.status_code == HTTPStatus.CREATED
     assert response.json["name"] == "test"
