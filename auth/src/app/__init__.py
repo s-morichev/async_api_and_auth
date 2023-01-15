@@ -9,6 +9,7 @@ from config import flask_config
 from .services import token_service as token_srv
 from .services import auth_service as auth_srv
 from .services import role_service as role_srv
+from .services import user_service as user_srv
 
 from app.views.auth_routes import auth_bp
 from app.views.role_routes import role_bp
@@ -41,6 +42,7 @@ def create_app():
     auth_srv.storage = storage
     token_srv.storage = storage
     role_srv.database = database
+    user_srv.database = database
 
     init_jwt(app, token_srv, database)
 

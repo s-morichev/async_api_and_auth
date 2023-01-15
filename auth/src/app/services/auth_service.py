@@ -1,3 +1,5 @@
+import datetime
+
 from ..db.storage import AbstractStorage
 from ..db.database import AbstractDatabase, User
 from ..utils.utils import device_id_from_name
@@ -20,17 +22,6 @@ class RegisterError(AuthError):
 
 
 # ------------------------------------------------------------------------------ #
-def register_user(email: str, password: str, name: str):
-    # если существует такой пользователь
-    if database.is_user_exists(email):
-        raise RegisterError('Same login exists')
-
-    database.add_user(email, password, name)
-    # TODO отправить ссылку подтверждения на почту
-    # можно давать пользователю роль NEW_USER, выдавать короткий токен и ждать подтверждения почты
-    # mailer.send_notification(email)
-
-
 def auth(email: str, password: str) -> User | None:
     """check user auth and return user if OK"""
     user = database.auth_user(email, password)
@@ -39,18 +30,31 @@ def auth(email: str, password: str) -> User | None:
     return user
 
 
-def login(user_id, device_name: str, remote_ip, expires):
-    """save info about new user session"""
+def add_history(user_id, device_name, action):
+    database.add_user_action(user_id, device_name, action)
+
+def get_user_history(user_id) -> list[dict]:
+    actions = database.get_user_actions(user_id)
+    return [action.dict() for action in actions]
+
+
+def new_session(user_id, device_name: str, remote_ip: str, ttl: int):
+    login_at = str(datetime.datetime.now())
+    data = {'device_name': device_name, 'remote_ip': remote_ip, 'login_at': login_at}
     device_id = device_id_from_name(device_name)
-    # TODO return UserSession
-    database.user_add_session(user_id, device_name, device_id, remote_ip, expires)
+    storage.set_info(user_id, device_id, data, ttl)
+    add_history(user_id, device_name, 'login')
 
 
-def logout(user_id, device_id):
-    """save info about close user session"""
-    database.user_close_session(user_id, device_id)
+def refresh_session(user_id: str, device_name: str, remote_ip: str, ttl: int):
+    data = {'remote_ip': remote_ip}
+    device_id = device_id_from_name(device_name)
+    storage.set_info(user_id, device_id, data, ttl)
+    add_history(user_id, device_name, 'update')
 
 
-def refresh(user_id, device_id, expires):
-    """ можно сделать апдейт в базе если надо"""
-    database.user_refresh_session(user_id, device_id, expires)
+def close_session(user_id: str, device_name: str, remote_ip: str):
+    # data = {'remote_ip': remote_ip}
+    device_id = device_id_from_name(device_name)
+    storage.delete_info(user_id, device_id)
+    add_history(user_id, device_name, 'logout')

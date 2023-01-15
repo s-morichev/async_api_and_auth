@@ -67,10 +67,14 @@ class UserAction(db.Model):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    user_agent = Column(String)
+    device_name = Column(String)
     action_type = Column(String)  # TODO использовать enum или отдельную таблицу Actions
     action_time = Column(DateTime(timezone=True), default=now_with_tz_info)
 
+    @classmethod
+    def by_user_id(cls, user_id):
+        query = cls.query.filter_by(user_id=user_id)
+        return query
 
 class UserSession(db.Model):
     __tablename__ = "user_sessions"
