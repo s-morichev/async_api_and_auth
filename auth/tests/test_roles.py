@@ -13,6 +13,12 @@ def user_role_id():
 
 
 @pytest.fixture
+def example_user_id():
+    user = role_service.database.user_by_login("example")
+    return user.id
+
+
+@pytest.fixture
 def invalid_uuid():
     return "not_uuid"
 
@@ -121,4 +127,38 @@ def test_delete_role(client, user_role_id):
 )
 def test_delete_role_errors(role_id, status_code, client):
     response = client.delete(f"/auth/roles/{role_id}")
+    assert response.status_code == status_code
+
+
+def test_no_default_role(client, example_user_id):
+    response = client.get(f"/auth/users/{example_user_id}/roles")
+    assert response.status_code == HTTPStatus.OK
+    assert response.json == []
+
+
+def test_add_role_to_user(client, example_user_id, user_role_id):
+    response = client.post(f"/auth/users/{example_user_id}/roles/{user_role_id}")
+    assert response.status_code == HTTPStatus.CREATED
+    assert len(response.json) == 1
+    assert response.json[0]["name"] == "user"
+
+    response = client.get(f"/auth/users/{example_user_id}/roles")
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.json) == 1
+    assert response.json[0]["name"] == "user"
+
+
+@pytest.mark.parametrize(
+    "user_id_fixture, role_id_fixture, status_code",
+    [
+        ("example_user_id", "invalid_uuid", HTTPStatus.UNPROCESSABLE_ENTITY),
+        ("example_user_id", "non_exist_uuid", HTTPStatus.NOT_FOUND),
+        ("invalid_uuid", "user_role_id", HTTPStatus.UNPROCESSABLE_ENTITY),
+        ("non_exist_uuid", "user_role_id", HTTPStatus.NOT_FOUND),
+    ]
+)
+def test_add_role_to_user_errors(user_id_fixture, role_id_fixture, status_code, client, request):
+    user_id = request.getfixturevalue(user_id_fixture)
+    role_id = request.getfixturevalue(role_id_fixture)
+    response = client.post(f"/auth/users/{user_id}/roles/{role_id}")
     assert response.status_code == status_code

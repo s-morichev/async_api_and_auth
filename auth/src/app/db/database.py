@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from http import HTTPStatus
 from typing import Type
 from pydantic import BaseModel
 from uuid import UUID
@@ -290,7 +291,7 @@ class Database(AbstractDatabase):
         # TODO добавить метод для проверки, есть ли роль в базе
         db_role = data.Role.query.filter_by(id=role_id).first()
         if db_role is None:
-            raise HTTPError(status_code=404, detail="Role not found")
+            raise HTTPError(status_code=HTTPStatus.NOT_FOUND, detail="Role not found")
 
         data.Role.query.filter_by(id=role_id).delete()
         data.db.session.commit()
@@ -299,7 +300,7 @@ class Database(AbstractDatabase):
         # TODO добавить метод для проверки, есть ли роль в базе
         db_role = data.Role.query.filter_by(id=role_id).first()
         if db_role is None:
-            raise HTTPError(status_code=404, detail="Role not found")
+            raise HTTPError(status_code=HTTPStatus.NOT_FOUND, detail="Role not found")
 
         db_role.name = new_name
         data.db.session.commit()
@@ -307,7 +308,7 @@ class Database(AbstractDatabase):
     def role_by_id(self, role_id: UUID) -> Role | None:
         db_role = data.Role.query.filter_by(id=role_id).first()
         if db_role is None:
-            raise HTTPError(status_code=404, detail="Role not found")
+            raise HTTPError(status_code=HTTPStatus.NOT_FOUND, detail="Role not found")
         return Role.from_db(db_role)
 
     def get_user_roles(self, user_id):
@@ -317,7 +318,11 @@ class Database(AbstractDatabase):
 
     def add_user_role(self, user_id, role_id):
         role = data.Role.query.filter_by(id=role_id).first()
+        if role is None:
+            raise HTTPError(status_code=HTTPStatus.NOT_FOUND, detail="Role not found")
         user = data.User.find_by_id(user_id)
+        if user is None:
+            raise HTTPError(status_code=HTTPStatus.NOT_FOUND, detail="User not found")
         user.roles.append(role)
         data.db.session.commit()
         return [Role.from_db(db_role) for db_role in user.roles]
