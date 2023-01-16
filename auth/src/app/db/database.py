@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import app.models.db_models as data
+from app.exceptions import HTTPError
 
 # ------------------------------------------------------------------------------ #
 UserID = UUID
@@ -286,15 +287,27 @@ class Database(AbstractDatabase):
         return data.Role.find_by_name(name)
 
     def delete_role(self, role_id: UUID):
+        # TODO добавить метод для проверки, есть ли роль в базе
+        db_role = data.Role.query.filter_by(id=role_id).first()
+        if db_role is None:
+            raise HTTPError(status_code=404, detail="Role not found")
+
         data.Role.query.filter_by(id=role_id).delete()
         data.db.session.commit()
 
     def update_role(self, role_id: UUID, new_name: str):
-        data.Role.query.filter_by(id=role_id).update({'name': new_name})
+        # TODO добавить метод для проверки, есть ли роль в базе
+        db_role = data.Role.query.filter_by(id=role_id).first()
+        if db_role is None:
+            raise HTTPError(status_code=404, detail="Role not found")
+
+        db_role.name = new_name
         data.db.session.commit()
 
-    def role_by_id(self, role_id: UUID) -> Role:
+    def role_by_id(self, role_id: UUID) -> Role | None:
         db_role = data.Role.query.filter_by(id=role_id).first()
+        if db_role is None:
+            raise HTTPError(status_code=404, detail="Role not found")
         return Role.from_db(db_role)
 
     def get_user_roles(self, user_id):

@@ -13,12 +13,17 @@ from app.services import auth_service, role_service, user_service
 from config import test_config
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def app():
     app = create_app(test_config)
     # импорт после создания и внедрения database
     from app.services.auth_service import database
+    return app
 
+
+
+@pytest.fixture
+def client(app):
     with app.app_context():
         db.create_all()
         db.session.commit()
@@ -28,11 +33,9 @@ def app():
 
         user_service.add_user("example", "example", "example")
 
-        yield app
+        yield app.test_client()
+
         db.session.remove()
         db.drop_all()
+        auth_service.storage.redis.flushall()
 
-
-@pytest.fixture
-def client(app):
-    return app.test_client()

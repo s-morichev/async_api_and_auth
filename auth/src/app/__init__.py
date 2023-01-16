@@ -16,6 +16,7 @@ from app.views.user_routes import user_bp
 from .flask_jwt import init_jwt
 from .flask_cli import init_cli
 from .flask_db import init_db
+from .exceptions import HTTPError, httperror_handler
 
 
 def create_app(config):
@@ -48,4 +49,6 @@ def create_app(config):
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(role_bp, url_prefix="/auth")
     app.register_blueprint(user_bp, url_prefix="/auth")
+
+    app.register_error_handler(HTTPError, httperror_handler)
     return app

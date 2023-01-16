@@ -2,7 +2,7 @@ import datetime
 
 from ..db.storage import AbstractStorage
 from ..db.database import AbstractDatabase, User
-from ..utils.utils import device_id_from_name
+from ..utils import device_id_from_name
 
 # ------------------------------------------------------------------------------ #
 storage: AbstractStorage
