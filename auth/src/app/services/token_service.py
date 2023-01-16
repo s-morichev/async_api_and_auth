@@ -1,5 +1,7 @@
 from flask_jwt_extended import decode_token, create_refresh_token, create_access_token
+import json
 
+import config
 from ..db.storage import AbstractStorage
 from ..db.database import User
 from ..utils.utils import device_id_from_name
@@ -24,27 +26,32 @@ def tokenize(refresh_token):
 def new_tokens(user: User, device_name):
     """Создаем новые токены при входе"""
     device_id = device_id_from_name(device_name)
-    ext_claims = {'name': user.name, 'roles': user.roles_list(), 'device_id': device_id}
+
+    # создаем или обновляем payload в хранилище
+    payload = {'name': user.name, 'roles': user.roles_list()}
+    storage.set_payload(str(user.id), json.dumps(payload))
+    ext_claims = payload | {'device_id': device_id}
     refresh_token = create_refresh_token(identity=user.id, additional_claims=ext_claims)
     access_token = create_access_token(identity=user.id, additional_claims=ext_claims, fresh=True)
     tokenize(refresh_token)
+    storage.add_device(user.id, device_id)
 
     return access_token, refresh_token
 
 
-def refresh_tokens(payload: dict):
-    """ Создаем новые токены на базе paylod токена (refresh скорее всего)"""
-
-    user_id = payload['sub']
-    device_id = payload['device_id']
-    old_token_id = payload['jti']
+def refresh_tokens(user_id, device_id, old_token_id):
+    """ Создаем новые токены """
 
     if not storage.check_token(user_id, device_id, old_token_id):
         raise RefreshError('Invalid refresh token')
 
-    roles = payload['roles']
-    user_name = payload['name']
-    ext_claims = {'name': user_name, 'roles': roles, 'device_id': device_id}
+    # roles = payload['roles']
+    # user_name = payload['name']
+    # берем payload из хранилища. Возможно он даже изменился за это время)
+    payload = json.loads(storage.get_payload(str(user_id)))
+    ext_claims = payload | {'device_id': device_id}
+
+    # ext_claims = {'name': user_name, 'roles': roles, 'device_id': device_id}
 
     refresh_token = create_refresh_token(identity=user_id, additional_claims=ext_claims)
     access_token = create_access_token(identity=user_id, additional_claims=ext_claims)
@@ -53,18 +60,63 @@ def refresh_tokens(payload: dict):
     return access_token, refresh_token
 
 
-def logout(user_id, device_id):
+def remove_token(user_id, device_id):
     """стираем сессию в хранилище"""
-    storage.remove_session(user_id, device_id)
+    storage.remove_token(user_id, device_id)
+    storage.remove_device(user_id, device_id)
 
 
-def is_valid_device(device_name, token_payload):
+def refresh_devices(user_id):
+    """убираем устройства для которых отсутствует запись с токеном"""
+    devices = storage.get_devices(user_id)
+    if not devices:
+        return
+
+    closed = []
+    for device in devices:
+        if not storage.exist_token(user_id, device):
+            closed += [device]
+
+    for device_id in closed:
+        storage.remove_device(user_id, device_id)
+
+
+def is_valid_device(device_name: str, token_payload: dict):
     """Сверяет хэш имени устройства и device_id в токене"""
     device_id = device_id_from_name(device_name)
     return device_id == token_payload.get("device_id")
+
 
 def check_token(user_id, device_id, token_id):
     """Проверяем не отозван ли refresh токен"""
     return storage.check_token(user_id, device_id, token_id)
 
 
+def get_refresh_token_expires():
+    """return time of life refresh_token"""
+    return config.flask_config.JWT_REFRESH_TOKEN_EXPIRES
+
+
+def set_payload(user_id: str, new_payload: dict):
+    storage.set_payload(user_id, json.dumps(new_payload))
+
+
+def close_all(user_id):
+    """Выходит со всех устройств"""
+    devices = storage.get_devices(user_id)
+    for device_id in devices:
+        remove_token(user_id, device_id)
+    storage.clear_devices(user_id)
+
+
+def get_user_sessions(user_id):
+    refresh_devices(user_id)
+    devices = storage.get_devices(user_id)
+    if not devices:
+        return []
+
+    sessions = []
+    for device_id in devices:
+        info = storage.get_info(user_id, device_id)
+        sessions += [info]
+    return sessions

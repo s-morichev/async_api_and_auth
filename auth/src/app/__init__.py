@@ -8,9 +8,11 @@ from .db.database import Database
 from .services import token_service as token_srv
 from .services import auth_service as auth_srv
 from .services import role_service as role_srv
+from .services import user_service as user_srv
 
 from app.views.auth_routes import auth_bp
-#from app.views.role_routes import role_bp
+from app.views.role_routes import role_bp
+from app.views.user_routes import user_bp
 from .flask_jwt import init_jwt
 from .flask_cli import init_cli
 from .flask_db import init_db
@@ -39,16 +41,11 @@ def create_app(config):
     auth_srv.storage = storage
     token_srv.storage = storage
     role_srv.database = database
+    user_srv.database = database
 
     init_jwt(app, token_srv, database)
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
-    from app.views.role_routes import Roles, RolesList, UserRoles
-
-    api.add_resource(RolesList, '/roles')
-    api.add_resource(Roles, '/roles/<role_id>')
-    api.add_resource(UserRoles, '/users/<user_id>/roles/', '/users/<user_id>/roles/<role_id>')
-
-    #app.register_blueprint(role_bp, url_prefix="/roles")
-
+    app.register_blueprint(role_bp, url_prefix="/auth")
+    app.register_blueprint(user_bp, url_prefix="/auth")
     return app

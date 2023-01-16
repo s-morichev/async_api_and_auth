@@ -3,6 +3,9 @@ from http import HTTPStatus
 from flask import Blueprint, abort, make_response, request, jsonify
 from flask_restful import reqparse, abort, Api, Resource
 from ..services import role_service
+from .auth_routes import msg  # TODO move msg to common module, e.g. utils
+
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('name')
@@ -14,11 +17,13 @@ class RolesList(Resource):
 
     def post(self):
         name = parser.parse_args()['name']
-        # todo проверять на уже существующие роли. Сделать индекс в базе?
-        if name:
+        if not name:
+            return jsonify({"msg": "No role name provided"}), HTTPStatus.BAD_REQUEST
+        try:
             result = role_service.add_role(name)
-            return result, HTTPStatus.CREATED
-        return jsonify({"msg": "No role name provided"}), HTTPStatus.BAD_REQUEST
+        except role_service.RoleError as err:
+            return msg(str(err)), HTTPStatus.CONFLICT
+        return result, HTTPStatus.CREATED
 
 
 class Roles(Resource):
@@ -46,3 +51,10 @@ class UserRoles(Resource):
     def post(self, user_id, role_id):
         result = role_service.add_user_role(user_id, role_id)
         return result, HTTPStatus.CREATED
+
+
+role_bp = Blueprint("role", __name__)
+api = Api(role_bp)
+api.add_resource(RolesList, '/roles')
+api.add_resource(Roles, '/roles/<role_id>')
+api.add_resource(UserRoles, '/users/<user_id>/roles/', '/users/<user_id>/roles/<role_id>')

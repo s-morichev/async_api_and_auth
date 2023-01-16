@@ -18,7 +18,7 @@ class Role(db.Model):
     __tablename__ = "roles"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
 
     def __repr__(self):
         return self.name
@@ -67,6 +67,30 @@ class UserAction(db.Model):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    user_agent = Column(String)
+    device_name = Column(String)
     action_type = Column(String)  # TODO использовать enum или отдельную таблицу Actions
     action_time = Column(DateTime(timezone=True), default=now_with_tz_info)
+
+    @classmethod
+    def by_user_id(cls, user_id):
+        query = cls.query.filter_by(user_id=user_id)
+        return query
+
+class UserSession(db.Model):
+    __tablename__ = "user_sessions"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    device_id = Column(String)  # hash sha256
+    device_name = Column(String)  # user_agent or another device name
+    remote_ip = Column(String)  # client ip
+    login_at = Column(DateTime(timezone=True), default=now_with_tz_info)  # first sign
+    active_at = Column(DateTime(timezone=True), default=now_with_tz_info)  # every refresh updated
+    logout_at = Column(DateTime(timezone=True), default=None)  # when logout
+    # life time of refresh token, active_at+JWT_REFRESH_TOKEN_EXPIRES
+    active_till = Column(DateTime(timezone=True), default=None)
+
+    @classmethod
+    def by_user_id(cls, user_id, active=True):
+        # TODO return active sessions
+        query = cls.query.filter_by(user_id=user_id)
+        return query

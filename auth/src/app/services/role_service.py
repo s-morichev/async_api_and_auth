@@ -5,6 +5,10 @@ from ..db.database import AbstractDatabase, User, Role
 database: AbstractDatabase
 
 
+class RoleError(Exception):
+    """Ошибки, связанные с ролями"""
+
+
 def get_all_roles():
     roles_list = database.get_all_roles()
     result = [role.dict() for role in roles_list]
@@ -12,6 +16,8 @@ def get_all_roles():
 
 
 def add_role(name: str) -> Role:
+    if database.is_role_exists(name):
+        raise RoleError("Role exists")
     new_role: Role = database.add_role(name)
     return new_role.dict()
 
