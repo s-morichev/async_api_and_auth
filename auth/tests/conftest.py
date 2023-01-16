@@ -9,7 +9,7 @@ if src_path not in sys.path:
 
 from app import create_app
 from app.flask_db import db
-from app.services import auth_service, role_service
+from app.services import auth_service, role_service, user_service
 from config import test_config
 
 
@@ -25,9 +25,8 @@ def app():
 
         for role_name in ("admin", "subscriber", "user"):
             role_service.add_role(role_name)
-        db.session.commit()
 
-        auth_service.register_user("example", "example", "example")
+        user_service.add_user("example", "example", "example")
 
         yield app
         db.session.remove()
