@@ -194,6 +194,10 @@ class Database(AbstractDatabase):
 
     def add_user(self, login, password, name, registered=datetime.now(tz=timezone.utc)) -> UserID:
         hash_password = generate_password_hash(password)
+
+        if not name:
+            name = login
+
         db_user = data.User(email=login,
                             password_hash=hash_password,
                             username=name,
