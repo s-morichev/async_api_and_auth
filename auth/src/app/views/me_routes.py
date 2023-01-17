@@ -1,10 +1,18 @@
 from http import HTTPStatus
 
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, request, jsonify, Response, abort
 from flask_jwt_extended import current_user, get_jwt, jwt_required, unset_jwt_cookies
-from app.services.user_service import get_user_by_id, change_user, get_user_history, get_user_sessions
+from app.services.user_service import get_user_by_id, change_user, get_user_history, get_user_sessions, add_user, \
+    RegisterError
 from app.services.role_service import get_user_roles
+
 me_bp = Blueprint("me", __name__)
+
+
+def error(msg: str, code: int):
+    response = jsonify(msg=msg)
+    response.status = code
+    abort(response)
 
 
 @me_bp.get("/")
@@ -15,6 +23,31 @@ def get_info():
     user_id = token['sub']
     user = get_user_by_id(user_id)
     return jsonify(user)
+
+
+@me_bp.post("/")
+@jwt_required(optional=True)
+def new_user():
+    """new user create or return exist user if logined"""
+    token = get_jwt()
+    # если токен есть - значит пользователь залогинен, возвращаем его же
+    if token:
+        user_id = token['sub']
+        user = get_user_by_id(user_id)
+        return jsonify(user), HTTPStatus.IM_A_TEAPOT
+
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
+    name = request.json.get("name", None)
+    if not (email and password):
+        error('email and password info required', HTTPStatus.BAD_REQUEST)
+
+    try:
+        user = add_user(email, password, name)
+    except RegisterError as err:
+        error(str(err), HTTPStatus.CONFLICT)
+
+    return jsonify(user), HTTPStatus.CREATED
 
 
 @me_bp.patch("/")
@@ -58,4 +91,3 @@ def get_sessions():
 
     sessions = get_user_sessions(user_id)
     return jsonify(sessions)
-
