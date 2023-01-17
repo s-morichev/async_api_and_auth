@@ -49,5 +49,6 @@ def get_user_by_id(user_id: UUID) -> dict:
 def get_user_sessions(user_id: UUID) -> list[dict]:
     return token_srv.get_user_sessions(user_id)
 
+
 def get_user_history(user_id: UUID) -> list[dict]:
     return token_srv.get_user_sessions(user_id)

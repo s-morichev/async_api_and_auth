@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from ..db.database import AbstractDatabase, User, Role
+from ..db.database import AbstractDatabase, Role
 
 database: AbstractDatabase
 

@@ -33,6 +33,7 @@ def auth(email: str, password: str) -> User | None:
 def add_history(user_id, device_name, action):
     database.add_user_action(user_id, device_name, action)
 
+
 def get_user_history(user_id) -> list[dict]:
     actions = database.get_user_actions(user_id)
     return [action.dict() for action in actions]
