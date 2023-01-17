@@ -2,8 +2,11 @@ from http import HTTPStatus
 
 from flask import Blueprint, abort, make_response, request
 from flask_restful import reqparse, abort, Api, Resource
+from flask_jwt_extended import jwt_required
+
 from ..services import role_service
 from .auth_routes import msg  # TODO move msg to common module, e.g. utils
+from app.utils.utils import jwt_accept_roles
 
 parser = reqparse.RequestParser()
 parser.add_argument('name')
@@ -50,7 +53,8 @@ class UserRoles(Resource):
 
 
 role_bp = Blueprint("role", __name__)
-api = Api(role_bp)
+api = Api(app=role_bp, decorators=[jwt_accept_roles('admin')])
+#api = Api(role_bp)
 api.add_resource(RolesList, '/roles')
 api.add_resource(Roles, '/roles/<role_id>')
 api.add_resource(UserRoles, '/users/<user_id>/roles/', '/users/<user_id>/roles/<role_id>')
