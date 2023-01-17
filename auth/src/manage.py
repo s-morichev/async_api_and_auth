@@ -1,10 +1,11 @@
 from app import create_app
+from config import flask_config
 
 # need to import models somewhere so SQLAlchemy knows about this models
 # from app.models.db_models import User, Role, Action, UserRole, UserAction
 from app.models.db_models import Role, User, UserAction
 
-app = create_app()
+app = create_app(flask_config)
 
 
 

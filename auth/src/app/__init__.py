@@ -5,7 +5,6 @@ from flask_restful import Api
 
 from .db.storage import Storage
 from .db.database import Database
-from config import flask_config
 from .services import token_service as token_srv
 from .services import auth_service as auth_srv
 from .services import role_service as role_srv
@@ -18,11 +17,12 @@ from app.views.me_routes import me_bp
 from .flask_jwt import init_jwt
 from .flask_cli import init_cli
 from .flask_db import init_db
+from .exceptions import HTTPError, httperror_handler
 
 
-def create_app():
+def create_app(config):
     app = Flask(__name__)
-    app.config.from_object(flask_config)
+    app.config.from_object(config)
     app.config["JWT_TOKEN_LOCATION"] = ["headers", "json", "cookies"]  # - так не требует csrf?
     app.config['JWT_REFRESH_COOKIE_PATH'] = '/auth/refresh'
     # app.config["JWT_COOKIE_SECURE"] = False
@@ -31,7 +31,7 @@ def create_app():
     app.config['RESTFUL_JSON'] = {'default': str}
     api = Api(app)
     # обертка редис
-    storage = Storage(flask_config.REDIS_URI)
+    storage = Storage(config.REDIS_URI)
     # обертка DB
     database = Database()
 
@@ -51,4 +51,6 @@ def create_app():
     app.register_blueprint(me_bp, url_prefix="/auth/users/me")
     app.register_blueprint(role_bp, url_prefix="/auth")
     app.register_blueprint(user_bp, url_prefix="/auth")
+
+    app.register_error_handler(HTTPError, httperror_handler)
     return app

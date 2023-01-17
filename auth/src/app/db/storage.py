@@ -89,8 +89,8 @@ class Storage(AbstractStorage):
 
     def check_token(self, user_id, device_id, token_id):
         key = self.token_key(user_id, device_id)
-        value = self.redis.get(key).decode('utf-8')
-        result = value and (value == token_id)
+        value = self.redis.get(key)
+        result = value and (value.decode('utf-8') == token_id)
         return result
 
     def exist_token(self, user_id, device_id) -> bool:
