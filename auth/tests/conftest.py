@@ -18,8 +18,8 @@ def app():
     app = create_app(test_config)
     # импорт после создания и внедрения database
     from app.services.auth_service import database
-    return app
 
+    return app
 
 
 @pytest.fixture
@@ -28,14 +28,22 @@ def client(app):
         db.create_all()
         db.session.commit()
 
+        # создаем роли и двоих пользователей для тестирования
+        # example - как только что зарегистрировавшийся пользователь
+        # example_with_roles - пользователь с добавленными ролями
+        role_ids = []
         for role_name in ("admin", "subscriber", "user"):
-            role_service.add_role(role_name)
+            role = role_service.add_role(role_name)
+            role_ids.append(role["id"])
 
         user_service.add_user("example", "example", "example")
+        user = user_service.add_user("example_with_roles", "example", "example")
+        user_id = user["id"]
+        for role_id in role_ids:
+            role_service.add_user_role(user_id, role_id)
 
         yield app.test_client()
 
         db.session.remove()
         db.drop_all()
         auth_service.storage.redis.flushall()
-

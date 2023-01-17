@@ -329,7 +329,11 @@ class Database(AbstractDatabase):
 
     def delete_user_role(self, user_id, role_id):
         role = data.Role.query.filter_by(id=role_id).first()
+        if role is None:
+            raise HTTPError(status_code=HTTPStatus.NOT_FOUND, detail="Role not found")
         user = data.User.find_by_id(user_id)
+        if user is None:
+            raise HTTPError(status_code=HTTPStatus.NOT_FOUND, detail="User not found")
         user.roles.remove(role)
         data.db.session.commit()
         return [Role.from_db(db_role) for db_role in user.roles]

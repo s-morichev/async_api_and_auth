@@ -53,11 +53,12 @@ class Roles(Resource):
 
 class UserRoles(Resource):
     def get(self, user_id):
-        #return role_service.get_user_roles(user_id)
+        validate_uuids(user_id)
         result = role_service.get_user_roles(user_id)
         return result, HTTPStatus.OK
 
     def delete(self, user_id, role_id):
+        validate_uuids(user_id, role_id)
         result = role_service.delete_user_role(user_id, role_id)
         return result, HTTPStatus.OK
 

@@ -41,10 +41,10 @@ def test_login(example_user_login_response):
         ({"email": "test"}, HTTPStatus.BAD_REQUEST),
         ({"password": "test"}, HTTPStatus.BAD_REQUEST),
         ({"invalid_key": "test", "password": "test", "excess_key": "value"}, HTTPStatus.BAD_REQUEST),
-    ]
+    ],
 )
 def test_login_errors(query, status_code, client):
-    response = client.post('/auth/login', json=query)
+    response = client.post("/auth/login", json=query)
     assert response.status_code == status_code
 
 

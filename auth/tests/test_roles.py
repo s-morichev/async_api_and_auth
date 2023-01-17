@@ -19,6 +19,12 @@ def example_user_id():
 
 
 @pytest.fixture
+def example_with_roles_user_id():
+    user = role_service.database.user_by_login("example_with_roles")
+    return user.id
+
+
+@pytest.fixture
 def invalid_uuid():
     return "not_uuid"
 
@@ -26,6 +32,7 @@ def invalid_uuid():
 @pytest.fixture
 def non_exist_uuid():
     return "7f32cd4a-7981-436d-bba7-78169acbbb5d"
+
 
 def test_get_all_roles(client):
     response = client.get("/auth/roles")
@@ -57,13 +64,10 @@ def test_create_role(client):
         ({"name": "admin"}, HTTPStatus.CONFLICT),
         ({"invalid key": "test"}, HTTPStatus.BAD_REQUEST),
         ({"name": "test", "excess_key": "value"}, HTTPStatus.CREATED),
-    ]
+    ],
 )
 def test_create_role_errors(query, status_code, client):
-    response = client.post(
-        '/auth/roles',
-        json=query
-    )
+    response = client.post("/auth/roles", json=query)
 
     assert response.status_code == status_code
 
@@ -79,7 +83,7 @@ def test_get_role(client, user_role_id):
     [
         ("not_uuid", HTTPStatus.UNPROCESSABLE_ENTITY),
         ("7f32cd4a-7981-436d-bba7-78169acbbb5d", HTTPStatus.NOT_FOUND),
-    ]
+    ],
 )
 def test_get_role_errors(role_id, status_code, client):
     response = client.get(f"/auth/roles/{role_id}")
@@ -87,7 +91,7 @@ def test_get_role_errors(role_id, status_code, client):
 
 
 def test_update_role(client, user_role_id):
-    response = client.put(f"/auth/roles/{user_role_id}", json={"name":"new name"})
+    response = client.put(f"/auth/roles/{user_role_id}", json={"name": "new name"})
     assert response.status_code == HTTPStatus.NO_CONTENT
 
     response = client.get(f"/auth/roles/{user_role_id}")
@@ -102,7 +106,7 @@ def test_update_role(client, user_role_id):
         ("user_role_id", {"name": "new_name", "excess_key": "value"}, HTTPStatus.NO_CONTENT),
         ("invalid_uuid", {"name": "new_name"}, HTTPStatus.UNPROCESSABLE_ENTITY),
         ("non_exist_uuid", {"name": "new_name"}, HTTPStatus.NOT_FOUND),
-    ]
+    ],
 )
 def test_update_role_errors(role_id_fixture, query, status_code, client, request):
     role_id = request.getfixturevalue(role_id_fixture)
@@ -123,7 +127,7 @@ def test_delete_role(client, user_role_id):
     [
         ("not_uuid", HTTPStatus.UNPROCESSABLE_ENTITY),
         ("7f32cd4a-7981-436d-bba7-78169acbbb5d", HTTPStatus.NOT_FOUND),
-    ]
+    ],
 )
 def test_delete_role_errors(role_id, status_code, client):
     response = client.delete(f"/auth/roles/{role_id}")
@@ -134,6 +138,25 @@ def test_no_default_role(client, example_user_id):
     response = client.get(f"/auth/users/{example_user_id}/roles")
     assert response.status_code == HTTPStatus.OK
     assert response.json == []
+
+
+def test_get_all_roles_of_user(client, example_with_roles_user_id):
+    response = client.get(f"/auth/users/{example_with_roles_user_id}/roles")
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.json) == 3
+    assert set(role["name"] for role in response.json) == {"user", "subscriber", "admin"}
+
+
+@pytest.mark.parametrize(
+    "user_id, status_code",
+    [
+        ("not_uuid", HTTPStatus.UNPROCESSABLE_ENTITY),
+        ("7f32cd4a-7981-436d-bba7-78169acbbb5d", HTTPStatus.NOT_FOUND),
+    ],
+)
+def ttest_get_all_roles_of_user_errors(user_id, status_code, client):
+    response = client.get(f"/auth/users/{user_id}/roles")
+    assert response.status_code == status_code
 
 
 def test_add_role_to_user(client, example_user_id, user_role_id):
@@ -155,10 +178,33 @@ def test_add_role_to_user(client, example_user_id, user_role_id):
         ("example_user_id", "non_exist_uuid", HTTPStatus.NOT_FOUND),
         ("invalid_uuid", "user_role_id", HTTPStatus.UNPROCESSABLE_ENTITY),
         ("non_exist_uuid", "user_role_id", HTTPStatus.NOT_FOUND),
-    ]
+    ],
 )
 def test_add_role_to_user_errors(user_id_fixture, role_id_fixture, status_code, client, request):
     user_id = request.getfixturevalue(user_id_fixture)
     role_id = request.getfixturevalue(role_id_fixture)
     response = client.post(f"/auth/users/{user_id}/roles/{role_id}")
+    assert response.status_code == status_code
+
+
+def test_delete_role_from_user(client, example_with_roles_user_id, user_role_id):
+    response = client.delete(f"/auth/users/{example_with_roles_user_id}/roles/{user_role_id}")
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.json) == 2
+    assert set(role["name"] for role in response.json) == {"subscriber", "admin"}
+
+
+@pytest.mark.parametrize(
+    "user_id_fixture, role_id_fixture, status_code",
+    [
+        ("example_with_roles_user_id", "invalid_uuid", HTTPStatus.UNPROCESSABLE_ENTITY),
+        ("example_with_roles_user_id", "non_exist_uuid", HTTPStatus.NOT_FOUND),
+        ("invalid_uuid", "user_role_id", HTTPStatus.UNPROCESSABLE_ENTITY),
+        ("non_exist_uuid", "user_role_id", HTTPStatus.NOT_FOUND),
+    ],
+)
+def test_delete_role_from_user_errors(user_id_fixture, role_id_fixture, status_code, client, request):
+    user_id = request.getfixturevalue(user_id_fixture)
+    role_id = request.getfixturevalue(role_id_fixture)
+    response = client.delete(f"/auth/users/{user_id}/roles/{role_id}")
     assert response.status_code == status_code
