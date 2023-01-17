@@ -45,7 +45,6 @@ class Users(Resource):
 
 class UserHistory(Resource):
     def get(self, user_id):
-        #return {'id': '123', 'datetime': datetime.datetime.now(), 'action': 'login', 'ip': request.remote_addr}
         return auth_service.get_user_history(user_id)
 
 
