@@ -29,6 +29,11 @@ def new_tokens(user: User, device_name):
 
     # создаем или обновляем payload в хранилище
     payload = {'name': user.name, 'roles': user.roles_list()}
+
+    # Если пользователь суперпользователь - добавляем это в токен
+    if user.is_root:
+        payload = payload | {'is_root': True}
+
     storage.set_payload(str(user.id), json.dumps(payload))
     ext_claims = payload | {'device_id': device_id}
     refresh_token = create_refresh_token(identity=user.id, additional_claims=ext_claims)

@@ -42,6 +42,8 @@ class User(BaseModel):
     password_hash: str
     name: str
     registered: datetime
+    is_confirmed: bool
+    is_root: bool
     roles: list[Role]
 
     def roles_list(self) -> list[str]:
@@ -54,6 +56,8 @@ class User(BaseModel):
                    password_hash=db_user.password_hash,
                    name=db_user.username,
                    registered=db_user.registered_on,
+                   is_confirmed=db_user.is_confirmed,
+                   is_root=db_user.is_root,
                    roles=[Role.from_db(db_role) for db_role in db_user.roles])
 
 
