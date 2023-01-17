@@ -19,7 +19,7 @@ class Config(BaseSettings):
     JWT_SECRET_KEY: str = Field(..., env="AUTH_JWT_KEY")
     JWT_COOKIE_SECURE: bool = Field(..., env="AUTH_JWT_COOKIE_SECURE")
     JWT_COOKIE_CSRF_PROTECT: bool = True
-    JWT_CSRF_IN_COOKIES: bool = False
+    JWT_CSRF_IN_COOKIES: bool = True
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES: timedelta = timedelta(days=30)
 
@@ -27,7 +27,15 @@ class Config(BaseSettings):
         env_file = ENV_FILE
 
 
+class TestConfig(Config):
+    TESTING: bool = True
+    REDIS_URI: str = Field(..., env="REDIS_AUTH_TEST_DSN")
+    SQLALCHEMY_DATABASE_URI: str = Field(..., env="PG_AUTH_TEST_DSN")
+    JWT_COOKIE_SECURE: bool = False
+
+
 flask_config = Config()
+test_config = TestConfig()
 
 # def create_work_dirs_if_not_exists():
 #     """

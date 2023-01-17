@@ -256,8 +256,10 @@ class Database(AbstractDatabase):
 
     def user_by_id(self, user_id) -> User:
         db_user: data.User = data.User.find_by_id(user_id)
-        if not db_user:
-            raise NotFoundUser(f'User id:{user_id} not found')
+        if db_user is None:
+            return None
+        # if not db_user:
+            # raise NotFoundUser(f'User id:{user_id} not found')
 
         return User.from_db(db_user)
 
@@ -294,15 +296,23 @@ class Database(AbstractDatabase):
         return data.Role.find_by_name(name)
 
     def delete_role(self, role_id: UUID):
+        if data.Role.find_by_id(role_id) is None:
+            return None
+
         data.Role.query.filter_by(id=role_id).delete()
         data.db.session.commit()
 
     def update_role(self, role_id: UUID, new_name: str):
-        data.Role.query.filter_by(id=role_id).update({'name': new_name})
+        if (db_role := data.Role.find_by_id(role_id)) is None:
+            return None
+
+        db_role.name = new_name
         data.db.session.commit()
 
-    def role_by_id(self, role_id: UUID) -> Role:
-        db_role = data.Role.query.filter_by(id=role_id).first()
+    def role_by_id(self, role_id: UUID) -> Role | None:
+        if (db_role := data.Role.find_by_id(role_id)) is None:
+            return None
+
         return Role.from_db(db_role)
 
     def get_user_roles(self, user_id):
@@ -312,14 +322,22 @@ class Database(AbstractDatabase):
 
     def add_user_role(self, user_id, role_id):
         role = data.Role.query.filter_by(id=role_id).first()
+        if role is None:
+            return None
         user = data.User.find_by_id(user_id)
+        if user is None:
+            return None
         user.roles.append(role)
         data.db.session.commit()
         return [Role.from_db(db_role) for db_role in user.roles]
 
     def delete_user_role(self, user_id, role_id):
         role = data.Role.query.filter_by(id=role_id).first()
+        if role is None:
+            return None
         user = data.User.find_by_id(user_id)
+        if user is None:
+            return None
         user.roles.remove(role)
         data.db.session.commit()
         return [Role.from_db(db_role) for db_role in user.roles]

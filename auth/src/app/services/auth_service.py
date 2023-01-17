@@ -1,8 +1,10 @@
 import datetime
+from http import HTTPStatus
 
 from ..db.storage import AbstractStorage
 from ..db.database import AbstractDatabase, User
-from ..utils.utils import device_id_from_name
+from ..utils import device_id_from_name
+from ..exceptions import HTTPError
 
 # ------------------------------------------------------------------------------ #
 storage: AbstractStorage
@@ -35,6 +37,8 @@ def add_history(user_id, device_name, action):
 
 
 def get_user_history(user_id) -> list[dict]:
+    if (user := database.user_by_id(user_id)) is None:
+        raise HTTPError(status_code=HTTPStatus.NOT_FOUND, detail="User not found")
     actions = database.get_user_actions(user_id)
     return [action.dict() for action in actions]
 

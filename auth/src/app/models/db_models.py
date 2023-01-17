@@ -28,13 +28,18 @@ class Role(db.Model):
         query = cls.query.filter_by(name=name).first()
         return query
 
+    @classmethod
+    def find_by_id(cls, role_id):
+        query = cls.query.filter_by(id=role_id).first()
+        return query
+
 
 
 user_roles = db.Table(
     "user_roles",
     Column("id", UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False),
-    Column("role_id", UUID(as_uuid=True), ForeignKey("roles.id")),
-    Column("user_id", UUID(as_uuid=True), ForeignKey("users.id")),
+    Column("role_id", UUID(as_uuid=True), ForeignKey("roles.id", ondelete="CASCADE")),
+    Column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE")),
 )
 
 
