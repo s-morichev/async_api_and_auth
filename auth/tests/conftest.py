@@ -47,3 +47,27 @@ def client(app):
         db.session.remove()
         db.drop_all()
         auth_service.storage.redis.flushall()
+
+
+@pytest.fixture
+def example_user_id(client):
+    # зависит фикстуры client, должен быть активен app_context и создан пользователь
+    user = role_service.database.user_by_login("example")
+    return str(user.id)
+
+
+@pytest.fixture
+def example_with_roles_user_id(client):
+    # зависит фикстуры client, должен быть активен app_context и создан пользователь
+    user = role_service.database.user_by_login("example_with_roles")
+    return str(user.id)
+
+
+@pytest.fixture
+def invalid_uuid():
+    return "not_uuid"
+
+
+@pytest.fixture
+def non_exist_uuid():
+    return "7f32cd4a-7981-436d-bba7-78169acbbb5d"

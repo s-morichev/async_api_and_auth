@@ -28,6 +28,11 @@ class Role(db.Model):
         query = cls.query.filter_by(name=name).first()
         return query
 
+    @classmethod
+    def find_by_id(cls, role_id):
+        query = cls.query.filter_by(id=role_id).first()
+        return query
+
 
 
 user_roles = db.Table(

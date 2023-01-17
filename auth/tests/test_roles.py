@@ -12,28 +12,6 @@ def user_role_id():
     return role_id
 
 
-@pytest.fixture
-def example_user_id():
-    user = role_service.database.user_by_login("example")
-    return user.id
-
-
-@pytest.fixture
-def example_with_roles_user_id():
-    user = role_service.database.user_by_login("example_with_roles")
-    return user.id
-
-
-@pytest.fixture
-def invalid_uuid():
-    return "not_uuid"
-
-
-@pytest.fixture
-def non_exist_uuid():
-    return "7f32cd4a-7981-436d-bba7-78169acbbb5d"
-
-
 def test_get_all_roles(client):
     response = client.get("/auth/roles")
 
