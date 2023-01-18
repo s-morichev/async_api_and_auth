@@ -13,8 +13,6 @@ def example_user_login_response(client):
 
 @pytest.fixture
 def example_user_tokens(example_user_login_response, client):
-    # for cookie in client.cookie_jar:
-    #     print(cookie)
     cookies = {cookie.name: cookie.value for cookie in client.cookie_jar}
     access_token = example_user_login_response.json["access_token"]
     refresh_token = cookies.get("refresh_token_cookie")
