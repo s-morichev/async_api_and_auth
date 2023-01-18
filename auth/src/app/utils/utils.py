@@ -1,8 +1,12 @@
 import hashlib
 from functools import wraps
+
 from flask_jwt_extended import get_jwt, jwt_required
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
+from http import HTTPStatus
+from uuid import UUID
+from app.exceptions import HTTPError
 from app.utils import constants
 
 
@@ -42,3 +46,11 @@ def jwt_accept_roles(roles_list: str | list[str]):
         return decorated_function
 
     return decorator
+
+
+def validate_uuids(*args: str) -> None:
+    for id_ in args:
+        try:
+            UUID(id_)
+        except ValueError:
+            raise HTTPError(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="Invalid UUID")

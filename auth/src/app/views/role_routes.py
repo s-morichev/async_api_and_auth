@@ -6,8 +6,7 @@ from flask_restful import reqparse, abort, Api, Resource
 from ..services import role_service
 from .auth_routes import msg  # TODO move msg to common module, e.g. utils
 from ..exceptions import HTTPError
-from ..utils import validate_uuids
-from app.utils.utils import jwt_accept_roles
+from app.utils.utils import validate_uuids, jwt_accept_roles
 
 parser = reqparse.RequestParser()
 parser.add_argument('name')

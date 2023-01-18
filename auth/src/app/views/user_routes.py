@@ -4,11 +4,10 @@ from http import HTTPStatus
 from flask import Blueprint
 from flask_restful import reqparse, Api, Resource
 from ..exceptions import HTTPError
-from ..utils import validate_uuids
 from app.services import user_service
 from app.services import auth_service
 
-from app.utils.utils import jwt_accept_roles
+from app.utils.utils import jwt_accept_roles, validate_uuids
 
 parser = reqparse.RequestParser()
 parser.add_argument('name')

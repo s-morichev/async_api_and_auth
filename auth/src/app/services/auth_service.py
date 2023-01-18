@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 from ..db.storage import AbstractStorage
 from ..db.database import AbstractDatabase, User
-from ..utils import device_id_from_name
+from .._utils import device_id_from_name
 from ..exceptions import HTTPError
 
 # ------------------------------------------------------------------------------ #
