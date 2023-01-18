@@ -6,14 +6,15 @@ from app.services.user_service import get_user_by_id, change_user, get_user_hist
     RegisterError
 from app.services import auth_service
 from app.services.role_service import get_user_roles
-
+from app.exceptions import HTTPError
 me_bp = Blueprint("me", __name__)
 
 
 def error(msg: str, code: int):
-    response = jsonify(msg=msg)
-    response.status = code
-    abort(response)
+    # response = jsonify(msg=msg)
+    # response.status = code
+    # abort(response)
+    raise HTTPError(status_code=code, detail=msg)
 
 
 @me_bp.get("/")
