@@ -68,7 +68,7 @@ def auth_as_admin(client):
 
 
 @pytest.fixture
-def auth_as_user(example_user_tokens):
+def auth_as_user(client):
     access_token = utils.create_access_token_for_user("example")
     headers = {"Authorization": f"Bearer {access_token}"}
     return headers

@@ -12,6 +12,23 @@ def user_role_id():
     return role_id
 
 
+@pytest.mark.parametrize(
+    "headers, status_code",
+    [
+        ({"Authorization": f"Bearer invalid_token"}, HTTPStatus.UNPROCESSABLE_ENTITY),
+        ({"No-auth": f"Bearer invalid_token"}, HTTPStatus.UNAUTHORIZED),
+    ],
+)
+def test_get_all_roles_auth_errors(headers, status_code, client):
+    response = client.get(f"/auth/roles", headers=headers)
+    assert response.status_code == status_code
+
+
+def test_get_all_roles_admin_required(client, auth_as_user):
+    response = client.get("/auth/roles", headers=auth_as_user)
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
 def test_get_all_roles(client, auth_as_admin):
     response = client.get("/auth/roles", headers=auth_as_admin)
 

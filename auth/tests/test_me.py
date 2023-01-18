@@ -17,7 +17,7 @@ def test_get_user_me(client, example_user_id, auth_as_user):
         ({"No-auth": f"Bearer invalid_token"}, HTTPStatus.UNAUTHORIZED),
     ],
 )
-def test_get_user_me_errors(headers, status_code, client, auth_as_user):
+def test_get_user_me_errors(headers, status_code, client):
     response = client.get(f"/auth/users/me/", headers=headers)
     assert response.status_code == status_code
 
@@ -85,9 +85,8 @@ def test_get_user_me_history(client, example_user_id, auth_as_user):
 
     response = client.get(f"/auth/users/me/history", headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
-    assert len(response.json) == 4
-    # логин с устройства device_auth в фикстуре auth_as_user
-    for i, device in enumerate(("device_auth", "device_1", "device_1", "device_2")):
+    assert len(response.json) == 3
+    for i, device in enumerate(("device_1", "device_1", "device_2")):
         assert response.json[i].get("user_id") == example_user_id
         assert response.json[i].get("device_name") == device
 
@@ -102,14 +101,13 @@ def test_get_user_me_sessions(client, example_user_id, auth_as_user):
 
     response = client.get(f"/auth/users/me/sessions", headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
-    assert len(response.json) == 3
-    # логин с устройства device_auth в фикстуре auth_as_user
-    assert set(session["device_name"] for session in response.json) == {"device_auth", "device_1", "device_2"}
+    assert len(response.json) == 2
+    assert set(session["device_name"] for session in response.json) == {"device_1", "device_2"}
 
     # разлогиниваемся со второго устройства
     client.post("/auth/logout", headers={"Authorization": "Bearer " + access_token})
 
     response = client.get(f"/auth/users/me/sessions", headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
-    assert len(response.json) == 2
-    assert set(session["device_name"] for session in response.json) == {"device_auth", "device_1"}
+    assert len(response.json) == 1
+    assert set(session["device_name"] for session in response.json) == {"device_1"}
