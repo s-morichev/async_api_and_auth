@@ -22,6 +22,10 @@ components:
   schemas:
     Role:
       type: object
+      description: Role model
+      required:
+        - id
+        - name
       properties:
         id:
           type: string
@@ -32,9 +36,40 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Role'
-    UserRegistrationRequest:
+    RoleNew:
       type: object
-      description: Data for registration of new user
+      description: Model for creating new role
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    RoleUpdate:
+      type: object
+      description: Model for updating role
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    User:
+      type: object
+      description: User model
+      required:
+        - id
+        - email
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        name:
+          type: string
+    UserNew:
+      type: object
+      description: Model for creating new user
       required:
         - email
         - password
@@ -43,7 +78,15 @@ components:
           type: string
         password:
           type: string
-        username:
+        name:
+          type: string
+    UserUpdate:
+      type: object
+      description: Model for updating user
+      properties:
+        password:
+          type: string
+        name:
           type: string
     UserLoginRequest:
       type: object
@@ -58,11 +101,15 @@ components:
           type: string
     ApiErrorResponse:
       type: object
+      description: Error response model
+      required:
+        - msg
       properties:
         msg:
           type: string
     TokensResponse:
       type: object
+      description: Access and refresh tokens model
       required:
         - access_token
         - refresh_token
@@ -71,39 +118,69 @@ components:
           type: string
         refresh_token:
           type: string
-    LoginRecord:
+    UserAction:
       type: object
+      description: User actions model (history of logins)
       required:
-        - date
-        - device
+        - id
+        - user_id
+        - device_name
+        - timestamp
+        - action
       properties:
-        date:
+        id:
           type: string
-          format: date
-        device:
+          format: uuid
+        user_id:
           type: string
-    LoginRecordList:
+          format: uuid
+        device_name:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        action:
+          type: string
+    UserActionsList:
       type: array
       items:
-        $ref: '#/components/schemas/LoginRecord'
-    User:
+        $ref: '#/components/schemas/UserAction'
+    UserSession:
       type: object
+      description: User session model (active sessions)
       required:
-        - email
-        - name
+        - device_name
+        - remote_ip
+        - login_at
+        - active_at
       properties:
-        email:
+        device_name:
           type: string
-        name:
+        remote_ip:
           type: string
+        login_at:
+          type: string
+          format: date-time
+        active_at:
+          type: string
+          format: date-time
+    UserSessionsList:
+      type: array
+      items:
+        $ref: '#/components/schemas/UserSession'
+
   responses:
-    200-PairOfTokens:
+    200-JWTTokens:
       description: Response with access and refresh token
       headers:
         Set-Cookie:
           description: refresh token in cookie
           schema:
             type: string
+        #Set-Cookie:
+        #  description: csrf token in cookie
+        #  schema:
+        #    type: string
         WWW-Authenticate:
           description: access token
           schema:
@@ -127,6 +204,18 @@ components:
             $ref: '#/components/schemas/ApiErrorResponse'
     404-NotFound:
       description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    409-Conflict:
+      description: Conflict - object already exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    422-UnprocessableEntity:
+      description: Invalid parameter value
       content:
         application/json:
           schema:
@@ -165,9 +254,33 @@ paths:
               $ref: '#/components/schemas/UserLoginRequest'
       responses:
         '200':
-          $ref: '#/components/responses/200-PairOfTokens'
+          $ref: '#/components/responses/200-JWTTokens'
         '400':
           $ref: '#/components/responses/400-BadRequest'
+  /auth/refresh:
+    post:
+      tags:
+        - auth
+      summary: Get new access and refresh tokens
+      description: Get new access and refresh tokens
+      operationId: refresh
+      parameters:
+        - in: cookie
+          name: refresh_token_cookie
+          schema:
+            type: string
+        - in: header
+          name: X-CSRF-TOKEN
+          schema:
+            type: string
+      # TODO добавить requestBody (для мобильных приложений)
+      responses:
+        '200':
+          $ref: '#/components/responses/200-JWTTokens'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
   /auth/logout:
     post:
       tags:
@@ -180,35 +293,20 @@ paths:
       responses:
         '200':
           description: Succesful operation
-        '400':
-          $ref: '#/components/responses/400-BadRequest'
         '401':
           $ref: '#/components/responses/401-Unauthorized'
-  /auth/refresh:
-    post:
-      tags:
-        - auth
-      summary: Get new access and refresh tokens
-      description: Get new access and refresh tokens
-      operationId: refresh
-      parameters:
-        - in: cookie
-          name: JWT_REFRESH_COOKIE_NAME # TODO добавить ключ в конфиг фласка
-          schema:
-            type: string
-      # TODO добавить requestBody (для мобильных приложений)
-      responses:
-        '200':
-          $ref: '#/components/responses/200-PairOfTokens'
-        '400':
-          $ref: '#/components/responses/400-BadRequest'
-  /roles:
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+
+  /auth/roles:
     get:
       tags:
         - roles
       summary: Get list of all roles
       description: Get list of all roles
       operationId: get_roles
+      security:
+        - bearerAuth: [ ]
       responses:
         '200':
           description: Successful operation
@@ -216,34 +314,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RolesList'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
     post:
       tags:
         - roles
       summary: Create a new role
       description: Create a new role
       operationId: create_role
+      security:
+        - bearerAuth: [ ]
       requestBody:
         description: Data for creating a new role
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
+              $ref: '#/components/schemas/RoleNew'
       responses:
         '201':
           description: A new role created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Role'
+                $ref: '#/components/schemas/RoleNew'
         '400':
           $ref: '#/components/responses/400-BadRequest'
-  /roles/{role_id}:
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '409':
+          $ref: '#/components/responses/409-Conflict'
+  /auth/roles/{role_id}:
     parameters:
       - $ref: '#/components/parameters/RoleIdParam'
     get:
@@ -252,6 +353,8 @@ paths:
       summary: Get role by id
       description: Get role by id
       operationId: get_role
+      security:
+        - bearerAuth: [ ]
       responses:
         '200':
           description: An existing role
@@ -259,26 +362,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Role'
-        '400':
-          $ref: '#/components/responses/400-BadRequest'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
         '404':
           $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
     put:
       tags:
        - roles
       summary: Update role
       description: Update role
       operationId: update_role
+      security:
+        - bearerAuth: [ ]
       requestBody:
         description: Data for updating role
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
+              $ref: '#/components/schemas/RoleUpdate'
       responses:
         '200':
           description: Role updated
@@ -286,57 +390,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Role'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
         '400':
           $ref: '#/components/responses/400-BadRequest'
         '404':
           $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
     delete:
       tags:
         - roles
       summary: Delete role
       description: Delete role
       operationId: delete_role
+      security:
+        - bearerAuth: [ ]
       responses:
-        '200':
+        '204':
           description: Role deleted
-        '400':
-          $ref: '#/components/responses/400-BadRequest'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
         '404':
           $ref: '#/components/responses/404-NotFound'
-  /users:
-#     get:
-#       # TODO добавить пагинацию
-#       tags:
-#         - users
-#       summary: Get list of all users
-#       description: Get list of all roles
-#       operationId: get_users
-#       responses:
-#         '200':
-#           description: Successful operation
-#           content:
-#             application/json:
-#               schema:
-#                 $ref: '#/components/schemas/UsersList'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+  /auth/users:
     post:
       tags:
         - users
       summary: Register new user
       description: Register new user
       operationId: create_user
+      security:
+        - bearerAuth: [ ]
       requestBody:
         description: User registration data
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRegistrationRequest'
+              $ref: '#/components/schemas/UserNew'
       responses:
         '200':
           description: Successful operation
         '400':
           $ref: '#/components/responses/400-BadRequest'
-  /users/{user_id}:
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '409':
+          $ref: '#/components/responses/409-Conflict'
+  /auth/users/{user_id}:
     parameters:
       - $ref: '#/components/parameters/UserIdParam'
     get:
@@ -349,15 +453,17 @@ paths:
         - bearerAuth: []
       responses:
         '200':
-          description: An existing role
+          description: An existing user
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/400-BadRequest'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
         '404':
           $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
     put:
       tags:
        - users
@@ -372,14 +478,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                name:
-                  type: string
-                password:
-                  type: string
+             $ref: '#/components/schemas/UserUpdate'
       responses:
         '200':
           description: User updated
@@ -387,26 +486,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/400-BadRequest'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
         '404':
           $ref: '#/components/responses/404-NotFound'
-    delete:
-      tags:
-        - users
-      summary: Delete user
-      description: Delete user
-      operationId: delete_user
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: User deleted
-        '400':
-          $ref: '#/components/responses/400-BadRequest'
-        '404':
-          $ref: '#/components/responses/404-NotFound'
-  /users/{user_id}/roles:
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+  /auth/users/{user_id}/roles:
     parameters:
       - $ref: '#/components/parameters/UserIdParam'
     get:
@@ -415,6 +501,8 @@ paths:
       summary: Get list of user roles
       description: Get list of user roles
       operationId: get_user_roles
+      security:
+        - bearerAuth: [ ]
       responses:
         '200':
           description: Successful operation
@@ -422,7 +510,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RolesList'
-  /users/{user_id}/roles/{role_id}:
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+  /auth/users/{user_id}/roles/{role_id}:
     parameters:
       - $ref: '#/components/parameters/RoleIdParam'
       - $ref: '#/components/parameters/UserIdParam'
@@ -432,6 +526,8 @@ paths:
       summary: Add a role to user
       description: Add a role to user
       operationId: add_user_role
+      security:
+        - bearerAuth: [ ]
       responses:
         '201':
           description: A role added
@@ -439,40 +535,214 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Role'
-        '400':
-          $ref: '#/components/responses/400-BadRequest'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
     delete:
       tags:
         - users
       summary: Remove role from user
       description: Remove role from user
       operationId: delete_user_role
+      security:
+        - bearerAuth: [ ]
       responses:
         '200':
           description: Role deleted
-        '400':
-          $ref: '#/components/responses/400-BadRequest'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
         '404':
           $ref: '#/components/responses/404-NotFound'
-  /users/{user_id}/login-history:
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+  /auth/users/{user_id}/history:
     parameters:
       - $ref: '#/components/parameters/UserIdParam'
     get:
       tags:
         - users
-      summary: Get login history
-      description: Get login history
-      operationId: login_history
+      summary: Get user actions history
+      description: Get user actions history
+      operationId: get_user_history
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: List of login records
+          description: List of action records
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginRecordList'
+                $ref: '#/components/schemas/UserActionsList'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+  /auth/users/{user_id}/sessions:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    get:
+      tags:
+        - users
+      summary: Get active sessions of user
+      description: Get active sessions of user
+      operationId: get_user_sessions
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSessionsList'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+  /auth/users/me:
+    get:
+      tags:
+        - users
+      summary: Get logged in user
+      description: Get logged in user
+      operationId: get_logged_user
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: An existing user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+    post:
+      tags:
+        - users
+      summary: Register new user
+      description: Register new user
+      operationId: create_user_me_endpoint
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: User registration data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNew'
+      responses:
+        '201':
+          description: Successful operation
         '400':
           $ref: '#/components/responses/400-BadRequest'
         '401':
           $ref: '#/components/responses/401-Unauthorized'
+        '409':
+          $ref: '#/components/responses/409-Conflict'
+    put:
+      tags:
+        - users
+      summary: Update logged in user
+      description: Update logge in  user
+      operationId: update_logged_user
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        description: Data for updating user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+  /auth/users/me/roles:
+    get:
+      tags:
+        - users
+      summary: Get list of logged in user roles
+      description: Get list of logged in user roles
+      operationId: get_logged_user_roles
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolesList'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+  /auth/users/me/history:
+    get:
+      tags:
+        - users
+      summary: Get actions history of logged in user
+      description: Get actions history of logged in user
+      operationId: get_logged_user_history
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: List of action records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserActionsList'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
+  /auth/users/me/sessions:
+    get:
+      tags:
+        - users
+      summary: Get active sessions of logged in user
+      description: Get active sessions of logged in user
+      operationId: get_logged_user_sessions
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSessionsList'
+        '401':
+          $ref: '#/components/responses/401-Unauthorized'
+        '404':
+          $ref: '#/components/responses/404-NotFound'
+        '422':
+          $ref: '#/components/responses/422-UnprocessableEntity'
