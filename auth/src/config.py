@@ -9,6 +9,12 @@ VAR_DIR = BASE_DIR / "var/"
 LOG_DIR = VAR_DIR / "log/"
 LOG_FILE = LOG_DIR / "auth.log"
 
+SWAGGER_CONFIG = {
+    "swagger_ui": True,
+    "specs_route": "/auth/openapi/",
+    "openapi": "3.0.3",
+    "uiversion": 3
+}
 
 class Config(BaseSettings):
     # PROJECT_NAME: str = Field("auth", env="AUTH_PROJECT_NAME")
@@ -22,6 +28,9 @@ class Config(BaseSettings):
     JWT_CSRF_IN_COOKIES: bool = True
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES: timedelta = timedelta(days=30)
+    #JWT_REFRESH_COOKIE_NAME: str = "flask_auth_refresh_token"
+    OPENAPI_YAML: str = str(BASE_DIR / "openapi.yaml")
+    SWAGGER: dict = SWAGGER_CONFIG
 
     class Config:
         env_file = ENV_FILE
