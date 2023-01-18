@@ -45,6 +45,10 @@ class Genre(IdNameMixin):
     pass
 
 
+class Mark(IdNameMixin):
+    pass
+
+
 class PersonWithRole(IdNameMixin):
     role: str
 
@@ -57,6 +61,7 @@ class BaseETLData(BaseModel, ETLData):
     description: str | None
     imdb_rating: float | None
     genres: list[Genre] | None
+    marks: list[Mark] | None
     modified: datetime
 
     class Config:
@@ -69,7 +74,7 @@ class PGData(BaseETLData):
 
 class ESData(BaseETLData):
     genre: list[str]
-
+    mark: list[str]
     directors_names: list[str]
     actors_names: list[str]
     writers_names: list[str]
