@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify, Response, abort
 from flask_jwt_extended import current_user, get_jwt, jwt_required, unset_jwt_cookies
 from app.services.user_service import get_user_by_id, change_user, get_user_history, get_user_sessions, add_user, \
     RegisterError
+from app.services import auth_service
 from app.services.role_service import get_user_roles
 
 me_bp = Blueprint("me", __name__)
@@ -80,7 +81,8 @@ def get_history():
     token = get_jwt()
     user_id = token['sub']
 
-    history = get_user_history(user_id)
+    #history = get_user_history(user_id)
+    history = auth_service.get_user_history(user_id)
     return jsonify(history)
 
 

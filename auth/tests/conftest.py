@@ -7,32 +7,12 @@ src_path = Path(__file__).parent.parent / "src/"
 if src_path not in sys.path:
     sys.path.insert(1, str(src_path))
 
+import utils
+
 from app import create_app
 from app.flask_db import db
-from app.services import auth_service, role_service, token_service, user_service
+from app.services import auth_service, role_service
 from config import test_config
-
-
-def create_roles_and_users():
-    """Cоздать роли и пользователей для тестирования. Должен быть активен app_context."""
-    role_ids = []
-    for role_name in ("admin", "subscriber", "user"):
-        role = role_service.add_role(role_name)
-        role_ids.append(role["id"])
-
-    # example - как только что зарегистрировавшийся пользователь
-    user_service.add_user("example", "example", "example")
-
-    # example_with_roles - пользователь с добавленными ролями, в т.ч. admin
-    user = user_service.add_user("example_with_roles", "example", "example")
-    user_id = user["id"]
-    for role_id in role_ids:
-        role_service.add_user_role(user_id, role_id)
-
-    # example_admin - пользователь c ролью только admin
-    user = user_service.add_user("example_admin", "example", "example")
-    user_id = user["id"]
-    role_service.add_user_role(user_id, role_ids[0])
 
 
 @pytest.fixture(scope="session")
@@ -44,10 +24,13 @@ def app():
 @pytest.fixture
 def client(app):
     with app.app_context():
+        db.drop_all()
+        auth_service.storage.redis.flushall()
+
         db.create_all()
         db.session.commit()
 
-        create_roles_and_users()
+        utils.create_roles_and_users()
 
         yield app.test_client()
 
@@ -71,9 +54,22 @@ def example_with_roles_user_id(client):
 
 
 @pytest.fixture
+def example_user_tokens(client):
+    """Access, refresh и csrf токены, получаемые при логине пользователя example."""
+    # токены через запрос, чтобы появилась запись в storage о refresh токене
+    return utils.get_tokens_by_login_reqest(client, "example", "example", "device_auth")
+
+
+@pytest.fixture
 def auth_as_admin(client):
-    user = auth_service.auth("example_admin", "example")
-    access_token, _ = token_service.new_tokens(user, "device_1")
+    access_token = utils.create_access_token_for_user("example_admin")
+    headers = {"Authorization": f"Bearer {access_token}"}
+    return headers
+
+
+@pytest.fixture
+def auth_as_user(example_user_tokens):
+    access_token = utils.create_access_token_for_user("example")
     headers = {"Authorization": f"Bearer {access_token}"}
     return headers
 
