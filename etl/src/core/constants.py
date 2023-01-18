@@ -7,6 +7,8 @@ class RoleType:
 FW_UPDATE_KEY = "fw_date"
 PERSONS_UPDATE_KEY = "p_date"
 GENRES_UPDATE_KEY = "g_date"
+MARKS_UPDATE_KEY = "m_date"
+
 EX_PERSON_UPDATE_KEY = "persons_date"
 EX_GENRE_UPDATE_KEY = "genres_date"
 
@@ -35,12 +37,17 @@ ENRICH_SQL = """
                 '[]') AS persons,
            COALESCE (json_agg(DISTINCT jsonb_build_object('id', g.id, 'name', g.name))
                 FILTER (WHERE g.id IS NOT NULL),
-                '[]') AS genres
+                '[]') AS genres,
+           COALESCE (json_agg(DISTINCT jsonb_build_object('id', m.id, 'name', m.name))
+                FILTER (WHERE m.id IS NOT NULL),
+                '[]') AS marks
     FROM content.film_work fw
     LEFT JOIN content.person_film_work pfw ON pfw.film_work_id = fw.id
     LEFT JOIN content.person p ON p.id = pfw.person_id
     LEFT JOIN content.genre_film_work gfw ON gfw.film_work_id = fw.id
     LEFT JOIN content.genre g ON g.id = gfw.genre_id
+    LEFT JOIN content.mark_film_work mfw ON mfw.film_work_id = fw.id
+    LEFT JOIN content.mark m ON m.id = mfw.mark_id
     WHERE fw.id IN %s
     GROUP BY fw.id
     ORDER BY fw.id
@@ -72,6 +79,20 @@ GENRE_SQL = """
         AND (g.modified > fw.modified)
     ORDER BY g.modified,
              g.id
+    """
+
+MARK_SQL = """
+    SELECT fw.id AS f_id,
+           m.modified,
+           m.id
+    FROM content.mark m
+    LEFT JOIN content.mark_film_work mfw ON mfw.mark_id = m.id
+    LEFT JOIN content.film_work fw ON mfw.film_work_id = fw.id
+    WHERE (m.modified >= '{0}')
+        AND (fw.modified < '{1}')
+        AND (m.modified > fw.modified)
+    ORDER BY m.modified,
+             m.id
     """
 
 EX_PERSONS_SQL = """

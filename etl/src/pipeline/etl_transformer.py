@@ -25,6 +25,7 @@ class ETLTransformer(Transformer):
             persons = row.persons
             ex_data = {}
             ex_data["genre"] = [genre.name for genre in row.genres]
+            ex_data["mark"] = [mark.name for mark in row.marks]
             ex_data["actors"], ex_data["actors_names"] = filter_persons(persons, RoleType.ACTOR)
             ex_data["writers"], ex_data["writers_names"] = filter_persons(persons, RoleType.WRITER)
             ex_data["directors"], ex_data["directors_names"] = filter_persons(persons, RoleType.DIRECTOR)
