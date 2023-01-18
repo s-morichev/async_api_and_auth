@@ -4,7 +4,7 @@ import json
 import config
 from ..db.storage import AbstractStorage
 from ..db.database import User
-from .._utils import device_id_from_name
+from app.utils.utils import device_id_from_name
 
 storage: AbstractStorage
 
