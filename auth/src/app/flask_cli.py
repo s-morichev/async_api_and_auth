@@ -4,7 +4,9 @@ import click
 from flask import Flask
 
 from app.db import database
-from app.services import auth_service, role_service
+from app.services import user_service, role_service
+from app.core.exceptions import AuthServiceError
+from app.core.constants import ROOT_ROLE
 
 STANDARD_ROLES = "admin", "subscriber", "user"
 
@@ -28,10 +30,12 @@ def init_cli(app: Flask):
 
         try:
             # TODO mark as superuser
-            auth_service.register_user(email, password, email)
-        except auth_service.RegisterError:
-            click.echo("User with this email exists.")
+            root_user = user_service.add_user(email, password, email)
+        except AuthServiceError as err:
+            click.echo(err.detail)
             return
+        root_role = role_service.add_role(ROOT_ROLE)
+        role_service.add_user_role(root_user['id'], root_role['id'])
         click.echo("Superuser created")
 
     @app.cli.command("insert-roles")
@@ -40,7 +44,7 @@ def init_cli(app: Flask):
         for role_name in STANDARD_ROLES:
             try:
                 role_service.add_role(role_name)
-            except role_service.RoleError:
+            except AuthServiceError:
                 pass
         click.echo("Roles inserted")
 
@@ -49,8 +53,8 @@ def init_cli(app: Flask):
         """Add users and admin for development."""
         for user_email in ("example1", "example2", "example3", "admin"):
             try:
-                auth_service.register_user(user_email, "password", user_email)
-            except auth_service.RegisterError:
+                user_service.add_user(user_email, "password", user_email)
+            except AuthServiceError:
                 pass
         click.echo("Users added")
         admin = database.data.User.find_by_email("admin")
