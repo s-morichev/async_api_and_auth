@@ -51,6 +51,7 @@ class Users(Resource):
 
         user = user_service.change_user(user_id, email, password, name)
 
+
         return user
 
 

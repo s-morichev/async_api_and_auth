@@ -8,21 +8,47 @@ import config
 from app.core.utils import device_id_from_name
 from app.db.database import User
 from app.db.storage import AbstractStorage
+from app.db.database import  AbstractDatabase
 from app.core.utils import error
 
 storage: AbstractStorage
+database: AbstractDatabase
 
 
 # ------------------------------------------------------------------------------ #
-def is_user_active(user: User) -> bool:
-    refresh_devices(user.id)
-    return bool(storage.get_devices(user.id))
+def is_user_active(user_id: UUID) -> bool:
+    refresh_devices(user_id)
+    return bool(storage.get_devices(user_id))
 
 
-def update_token_payload(user: User) -> dict:
-    """  создает загрузку токена из User, для унификации"""
+def set_token_payload(user: User, only_active: bool = False) -> dict | None:
+    """  создает загрузку токена из User, для унификации
+        если only_active - то предварительно проверяет что пользователь активен
+    """
+    if only_active and not is_user_active(user):
+        return None
+    payload = token_payload_from_user(user)
+    storage.set_payload(user.id, json.dumps(payload), ttl=get_auth_token_expires())
+    return payload
+
+
+def token_payload_from_user(user: User) -> dict:
+    """User -> {token_payload}"""
     payload = {"name": user.name, "roles": user.roles_list()}
-    storage.set_payload(str(user.id), json.dumps(payload))
+    return payload
+
+
+def get_token_payload_by_user_id(user_id: UUID, use_cache_first: bool = True) -> dict:
+    """user_id -> User -> {token_payload}"""
+    payload = {}
+    # пытаемся получить данные из хранилища
+    if use_cache_first:
+        payload = json.loads(storage.get_payload(user_id))
+
+    # Если их там нет - получаем из базы
+    if not payload:
+        user = database.user_by_id(user_id)
+        payload = set_token_payload(user)
     return payload
 
 
@@ -39,11 +65,9 @@ def tokenize(refresh_token: str):
 def new_tokens(user: User, device_name: str) -> tuple[str, str]:
     """Создаем новые токены при входе"""
     device_id = device_id_from_name(device_name)
-
-    # создаем или обновляем payload в хранилище
-    payload = update_token_payload(user)
-
+    payload = set_token_payload(user)
     ext_claims = payload | {"device_id": device_id}
+
     refresh_token = create_refresh_token(identity=user.id, additional_claims=ext_claims)
     access_token = create_access_token(identity=user.id, additional_claims=ext_claims, fresh=True)
     tokenize(refresh_token)
@@ -58,10 +82,7 @@ def refresh_tokens(user_id: UUID, device_id: str, old_token_id: str) -> tuple[st
     if not storage.check_token(user_id, device_id, old_token_id):
         error("Invalid refresh token", HTTPStatus.UNAUTHORIZED)
 
-    # roles = payload['roles']
-    # user_name = payload['name']
-    # берем payload из хранилища. Возможно он даже изменился за это время)
-    payload = json.loads(storage.get_payload(str(user_id)))
+    payload = get_token_payload_by_user_id(user_id)
     ext_claims = payload | {"device_id": device_id}
 
     refresh_token = create_refresh_token(identity=user_id, additional_claims=ext_claims)
@@ -76,9 +97,9 @@ def remove_token(user_id: UUID, device_id: str):
     storage.remove_token(user_id, device_id)
     storage.remove_device(user_id, device_id)
 
-    # если устройств не осталось - удаляем payload
-    if not storage.get_devices(user_id):
-        storage.remove_payload(user_id)
+    # # если устройств не осталось - удаляем payload
+    # if not storage.get_devices(user_id):
+    #     storage.remove_payload(user_id)
 
 
 def refresh_devices(user_id: UUID) -> list[str]:
@@ -120,6 +141,11 @@ def check_token(user_id: UUID, device_id: str, token_id: str):
 def get_refresh_token_expires() -> int:
     """return time of life refresh_token"""
     return config.flask_config.JWT_REFRESH_TOKEN_EXPIRES
+
+
+def get_auth_token_expires() -> int:
+    """return time of life refresh_token"""
+    return config.flask_config.JWT_ACCESS_TOKEN_EXPIRES
 
 
 def set_payload(user_id: UUID, new_payload: dict):

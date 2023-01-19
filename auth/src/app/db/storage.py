@@ -24,7 +24,7 @@ class AbstractStorage(ABC):
         """удаляем токен пользователя"""
 
     @abstractmethod
-    def set_payload(self, user_id: UUID, payload: str):
+    def set_payload(self, user_id: UUID, payload: str, ttl: int):
         pass
 
     @abstractmethod
@@ -108,9 +108,9 @@ class Storage(AbstractStorage):
         key = self.token_key(user_id, device_id)
         self.redis.delete(key)
 
-    def set_payload(self, user_id: UUID, payload: str):
+    def set_payload(self, user_id: UUID, payload: str, ttl: int):
         key = self.payload_key(user_id)
-        self.redis.set(name=key, value=payload)
+        self.redis.set(name=key, value=payload, ex=ttl)
 
     def get_payload(self, user_id: UUID) -> str | None:
         key = self.payload_key(user_id)

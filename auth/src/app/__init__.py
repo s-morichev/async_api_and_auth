@@ -42,6 +42,7 @@ def create_app(config):
     auth_srv.database = database
     auth_srv.storage = storage
     token_srv.storage = storage
+    token_srv.database = database
     role_srv.database = database
     user_srv.database = database
 
