@@ -20,7 +20,7 @@ def tokenize(refresh_token: str):
     device_id = token["device_id"]
     token_id = token["jti"]
     token_expires_at = token["exp"]
-        storage.set_token(user_id, device_id, token_id, token_expires_at)
+    storage.set_token(user_id, device_id, token_id, token_expires_at)
 
 
 def new_tokens(user: User, device_name: str) -> tuple[str, str]:

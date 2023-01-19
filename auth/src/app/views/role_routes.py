@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from flask import Blueprint, jsonify
+from flask import Blueprint
 from flask_restful import Api, Resource, reqparse
 
 from app.core.utils import jwt_accept_roles, validate_uuids

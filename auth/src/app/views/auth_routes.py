@@ -56,7 +56,7 @@ def logout():
     token_service.remove_token(user_id, device_id)
     auth_service.close_session(user_id, device_name, remote_ip)
 
-    response = msg("Logged out")
+    response = jsonify({'msg': 'logout'})
     unset_jwt_cookies(response)
 
     return response
