@@ -6,7 +6,7 @@ from uuid import UUID
 from flask_jwt_extended import get_jwt, jwt_required
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
-from app.core.exceptions import HTTPError
+from app.core.exceptions import AuthServiceError
 from app.core import constants
 
 
@@ -53,7 +53,7 @@ def validate_uuids(*args: str) -> None:
         try:
             UUID(id_)
         except ValueError:
-            raise HTTPError(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="Invalid UUID")
+            raise AuthServiceError(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="Invalid UUID")
 
 
 def error(msg: str, code: int) -> None:
@@ -63,4 +63,4 @@ def error(msg: str, code: int) -> None:
     :return: None
         raise HTTPError, which must be caught by Flask error handler
     """
-    raise HTTPError(status_code=code, detail=msg)
+    raise AuthServiceError(status_code=code, detail=msg)
