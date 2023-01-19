@@ -16,9 +16,14 @@ https://github.com/RomanBorovskiy/YP_Async_API
 
 ### Запуск "production" на локальной машине
 Перед этим надо переименовать `.env.example` в `.env` и указать свои пароли для сервисов.
-Измените в `.env` файле `BACKEND_DEBUG=False`. После этого выполните следующие команды:
+Измените в `.env` файле `BACKEND_DEBUG=False` и `AUTH_DEBUG=False`. После этого выполните
+следующие команды (для проверки запуска на локальной машине можно воспользоваться `make new-local-prod`):
 - Соберите образы `make build-all`
 - Запустите контейнеры `docker compose -f docker-compose.prod.yaml up -d`
+- При необходимости примените миграции, добавьте роли по умолчанию, создайте суперпользователя
+  - `docker compose -f docker-compose.prod.yaml exec auth flask db upgrade`
+  - `docker compose -f docker-compose.prod.yaml exec auth flask insert-roles`
+  - `docker compose -f docker-compose.prod.yaml exec auth flask createsuperuser --email superuser --password password `
 
 
 ### Запуск тестов

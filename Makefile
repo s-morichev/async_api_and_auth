@@ -21,7 +21,13 @@ build-auth:
 build-nginx:
 	docker --log-level=debug build --tag=nginx_all_services ./docker/nginx/
 
-build-all: build-backend build-etl build-nginx
+build-all: build-backend build-etl build-auth build-nginx
+
+new-local-prod: build-all
+	docker compose -f docker-compose.prod.yaml up -d
+	docker compose -f docker-compose.prod.yaml exec auth flask db upgrade
+	docker compose -f docker-compose.prod.yaml exec auth flask insert-roles
+	docker compose -f docker-compose.prod.yaml exec auth flask createsuperuser --email superuser --password password
 
 run-test: build-backend
 	docker compose -f ./tests/functional/docker-compose.test.yaml build test
