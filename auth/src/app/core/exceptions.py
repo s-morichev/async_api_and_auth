@@ -1,5 +1,6 @@
 from flask import jsonify
 
+
 class HTTPError(Exception):
     def __init__(self, status_code, detail, *args):
         super().__init__(args)
@@ -7,5 +8,5 @@ class HTTPError(Exception):
         self.detail = detail
 
 
-def httperror_handler(err: HTTPError):
+def http_error_handler(err: HTTPError):
     return jsonify({"msg": err.detail}), err.status_code

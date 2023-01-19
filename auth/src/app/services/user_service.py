@@ -1,8 +1,10 @@
 from http import HTTPStatus
 from uuid import UUID
-from ..db.database import AbstractDatabase, User
+
 import app.services.token_service as token_srv
-from ..exceptions import HTTPError
+import app.services.auth_service as auth_srv
+from app.db.database import AbstractDatabase, User
+from app.core.utils import error
 
 database: AbstractDatabase
 
@@ -18,19 +20,19 @@ class RegisterError(UserError):
 def add_user(email: str, password: str, name: str) -> dict:
     # если существует такой пользователь
     if database.is_user_exists(email):
-        raise HTTPError(status_code=HTTPStatus.CONFLICT, detail="User with this email already registered.")
+        error("User with this email already registered", HTTPStatus.CONFLICT)
 
     user = database.add_user(email, password, name)
     # TODO отправить ссылку подтверждения на почту
     # можно давать пользователю роль NEW_USER, выдавать короткий токен и ждать подтверждения почты
     # mailer.send_notification(email)
-    return user.dict(exclude={'password_hash'})
+    return user.dict(exclude={"password_hash"})
 
 
 def change_user(user_id: UUID, new_email: str | None, new_password: str | None, new_name: str | None) -> dict:
     user: User = database.user_by_id(user_id)
     if user is None:
-        raise HTTPError(status_code=HTTPStatus.NOT_FOUND, detail="User not found")
+        error(f"User id {user_id} not found", HTTPStatus.NOT_FOUND)
 
     # очень плохо, три транзакции!!!
     if new_email:
@@ -42,13 +44,13 @@ def change_user(user_id: UUID, new_email: str | None, new_password: str | None, 
     if new_name:
         user = database.change_user_name(user.id, new_name)
 
-    return user.dict(exclude={'password_hash'})
+    return user.dict(exclude={"password_hash"})
 
 
 def get_user_by_id(user_id: UUID) -> dict:
     if (user := database.user_by_id(user_id)) is None:
-        raise HTTPError(status_code=HTTPStatus.NOT_FOUND, detail="User not found")
-    return user.dict(exclude={'password_hash'})
+        error(f"User id {user_id} not found", HTTPStatus.NOT_FOUND)
+    return user.dict(exclude={"password_hash"})
 
 
 def get_user_sessions(user_id: UUID) -> list[dict]:
@@ -57,4 +59,4 @@ def get_user_sessions(user_id: UUID) -> list[dict]:
 
 
 def get_user_history(user_id: UUID) -> list[dict]:
-    return token_srv.get_user_sessions(user_id)
+    return auth_srv.get_user_history(user_id)

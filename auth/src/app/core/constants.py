@@ -1,2 +1,2 @@
 # name for superuser role
-ROOT_ROLE = 'ROOT'
+ROOT_ROLE = "ROOT"

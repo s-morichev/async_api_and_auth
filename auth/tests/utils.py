@@ -1,7 +1,7 @@
 from flask_jwt_extended import create_access_token
 
 from app.services import role_service, user_service
-from app.utils.utils import device_id_from_name
+from app.core.utils import device_id_from_name
 
 
 def create_roles_and_users():

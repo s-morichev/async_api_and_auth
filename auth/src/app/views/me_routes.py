@@ -1,20 +1,14 @@
 from http import HTTPStatus
 
-from flask import Blueprint, request, jsonify, Response, abort
-from flask_jwt_extended import current_user, get_jwt, jwt_required, unset_jwt_cookies
-from app.services.user_service import get_user_by_id, change_user, get_user_history, get_user_sessions, add_user, \
-    RegisterError
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import get_jwt, jwt_required
+
 from app.services import auth_service
 from app.services.role_service import get_user_roles
-from app.exceptions import HTTPError
+from app.services.user_service import RegisterError, add_user, change_user, get_user_by_id, get_user_sessions
+from app.core.utils import error
+
 me_bp = Blueprint("me", __name__)
-
-
-def error(msg: str, code: int):
-    # response = jsonify(msg=msg)
-    # response.status = code
-    # abort(response)
-    raise HTTPError(status_code=code, detail=msg)
 
 
 @me_bp.get("/")
@@ -22,7 +16,7 @@ def error(msg: str, code: int):
 def get_info():
     """get user data"""
     token = get_jwt()
-    user_id = token['sub']
+    user_id = token["sub"]
     user = get_user_by_id(user_id)
     return jsonify(user)
 
@@ -35,7 +29,7 @@ def new_user():
     token = get_jwt()
     # если токен есть - значит пользователь залогинен, возвращаем его же
     if token:
-        user_id = token['sub']
+        user_id = token["sub"]
         user = get_user_by_id(user_id)
         return jsonify(user), HTTPStatus.IM_A_TEAPOT
 
@@ -43,7 +37,7 @@ def new_user():
     password = request.json.get("password", None)
     name = request.json.get("name", None)
     if not (email and password):
-        error('email and password info required', HTTPStatus.BAD_REQUEST)
+        error("email and password info required", HTTPStatus.BAD_REQUEST)
 
     try:
         user = add_user(email, password, name)
@@ -57,7 +51,7 @@ def new_user():
 @jwt_required()
 def change_info():
     token = get_jwt()
-    user_id = token['sub']
+    user_id = token["sub"]
 
     password = request.json.get("password", None)
     name = request.json.get("name", None)
@@ -70,7 +64,7 @@ def change_info():
 @jwt_required()
 def get_roles():
     token = get_jwt()
-    user_id = token['sub']
+    user_id = token["sub"]
 
     roles = get_user_roles(user_id)
     return jsonify(roles)
@@ -80,9 +74,8 @@ def get_roles():
 @jwt_required()
 def get_history():
     token = get_jwt()
-    user_id = token['sub']
+    user_id = token["sub"]
 
-    #history = get_user_history(user_id)
     history = auth_service.get_user_history(user_id)
     return jsonify(history)
 
@@ -91,7 +84,7 @@ def get_history():
 @jwt_required()
 def get_sessions():
     token = get_jwt()
-    user_id = token['sub']
+    user_id = token["sub"]
 
     sessions = get_user_sessions(user_id)
     return jsonify(sessions)

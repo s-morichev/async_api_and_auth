@@ -1,13 +1,13 @@
 import hashlib
 from functools import wraps
+from http import HTTPStatus
+from uuid import UUID
 
 from flask_jwt_extended import get_jwt, jwt_required
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
-from http import HTTPStatus
-from uuid import UUID
-from app.exceptions import HTTPError
-from app.utils import constants
+from app.core.exceptions import HTTPError
+from app.core import constants
 
 
 def device_id_from_name(device_name: str):
@@ -28,17 +28,17 @@ def jwt_accept_roles(roles_list: str | list[str]):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if isinstance(roles_list, str):
-                accepted_roles = list(map(str.strip, roles_list.split(',')))
+                accepted_roles = list(map(str.strip, roles_list.split(",")))
             else:
                 accepted_roles = roles_list
 
             token = get_jwt()
-            roles = token.get('roles', [])
+            roles = token.get("roles", [])
             # if superuser - dont check roles
             if constants.ROOT_ROLE not in roles:
                 roles_intersect = set(accepted_roles) & set(roles)
                 if not roles_intersect:
-                    raise NoAuthorizationError(f'Only roles {accepted_roles} accepted')
+                    raise NoAuthorizationError(f"Only roles {accepted_roles} accepted")
 
             rv = f(*args, **kwargs)
             return rv
@@ -54,3 +54,13 @@ def validate_uuids(*args: str) -> None:
             UUID(id_)
         except ValueError:
             raise HTTPError(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail="Invalid UUID")
+
+
+def error(msg: str, code: int) -> None:
+    """
+    :param msg: error message
+    :param code: HTTP status Code
+    :return: None
+        raise HTTPError, which must be caught by Flask error handler
+    """
+    raise HTTPError(status_code=code, detail=msg)

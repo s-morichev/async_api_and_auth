@@ -1,8 +1,7 @@
-import enum
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
 
@@ -32,7 +31,6 @@ class Role(db.Model):
     def find_by_id(cls, role_id):
         query = cls.query.filter_by(id=role_id).first()
         return query
-
 
 
 user_roles = db.Table(
@@ -73,7 +71,7 @@ class UserAction(db.Model):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     device_name = Column(String)
-    action_type = Column(String)  # TODO использовать enum или отдельную таблицу Actions
+    action_type = Column(String)
     action_time = Column(DateTime(timezone=True), default=now_with_tz_info)
 
     @classmethod
@@ -81,6 +79,8 @@ class UserAction(db.Model):
         query = cls.query.filter_by(user_id=user_id)
         return query
 
+
+# !!!! its for future usage
 class UserSession(db.Model):
     __tablename__ = "user_sessions"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
