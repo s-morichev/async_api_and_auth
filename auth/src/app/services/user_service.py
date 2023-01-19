@@ -6,15 +6,8 @@ import app.services.auth_service as auth_srv
 from app.db.database import AbstractDatabase, User
 from app.core.utils import error
 
+
 database: AbstractDatabase
-
-
-class UserError(Exception):
-    """Общий класс ошибок"""
-
-
-class RegisterError(UserError):
-    """Ошибка регистрации пользователя"""
 
 
 def add_user(email: str, password: str, name: str) -> dict:

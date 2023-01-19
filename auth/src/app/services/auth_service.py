@@ -12,24 +12,13 @@ storage: AbstractStorage
 database: AbstractDatabase
 
 
-class AuthError(Exception):
-    """Общий класс ошибок"""
-
-
-class CredentialError(AuthError):
-    """Ошибка проверки логин/пароль"""
-
-
-class RegisterError(AuthError):
-    """Ошибка регистрации пользователя"""
-
-
 # ------------------------------------------------------------------------------ #
 def auth(email: str, password: str) -> User | None:
     """check user auth and return user if OK"""
     user = database.auth_user(email, password)
     if not user:
-        raise CredentialError("Error login/password")
+        error("Error login/password",  HTTPStatus.UNAUTHORIZED)
+
     return user
 
 

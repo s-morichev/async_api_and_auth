@@ -20,11 +20,7 @@ def login():
     if email is None or password is None:
         return error("No email or password", HTTPStatus.BAD_REQUEST)
 
-    try:
-        user = auth_service.auth(email, password)
-
-    except auth_service.CredentialError:
-        return error("Invalid email or password", HTTPStatus.UNAUTHORIZED)
+    user = auth_service.auth(email, password)
 
     access_token, refresh_token = token_service.new_tokens(user, device_name)
     # ttl - time of session life

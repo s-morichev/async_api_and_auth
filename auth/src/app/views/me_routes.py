@@ -5,7 +5,7 @@ from flask_jwt_extended import get_jwt, jwt_required
 
 from app.services import auth_service
 from app.services.role_service import get_user_roles
-from app.services.user_service import RegisterError, add_user, change_user, get_user_by_id, get_user_sessions
+from app.services.user_service import add_user, change_user, get_user_by_id, get_user_sessions
 from app.core.utils import error
 
 me_bp = Blueprint("me", __name__)
@@ -39,10 +39,7 @@ def new_user():
     if not (email and password):
         error("email and password info required", HTTPStatus.BAD_REQUEST)
 
-    try:
-        user = add_user(email, password, name)
-    except RegisterError as err:
-        error(str(err), HTTPStatus.CONFLICT)
+    user = add_user(email, password, name)
 
     return jsonify(user), HTTPStatus.CREATED
 
