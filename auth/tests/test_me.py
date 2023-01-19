@@ -111,3 +111,23 @@ def test_get_user_me_sessions(client, example_user_id, auth_as_user):
     assert response.status_code == HTTPStatus.OK
     assert len(response.json) == 1
     assert set(session["device_name"] for session in response.json) == {"device_1"}
+
+
+def test_delete_user_me_sessions(client, example_user_id, auth_as_user):
+    client.post("/auth/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_1"})
+    response = client.post(
+        "/auth/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_2"}
+    )
+    access_token = response.json.get("access_token")
+
+    response = client.get(f"/auth/users/me/sessions", headers=auth_as_user)
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.json) == 2
+    assert set(session["device_name"] for session in response.json) == {"device_1", "device_2"}
+
+    # удаляем все сессии
+    client.delete("/auth/users/me/sessions", headers={"Authorization": "Bearer " + access_token})
+
+    response = client.get(f"/auth/users/me/sessions", headers=auth_as_user)
+    assert response.status_code == HTTPStatus.OK
+    assert len(response.json) == 0

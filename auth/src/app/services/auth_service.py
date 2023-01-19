@@ -6,7 +6,7 @@ from app.core.utils import device_id_from_name
 from app.db.database import AbstractDatabase, User
 from app.db.storage import AbstractStorage
 from app.core.utils import error
-from app.services.token_service import refresh_devices, get_devices
+from app.services.token_service import refresh_devices, get_devices, remove_token
 # ------------------------------------------------------------------------------ #
 storage: AbstractStorage
 database: AbstractDatabase
@@ -52,6 +52,7 @@ def close_session(user_id: UUID, device_name: str, remote_ip: str):
     # data = {'remote_ip': remote_ip}
     device_id = device_id_from_name(device_name)
     storage.delete_info(user_id, device_id)
+    remove_token(user_id, device_id)
     add_history(user_id, device_name, "logout")
 
 

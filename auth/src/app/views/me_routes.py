@@ -5,7 +5,7 @@ from flask_jwt_extended import get_jwt, jwt_required
 
 from app.services import auth_service
 from app.services.role_service import get_user_roles
-from app.services.user_service import add_user, change_user, get_user_by_id, get_user_sessions
+from app.services.user_service import add_user, change_user, get_user_by_id, get_user_sessions, logout_all
 from app.core.utils import error
 
 me_bp = Blueprint("me", __name__)
@@ -85,3 +85,13 @@ def get_sessions():
 
     sessions = get_user_sessions(user_id)
     return jsonify(sessions)
+
+
+@me_bp.delete("/sessions")
+@jwt_required()
+def close_all_sessions():
+    token = get_jwt()
+    user_id = token["sub"]
+
+    logout_all(user_id)
+    return '', HTTPStatus.NO_CONTENT

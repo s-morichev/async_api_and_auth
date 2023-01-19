@@ -53,3 +53,7 @@ def get_user_sessions(user_id: UUID) -> list[dict]:
 
 def get_user_history(user_id: UUID) -> list[dict]:
     return auth_srv.get_user_history(user_id)
+
+
+def logout_all(user_id: UUID):
+    auth_srv.close_all_user_sessions(user_id)

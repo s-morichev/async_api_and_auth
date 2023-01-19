@@ -151,8 +151,11 @@ class Storage(AbstractStorage):
         key = self.info_key(user_id, device_id)
         self.redis.delete(key)
 
-    def get_info(self, user_id: UUID, device_id: str) -> dict:
+    def get_info(self, user_id: UUID, device_id: str) -> dict | None:
         key = self.info_key(user_id, device_id)
         data = self.redis.hgetall(key)
+        if not data:
+            return None
+
         result = {k.decode("utf-8"): v.decode("utf-8") for k, v in data.items()}
         return result
