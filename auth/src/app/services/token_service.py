@@ -1,3 +1,4 @@
+from uuid import UUID
 import json
 from http import HTTPStatus
 
@@ -13,6 +14,18 @@ storage: AbstractStorage
 
 
 # ------------------------------------------------------------------------------ #
+def is_user_active(user: User) -> bool:
+    refresh_devices(user.id)
+    return bool(storage.get_devices(user.id))
+
+
+def update_token_payload(user: User) -> dict:
+    """  создает загрузку токена из User, для унификации"""
+    payload = {"name": user.name, "roles": user.roles_list()}
+    storage.set_payload(str(user.id), json.dumps(payload))
+    return payload
+
+
 def tokenize(refresh_token: str):
     # сохраняем в редис валидный refresh токен с информацией об устройстве, с которого пришел юзер
     token = decode_token(refresh_token)
@@ -28,9 +41,8 @@ def new_tokens(user: User, device_name: str) -> tuple[str, str]:
     device_id = device_id_from_name(device_name)
 
     # создаем или обновляем payload в хранилище
-    payload = {"name": user.name, "roles": user.roles_list()}
+    payload = update_token_payload(user)
 
-    storage.set_payload(str(user.id), json.dumps(payload))
     ext_claims = payload | {"device_id": device_id}
     refresh_token = create_refresh_token(identity=user.id, additional_claims=ext_claims)
     access_token = create_access_token(identity=user.id, additional_claims=ext_claims, fresh=True)
@@ -40,7 +52,7 @@ def new_tokens(user: User, device_name: str) -> tuple[str, str]:
     return access_token, refresh_token
 
 
-def refresh_tokens(user_id: str, device_id: str, old_token_id: str) -> tuple[str, str]:
+def refresh_tokens(user_id: UUID, device_id: str, old_token_id: str) -> tuple[str, str]:
     """Создаем новые токены"""
 
     if not storage.check_token(user_id, device_id, old_token_id):
@@ -59,25 +71,39 @@ def refresh_tokens(user_id: str, device_id: str, old_token_id: str) -> tuple[str
     return access_token, refresh_token
 
 
-def remove_token(user_id: str, device_id: str):
+def remove_token(user_id: UUID, device_id: str):
     """стираем сессию в хранилище"""
     storage.remove_token(user_id, device_id)
     storage.remove_device(user_id, device_id)
 
+    # если устройств не осталось - удаляем payload
+    if not storage.get_devices(user_id):
+        storage.remove_payload(user_id)
 
-def refresh_devices(user_id: str):
-    """убираем устройства для которых отсутствует запись с токеном"""
+
+def refresh_devices(user_id: UUID) -> list[str]:
+    """
+    убираем устройства для которых отсутствует запись с токеном
+    возвращает список удаленных устройств
+
+    """
     devices = storage.get_devices(user_id)
     if not devices:
-        return
+        return []
 
     closed = []
-    for device in devices:
-        if not storage.exist_token(user_id, device):
-            closed += [device]
+
+    for device_id in devices:
+        if not storage.exist_token(user_id, device_id):
+            closed += [device_id]
 
     for device_id in closed:
         storage.remove_device(user_id, device_id)
+    return closed
+
+
+def get_devices(user_id: UUID) -> list[str]:
+    return storage.get_devices(user_id)
 
 
 def is_valid_device(device_name: str, token_payload: dict):
@@ -86,7 +112,7 @@ def is_valid_device(device_name: str, token_payload: dict):
     return device_id == token_payload.get("device_id")
 
 
-def check_token(user_id: str, device_id: str, token_id: str):
+def check_token(user_id: UUID, device_id: str, token_id: str):
     """Проверяем не отозван ли refresh токен"""
     return storage.check_token(user_id, device_id, token_id)
 
@@ -96,26 +122,5 @@ def get_refresh_token_expires() -> int:
     return config.flask_config.JWT_REFRESH_TOKEN_EXPIRES
 
 
-def set_payload(user_id: str, new_payload: dict):
+def set_payload(user_id: UUID, new_payload: dict):
     storage.set_payload(user_id, json.dumps(new_payload))
-
-
-def close_all(user_id: str):
-    """Выходит со всех устройств"""
-    devices = storage.get_devices(user_id)
-    for device_id in devices:
-        remove_token(user_id, device_id)
-    storage.clear_devices(user_id)
-
-
-def get_user_sessions(user_id: str):
-    refresh_devices(user_id)
-    devices = storage.get_devices(user_id)
-    if not devices:
-        return []
-
-    sessions = []
-    for device_id in devices:
-        info = storage.get_info(user_id, device_id)
-        sessions += [info]
-    return sessions

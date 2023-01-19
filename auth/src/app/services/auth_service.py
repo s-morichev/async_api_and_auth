@@ -1,12 +1,12 @@
+from uuid import UUID
 import datetime
 from http import HTTPStatus
 
 from app.core.utils import device_id_from_name
-
 from app.db.database import AbstractDatabase, User
 from app.db.storage import AbstractStorage
 from app.core.utils import error
-
+from app.services.token_service import refresh_devices, get_devices
 # ------------------------------------------------------------------------------ #
 storage: AbstractStorage
 database: AbstractDatabase
@@ -17,23 +17,23 @@ def auth(email: str, password: str) -> User | None:
     """check user auth and return user if OK"""
     user = database.auth_user(email, password)
     if not user:
-        error("Error login/password",  HTTPStatus.UNAUTHORIZED)
+        error("Error login/password", HTTPStatus.UNAUTHORIZED)
 
     return user
 
 
-def add_history(user_id: str, device_name: str, action: str):
+def add_history(user_id: UUID, device_name: str, action: str):
     database.add_user_action(user_id, device_name, action)
 
 
-def get_user_history(user_id: str) -> list[dict]:
+def get_user_history(user_id: UUID) -> list[dict]:
     if database.user_by_id(user_id) is None:
         error("User not found", HTTPStatus.NOT_FOUND)
     actions = database.get_user_actions(user_id)
     return [action.dict() for action in actions]
 
 
-def new_session(user_id: str, device_name: str, remote_ip: str, ttl: int):
+def new_session(user_id: UUID, device_name: str, remote_ip: str, ttl: int):
     login_at = str(datetime.datetime.now())
     data = {"device_name": device_name, "remote_ip": remote_ip, "login_at": login_at}
     device_id = device_id_from_name(device_name)
@@ -41,15 +41,46 @@ def new_session(user_id: str, device_name: str, remote_ip: str, ttl: int):
     add_history(user_id, device_name, "login")
 
 
-def refresh_session(user_id: str, device_name: str, remote_ip: str, ttl: int):
+def refresh_session(user_id: UUID, device_name: str, remote_ip: str, ttl: int):
     data = {"remote_ip": remote_ip}
     device_id = device_id_from_name(device_name)
     storage.set_info(user_id, device_id, data, ttl)
     add_history(user_id, device_name, "update")
 
 
-def close_session(user_id: str, device_name: str, remote_ip: str):
+def close_session(user_id: UUID, device_name: str, remote_ip: str):
     # data = {'remote_ip': remote_ip}
     device_id = device_id_from_name(device_name)
     storage.delete_info(user_id, device_id)
     add_history(user_id, device_name, "logout")
+
+
+def update_sessions(user_id: UUID):
+    """Обновляем информацию о текущих сессиях"""
+    closed_devices = refresh_devices(user_id)
+    for device_id in closed_devices:
+        storage.delete_info(user_id, device_id)
+        add_history(user_id, '', "timeout logout")
+
+
+def get_user_sessions(user_id: UUID) -> list[dict]:
+    """Возвращает список активных сессий пользователя"""
+    update_sessions(user_id)
+
+    devices = get_devices(user_id)
+    if not devices:
+        return []
+
+    sessions = []
+    for device_id in devices:
+        info = storage.get_info(user_id, device_id)
+        sessions += [info]
+    return sessions
+
+
+def close_all_user_sessions(user_id: UUID):
+    """Закрывает все сессии пользователя"""
+    sessions = get_user_sessions(user_id)
+    for session in sessions:
+        close_session(user_id, session['device_name'], session['remote_ip'])
+
