@@ -18,14 +18,10 @@ class RolesList(Resource):
 
     def post(self):
         name = parser.parse_args()["name"]
-        result = None
         if not name:
             error("No role name provided", HTTPStatus.BAD_REQUEST)
-        try:
-            result = role_service.add_role(name)
-        except role_service.RoleError as err:
-            error(str(err), HTTPStatus.CONFLICT)
 
+        result = role_service.add_role(name)
         return result, HTTPStatus.CREATED
 
 
