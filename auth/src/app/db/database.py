@@ -148,6 +148,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def get_role_by_name(self, name: str) -> Role | None:
+        pass
+
+    @abstractmethod
     def delete_role(self, role_id: UUID) -> bool:
         pass
 
@@ -261,6 +265,12 @@ class Database(AbstractDatabase):
 
     def is_role_exists(self, name: str) -> bool:
         return bool(data.Role.find_by_name(name))
+
+    def get_role_by_name(self, name: str) -> Role | None:
+        db_role = data.Role.find_by_name(name)
+        if not db_role:
+            return None
+        return Role.from_db(db_role)
 
     def delete_role(self, role_id: UUID) -> bool:
         if data.Role.find_by_id(role_id) is None:

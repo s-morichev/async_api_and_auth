@@ -34,7 +34,9 @@ def init_cli(app: Flask):
         except AuthServiceError as err:
             click.echo(err.detail)
             return
-        root_role = role_service.add_role(ROOT_ROLE)
+        root_role = role_service.get_role_by_name(ROOT_ROLE)
+        if not root_role:
+            root_role = role_service.add_role(ROOT_ROLE)
         role_service.add_user_role(root_user['id'], root_role['id'])
         click.echo("Superuser created")
 

@@ -23,6 +23,14 @@ def get_all_roles():
     return result
 
 
+def get_role_by_name(name: str) -> dict | None:
+    role = database.get_role_by_name(name)
+    if not role:
+        return None
+
+    return role.dict()
+
+
 def add_role(name: str) -> dict:
     if database.is_role_exists(name):
         error(f"Role name {name} already exists", HTTPStatus.CONFLICT)
