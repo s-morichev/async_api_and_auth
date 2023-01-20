@@ -12,12 +12,12 @@ import utils
 from app import create_app
 from app.flask_db import db
 from app.services import auth_service, role_service
-from config import test_config
+from config import flask_config
 
 
 @pytest.fixture(scope="session")
 def app():
-    app = create_app(test_config)
+    app = create_app(flask_config)
     return app
 
 

@@ -1,11 +1,13 @@
+import os
 import logging.config
-from http.client import HTTPConnection
 
+import backoff
 from elasticsearch import Elasticsearch
 from redis import Redis, RedisError
 
-import backoff
-from settings import settings
+
+REDIS_URI = os.getenv("REDIS_BACKEND_DSN")
+ES_URI = os.getenv("ELK_MOVIES_DSN")
 
 LOGGING = {
     "version": 1,
@@ -48,25 +50,12 @@ def check_redis(redis_client: Redis) -> bool:
         return False
 
 
-@backoff.on_predicate(backoff.expo, logger=logger, max_time=300, on_giveup=fake_send_email, max_value=5)
-def check_backend(backend_conn: HTTPConnection) -> bool:
-    try:
-        backend_conn.connect()
-        return True
-    except ConnectionRefusedError:
-        return False
-
-
 def wait():
-    redis_client = Redis.from_url(settings.REDIS_URI)
+    redis_client = Redis.from_url(REDIS_URI)
     check_redis(redis_client)
 
-    es_client = Elasticsearch(settings.ES_URI)
+    es_client = Elasticsearch(ES_URI)
     check_elasticsearch(es_client)
-
-    cut_off = len("http://")
-    connection = HTTPConnection(settings.BACKEND_URI[cut_off:])
-    check_backend(connection)
 
 
 if __name__ == "__main__":

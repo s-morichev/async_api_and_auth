@@ -30,8 +30,10 @@ new-local-prod: build-all
 	docker compose -f docker-compose.prod.yaml exec auth flask createsuperuser --email superuser --password password
 
 run-test: build-backend
-	docker compose -f ./tests/functional/docker-compose.test.yaml build test
-	docker compose -f ./tests/functional/docker-compose.test.yaml run --rm test
+	docker compose -f docker-compose.test.yaml --env-file .env.test build test_backend
+	docker compose -f docker-compose.test.yaml --env-file .env.test build test_auth
+	docker compose -f docker-compose.test.yaml --env-file .env.test run --rm test_backend
+	docker compose -f docker-compose.test.yaml --env-file .env.test run --rm test_auth
 
 stop-test:
-	docker compose -f ./tests/functional/docker-compose.test.yaml down
+	docker compose -f docker-compose.test.yaml --env-file .env.test down

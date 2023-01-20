@@ -30,12 +30,12 @@ class Config(BaseSettings):
         env_file = ENV_FILE
 
 
-class TestConfig(Config):
-    TESTING: bool = True
-    REDIS_URI: str = Field(..., env="REDIS_AUTH_TEST_DSN")
-    SQLALCHEMY_DATABASE_URI: str = Field(..., env="PG_AUTH_TEST_DSN")
-    JWT_COOKIE_SECURE: bool = False
+# class TestConfig(Config):
+#     TESTING: bool = True
+#     REDIS_URI: str = Field(..., env="REDIS_AUTH_TEST_DSN")
+#     SQLALCHEMY_DATABASE_URI: str = Field(..., env="PG_AUTH_TEST_DSN")
+#     JWT_COOKIE_SECURE: bool = False
 
 
 flask_config = Config()
-test_config = TestConfig()
+# test_config = TestConfig()
