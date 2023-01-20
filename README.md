@@ -23,7 +23,8 @@ https://github.com/RomanBorovskiy/YP_Async_API
 - При необходимости примените миграции, добавьте роли по умолчанию, создайте суперпользователя
   - `docker compose -f docker-compose.prod.yaml exec auth flask db upgrade`
   - `docker compose -f docker-compose.prod.yaml exec auth flask insert-roles`
-  - `docker compose -f docker-compose.prod.yaml exec auth flask createsuperuser --email superuser --password password `
+  - `docker compose -f docker-compose.prod.yaml exec auth flask createsuperuser --email superuser --password password`
+Для оcтановки удаления контейнеров выполните `docker compose -f docker-compose.prod.yaml down -v`
 
 
 ### Запуск тестов
