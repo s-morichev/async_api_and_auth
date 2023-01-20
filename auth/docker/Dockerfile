@@ -71,4 +71,4 @@ RUN groupadd -r app && useradd -d /opt/app -r -g app app \
 USER app
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
-CMD ["gunicorn", "manage:app", "--bind", "0.0.0.0:5000"]
+CMD ["gunicorn", "gevent_app:app", "--bind", "0.0.0.0:5000"]
