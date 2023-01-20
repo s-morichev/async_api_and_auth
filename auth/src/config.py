@@ -4,7 +4,7 @@ from pathlib import Path
 from pydantic import BaseSettings, Field
 
 BASE_DIR = Path(__file__).parent
-ENV_FILE = BASE_DIR.parent / ".env"
+ENV_FILE = BASE_DIR.parent / ".env.local"
 VAR_DIR = BASE_DIR / "var/"
 LOG_DIR = VAR_DIR / "log/"
 LOG_FILE = LOG_DIR / "auth.log"
@@ -26,16 +26,5 @@ class Config(BaseSettings):
     OPENAPI_YAML: str = str(BASE_DIR / "openapi.yaml")
     SWAGGER: dict = SWAGGER_CONFIG
 
-    class Config:
-        env_file = ENV_FILE
 
-
-# class TestConfig(Config):
-#     TESTING: bool = True
-#     REDIS_URI: str = Field(..., env="REDIS_AUTH_TEST_DSN")
-#     SQLALCHEMY_DATABASE_URI: str = Field(..., env="PG_AUTH_TEST_DSN")
-#     JWT_COOKIE_SECURE: bool = False
-
-
-flask_config = Config()
-# test_config = TestConfig()
+flask_config = Config(_env_file=ENV_FILE)

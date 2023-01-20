@@ -3,7 +3,10 @@ from pathlib import Path
 
 import pytest
 
-src_path = Path(__file__).parent.parent / "src/"
+BASE_DIR = Path(__file__).parent.parent
+ENV_TEST = BASE_DIR / ".env.test"
+
+src_path = BASE_DIR / "src/"
 if src_path not in sys.path:
     sys.path.insert(1, str(src_path))
 
@@ -12,12 +15,13 @@ import utils
 from app import create_app
 from app.flask_db import db
 from app.services import auth_service, role_service
-from config import flask_config
-
+from config import Config
 
 @pytest.fixture(scope="session")
 def app():
+    flask_config = Config(_env_file=ENV_TEST)
     app = create_app(flask_config)
+    app.config["TESTING"] = True
     return app
 
 
