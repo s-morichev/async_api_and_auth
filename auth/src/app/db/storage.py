@@ -1,6 +1,6 @@
-from uuid import UUID
 import datetime
 from abc import ABC, abstractmethod
+from uuid import UUID
 
 import redis
 

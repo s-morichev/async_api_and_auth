@@ -1,12 +1,12 @@
-from uuid import UUID
 import datetime
 from http import HTTPStatus
+from uuid import UUID
 
-from app.core.utils import device_id_from_name
+from app.core.utils import device_id_from_name, error
 from app.db.database import AbstractDatabase, User
 from app.db.storage import AbstractStorage
-from app.core.utils import error
-from app.services.token_service import refresh_devices, get_devices, remove_token
+from app.services.token_service import get_devices, refresh_devices, remove_token
+
 # ------------------------------------------------------------------------------ #
 storage: AbstractStorage
 database: AbstractDatabase
@@ -61,7 +61,7 @@ def update_sessions(user_id: UUID):
     closed_devices = refresh_devices(user_id)
     for device_id in closed_devices:
         storage.delete_info(user_id, device_id)
-        add_history(user_id, '', "timeout logout")
+        add_history(user_id, "", "timeout logout")
 
 
 def get_user_sessions(user_id: UUID) -> list[dict]:
@@ -83,5 +83,4 @@ def close_all_user_sessions(user_id: UUID):
     """Закрывает все сессии пользователя"""
     sessions = get_user_sessions(user_id)
     for session in sessions:
-        close_session(user_id, session['device_name'], session['remote_ip'])
-
+        close_session(user_id, session["device_name"], session["remote_ip"])

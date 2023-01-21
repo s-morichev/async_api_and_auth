@@ -1,12 +1,14 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
-from uuid import UUID
 from http import HTTPStatus
+from uuid import UUID
+
 from pydantic import BaseModel
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import app.models.db_models as data
 from app.core.utils import error
+
 # ------------------------------------------------------------------------------ #
 UserID = UUID
 

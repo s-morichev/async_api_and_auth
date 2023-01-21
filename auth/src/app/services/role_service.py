@@ -1,8 +1,8 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from app.db.database import AbstractDatabase, Role
 from app.core.utils import error
+from app.db.database import AbstractDatabase, Role
 
 database: AbstractDatabase
 

@@ -3,8 +3,7 @@ from http import HTTPStatus
 from flask import Blueprint
 from flask_restful import Api, Resource, reqparse
 
-from app.core.utils import jwt_accept_roles, validate_uuids
-from app.core.utils import error
+from app.core.utils import error, jwt_accept_roles, validate_uuids
 from app.services import role_service
 
 parser = reqparse.RequestParser()

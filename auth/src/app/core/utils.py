@@ -6,8 +6,8 @@ from uuid import UUID
 from flask_jwt_extended import get_jwt, jwt_required
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
-from app.core.exceptions import AuthServiceError
 from app.core import constants
+from app.core.exceptions import AuthServiceError
 
 
 def device_id_from_name(device_name: str):

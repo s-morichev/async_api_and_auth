@@ -1,7 +1,8 @@
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
+
 import pytest
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).parent.parent
 ENV_TEST = BASE_DIR / ".env.test.local"
@@ -11,11 +12,11 @@ if src_path not in sys.path:
     sys.path.insert(1, str(src_path))
 
 import utils
-
 from app import create_app
 from app.flask_db import db
 from app.services import auth_service, role_service
 from config import Config
+
 
 @pytest.fixture(scope="session")
 def app():

@@ -1,10 +1,10 @@
-import os
 import logging.config
+import os
 
-from psycopg2 import connect, OperationalError
-from redis import Redis, RedisError
+from psycopg2 import OperationalError, connect
 
 import backoff
+from redis import Redis, RedisError
 
 PG_URI = os.getenv("PG_AUTH_DSN")
 REDIS_URI = os.getenv("REDIS_AUTH_DSN")
@@ -42,7 +42,7 @@ def check_postgres(pg_uri: str) -> bool:
     try:
         with connect(pg_uri) as pg_conn:
             with pg_conn.cursor() as cursor:
-                cursor.execute('SELECT 1')
+                cursor.execute("SELECT 1")
                 return True
     except OperationalError:
         return False
