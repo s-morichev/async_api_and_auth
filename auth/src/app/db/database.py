@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from uuid import UUID
-
+from http import HTTPStatus
 from pydantic import BaseModel
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import app.models.db_models as data
-
+from app.core.utils import error
 # ------------------------------------------------------------------------------ #
 UserID = UUID
 
@@ -209,7 +209,7 @@ class Database(AbstractDatabase):
             return User.from_db(db_user)
 
         if self.is_user_exists(new_login):
-            raise UserChangeError("user with this login already exists")
+            error("user with this login already exists", HTTPStatus.CONFLICT)
 
         db_user.email = new_login
         data.db.session.add(db_user)
