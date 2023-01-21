@@ -14,22 +14,21 @@
 
 ### Локальный запуск
 
+!! Flask по умолчанию загружает переменные окружения из .env файла, поэтому нужно удалить/переименовать
+.env файл в корневой папке проекта, иначе Flask загрузит неправильные переменные
+
 - Перейти в папку auth `cd ./auth`
 - Переименовать env.local.example в .env.local `cp .env.local.example .env.local`
-- Зпустить контейнеры при необходимости
-  - постгрес без volume `docker run --env-file .env --name postgres_auth -p 5432:5432 -d postgres:15.1-alpine`
-  - редис без volume `docker run --name redis_auth -p 6379:6379 -d redis:7.0.5-alpine`
-- перейти в папку src `cd ./src`
-  
-- инициализация БД:  `make init` - !!!!! НЕ РАБОТАЕТ !!!!!
-- запуск: `make run`
+- Запустить контейнеры postgres и redis при необходимости `make run-db`
+- Применить миграции `make upgrade` (если миграций нет - то создать и применить `make init`)
+- Запустить сервис `make run`
+- По завершении работы удалить контейнеры `make stop-db` (контейнеры без volume - все данные удалятся)
 
+Для создания новой миграции `make migrate msg='migration description here`
 
 ### Тесты
 
-Локальный запуск тестов
-Контейнеры (номер порта на 20000 больше, чтобы не было конфликта с не тестовыми контейнерами)
-- `docker run --env POSTGRES_USER=app --env POSTGRES_PASSWORD=123qwe --env POSTGRES_DB=test_users_database --name postgres_auth_test -p 25432:5432 -d postgres:15.1-alpine`
-- `docker run --name redis_auth_test -p 26379:6379 -d redis:7.0.5-alpine`
-
-Выполнение тестов `pytest auth` из корневой папки
+- Переименовать env.test.example в .env.test `cp .env.test.example .env.test`
+- Запустить контейнеры для тестов `make run-test-db`
+- Запустить тесты `make test`
+- По завершении тестирования удалить контейнеры `make stop-test-db`
