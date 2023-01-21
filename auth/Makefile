@@ -7,18 +7,18 @@ stop-db:
 	docker rm --force redis_auth
 
 init:
-	sh -c "export FLASK_APP='./src/manage.py' && flask db init --directory src/migrations && flask db migrate --directory src/migrations && flask db upgrade --directory src/migrations"
+	sh -c "export FLASK_SKIP_DOTENV=1 && export FLASK_APP='./src/manage.py' && flask db init --directory src/migrations && flask db migrate --directory src/migrations && flask db upgrade --directory src/migrations"
 
 upgrade:
-	sh -c "export FLASK_APP='./src/manage.py' && flask db upgrade --directory src/migrations"
+	sh -c "export FLASK_SKIP_DOTENV=1 && export FLASK_APP='./src/manage.py' && flask db upgrade --directory src/migrations"
 
 migrate:
-	sh -c "export FLASK_APP='./src/manage.py' && flask db migrate --directory src/migrations -m '${msg}'"
+	sh -c "export FLASK_SKIP_DOTENV=1 && export FLASK_APP='./src/manage.py' && flask db migrate --directory src/migrations -m '${msg}'"
 
 run:
-	python3 ./src/manage.py
+	sh -c "export FLASK_SKIP_DOTENV=1 && python3 ./src/manage.py"
 
-run test-db:
+run-test-db:
 	docker run --env POSTGRES_USER=app --env POSTGRES_PASSWORD=123qwe --env POSTGRES_DB=users_database_test --name postgres_auth_test -p 45432:5432 -d postgres:15.1-alpine
 	docker run --name redis_auth_test -p 46379:6379 -d redis:7.0.5-alpine
 
