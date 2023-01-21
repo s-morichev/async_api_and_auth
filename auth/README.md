@@ -14,8 +14,8 @@
 - Перейти в папку auth `cd ./auth`
 - Переименовать env.local.example в .env.local `cp .env.local.example .env.local`
 - Зпустить контейнеры при необходимости
-  - постгрес без volume `docker run --env-file .env --name postgres_auth -p 5432:5432 -d postgres:15.1-alpine`
-  - редис без volume `docker run --name redis_auth -p 6379:6379 -d redis:7.0.5-alpine`
+  - постгрес без volume `docker run --env-file .env.local --name postgres_auth -p 25432:5432 -d postgres:15.1-alpine`
+  - редис без volume `docker run --name redis_auth -p 26379:6379 -d redis:7.0.5-alpine`
 - перейти в папку src `cd ./src`
 - экспортировать `export FLASK_APP='manage.py'` для более удобного запуска консольных команд
 - создать и применить миграции `flask db init` `flask db migrate` `flask db upgrade`
