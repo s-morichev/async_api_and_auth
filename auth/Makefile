@@ -23,7 +23,7 @@ run-test-db:
 	docker run --name redis_auth_test -p 46379:6379 -d redis:7.0.5-alpine
 
 test:
-	pytest ./tests
+	pytest --envfile .env.test ./tests
 
 stop-test-db:
 	docker rm --force postgres_auth_test
