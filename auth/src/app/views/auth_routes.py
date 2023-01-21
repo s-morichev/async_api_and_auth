@@ -3,8 +3,8 @@ from http import HTTPStatus
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt, jwt_required, set_refresh_cookies, unset_jwt_cookies
 
-from app.services import auth_service, token_service
 from app.core.utils import error
+from app.services import auth_service, token_service
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -52,7 +52,7 @@ def logout():
     token_service.remove_token(user_id, device_id)
     auth_service.close_session(user_id, device_name, remote_ip)
 
-    response = jsonify({'msg': 'logout'})
+    response = jsonify({"msg": "logout"})
     unset_jwt_cookies(response)
 
     return response

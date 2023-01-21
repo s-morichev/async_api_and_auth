@@ -1,11 +1,9 @@
 from http import HTTPStatus
 from uuid import UUID
 
-import app.services.token_service as token_srv
 import app.services.auth_service as auth_srv
-from app.db.database import AbstractDatabase, User
 from app.core.utils import error
-
+from app.db.database import AbstractDatabase, User
 
 database: AbstractDatabase
 

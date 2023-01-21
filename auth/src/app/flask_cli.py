@@ -3,10 +3,10 @@ import getpass
 import click
 from flask import Flask
 
-from app.db import database
-from app.services import user_service, role_service
-from app.core.exceptions import AuthServiceError
 from app.core.constants import ROOT_ROLE
+from app.core.exceptions import AuthServiceError
+from app.db import database
+from app.services import role_service, user_service
 
 STANDARD_ROLES = "admin", "subscriber", "user"
 
@@ -37,7 +37,7 @@ def init_cli(app: Flask):
         root_role = role_service.get_role_by_name(ROOT_ROLE)
         if not root_role:
             root_role = role_service.add_role(ROOT_ROLE)
-        role_service.add_user_role(root_user['id'], root_role['id'])
+        role_service.add_user_role(root_user["id"], root_role["id"])
         click.echo("Superuser created")
 
     @app.cli.command("insert-roles")

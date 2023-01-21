@@ -3,10 +3,10 @@ from http import HTTPStatus
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt, jwt_required
 
+from app.core.utils import error
 from app.services import auth_service
 from app.services.role_service import get_user_roles
 from app.services.user_service import add_user, change_user, get_user_by_id, get_user_sessions, logout_all
-from app.core.utils import error
 
 me_bp = Blueprint("me", __name__)
 
@@ -94,4 +94,4 @@ def close_all_sessions():
     user_id = token["sub"]
 
     logout_all(user_id)
-    return '', HTTPStatus.NO_CONTENT
+    return "", HTTPStatus.NO_CONTENT

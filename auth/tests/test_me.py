@@ -4,7 +4,7 @@ import pytest
 
 
 def test_get_user_me(client, example_user_id, auth_as_user):
-    response = client.get(f"/auth/users/me/", headers=auth_as_user)
+    response = client.get("/auth/users/me/", headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
     assert response.json.get("login") == "example"
     assert response.json.get("name") == "example"
@@ -13,12 +13,12 @@ def test_get_user_me(client, example_user_id, auth_as_user):
 @pytest.mark.parametrize(
     "headers, status_code",
     [
-        ({"Authorization": f"Bearer invalid_token"}, HTTPStatus.UNPROCESSABLE_ENTITY),
-        ({"No-auth": f"Bearer invalid_token"}, HTTPStatus.UNAUTHORIZED),
+        ({"Authorization": "Bearer invalid_token"}, HTTPStatus.UNPROCESSABLE_ENTITY),
+        ({"No-auth": "Bearer invalid_token"}, HTTPStatus.UNAUTHORIZED),
     ],
 )
 def test_get_user_me_errors(headers, status_code, client):
-    response = client.get(f"/auth/users/me/", headers=headers)
+    response = client.get("/auth/users/me/", headers=headers)
     assert response.status_code == status_code
 
 
@@ -67,10 +67,10 @@ def test_add_user_me_authenticated(client, auth_as_user):
     ],
 )
 def test_patch_user_me(query, result, client, example_user_id, auth_as_user):
-    response = client.patch(f"/auth/users/me/", json=query, headers=auth_as_user)
+    response = client.patch("/auth/users/me/", json=query, headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
 
-    response = client.get(f"/auth/users/me/", headers=auth_as_user)
+    response = client.get("/auth/users/me/", headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
     assert response.json.get("name") == result["name"]
 
@@ -83,7 +83,7 @@ def test_get_user_me_history(client, example_user_id, auth_as_user):
     client.post("/auth/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_1"})
     client.post("/auth/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_2"})
 
-    response = client.get(f"/auth/users/me/history", headers=auth_as_user)
+    response = client.get("/auth/users/me/history", headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
     assert len(response.json) == 3
     for i, device in enumerate(("device_1", "device_1", "device_2")):
@@ -99,7 +99,7 @@ def test_get_user_me_sessions(client, example_user_id, auth_as_user):
     )
     access_token = response.json.get("access_token")
 
-    response = client.get(f"/auth/users/me/sessions", headers=auth_as_user)
+    response = client.get("/auth/users/me/sessions", headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
     assert len(response.json) == 2
     assert set(session["device_name"] for session in response.json) == {"device_1", "device_2"}
@@ -107,7 +107,7 @@ def test_get_user_me_sessions(client, example_user_id, auth_as_user):
     # разлогиниваемся со второго устройства
     client.post("/auth/logout", headers={"Authorization": "Bearer " + access_token})
 
-    response = client.get(f"/auth/users/me/sessions", headers=auth_as_user)
+    response = client.get("/auth/users/me/sessions", headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
     assert len(response.json) == 1
     assert set(session["device_name"] for session in response.json) == {"device_1"}
@@ -120,7 +120,7 @@ def test_delete_user_me_sessions(client, example_user_id, auth_as_user):
     )
     access_token = response.json.get("access_token")
 
-    response = client.get(f"/auth/users/me/sessions", headers=auth_as_user)
+    response = client.get("/auth/users/me/sessions", headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
     assert len(response.json) == 2
     assert set(session["device_name"] for session in response.json) == {"device_1", "device_2"}
@@ -128,6 +128,6 @@ def test_delete_user_me_sessions(client, example_user_id, auth_as_user):
     # удаляем все сессии
     client.delete("/auth/users/me/sessions", headers={"Authorization": "Bearer " + access_token})
 
-    response = client.get(f"/auth/users/me/sessions", headers=auth_as_user)
+    response = client.get("/auth/users/me/sessions", headers=auth_as_user)
     assert response.status_code == HTTPStatus.OK
     assert len(response.json) == 0

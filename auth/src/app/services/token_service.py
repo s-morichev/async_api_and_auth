@@ -1,15 +1,13 @@
-from uuid import UUID
 import json
 from http import HTTPStatus
+from uuid import UUID
 
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
 
 import config
-from app.core.utils import device_id_from_name
-from app.db.database import User
+from app.core.utils import device_id_from_name, error
+from app.db.database import AbstractDatabase, User
 from app.db.storage import AbstractStorage
-from app.db.database import  AbstractDatabase
-from app.core.utils import error
 
 storage: AbstractStorage
 database: AbstractDatabase
@@ -22,8 +20,8 @@ def is_user_active(user_id: UUID) -> bool:
 
 
 def set_token_payload(user: User, only_active: bool = False) -> dict | None:
-    """  создает загрузку токена из User, для унификации
-        если only_active - то предварительно проверяет что пользователь активен
+    """создает загрузку токена из User, для унификации
+    если only_active - то предварительно проверяет что пользователь активен
     """
     if only_active and not is_user_active(user):
         return None
