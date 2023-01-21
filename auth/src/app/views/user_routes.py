@@ -46,11 +46,9 @@ class Users(Resource):
         """
         validate_uuids(user_id)
         name = parser.parse_args()["name"]
-        email = parser.parse_args()["email"]
         password = parser.parse_args()["password"]
 
-        user = user_service.change_user(user_id, email, password, name)
-
+        user = user_service.change_user(user_id, password, name)
 
         return user
 

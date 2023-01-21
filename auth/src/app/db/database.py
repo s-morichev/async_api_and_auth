@@ -120,6 +120,10 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
+    def change_user(self, user_id: UserID, new_name: str, new_password: str) -> User:
+        pass
+
+    @abstractmethod
     def is_user_exists(self, login: str) -> bool:
         pass
 
@@ -224,6 +228,22 @@ class Database(AbstractDatabase):
     def change_user_name(self, user_id: UserID, new_name: str) -> User:
         db_user = data.User.find_by_id(user_id)
         db_user.username = new_name
+        data.db.session.add(db_user)
+        data.db.session.commit()
+        return User.from_db(db_user)
+
+    def change_user(self, user_id: UserID, new_name: str | None, new_password: str | None) -> User:
+        db_user = data.User.find_by_id(user_id)
+        if not new_name and not new_password:
+            return User.from_db(db_user)
+
+        if new_name:
+            db_user.username = new_name
+
+        if new_password:
+            hash_password = generate_password_hash(new_password)
+            db_user.password_hash = hash_password
+
         data.db.session.add(db_user)
         data.db.session.commit()
         return User.from_db(db_user)

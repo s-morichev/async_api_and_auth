@@ -52,7 +52,7 @@ def change_info():
 
     password = request.json.get("password", None)
     name = request.json.get("name", None)
-    user = change_user(user_id, None, password, name)
+    user = change_user(user_id, password, name)
 
     return jsonify(user)
 
