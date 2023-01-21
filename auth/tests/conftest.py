@@ -1,10 +1,10 @@
 import sys
 from pathlib import Path
-
+from dotenv import load_dotenv
 import pytest
 
 BASE_DIR = Path(__file__).parent.parent
-ENV_TEST = BASE_DIR / ".env.test"
+ENV_TEST = BASE_DIR / ".env.test.local"
 
 src_path = BASE_DIR / "src/"
 if src_path not in sys.path:
@@ -19,7 +19,13 @@ from config import Config
 
 @pytest.fixture(scope="session")
 def app():
-    flask_config = Config(_env_file=ENV_TEST)
+    # pytest видимо сам прогружает .env где найдет, а находит в корне...
+    # приходится жестко перегружать
+    # a в pydantic BaseSettings приоритет переменных окружения перед env файлом
+    # в контейнере файла ENV_TEST не будет, ,будут использованы переменные окружения
+    load_dotenv(ENV_TEST, override=True)
+    flask_config = Config()
+
     app = create_app(flask_config)
     app.config["TESTING"] = True
     return app

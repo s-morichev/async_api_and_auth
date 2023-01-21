@@ -1,10 +1,14 @@
-### Структура src
+### Структура /src
 
 - /app - непосредственно приложение
-  - __init__.py - application factory
+  - \_\_init__.py - application factory
   - /models - модели
   - /services - бизнес-логика
-  - /views - ендпойнты, наверно лучше перенести их в api/v1, по крайней мере круды по ролям
+  - /views - ендпойнты
+  - /db - модули с абстракциями для базы данных и редис
+  - /core - общие модули
+  - /docs - информация по сервису
+  
 - /migrations - миграции alembic
 - config.py - конфигурация Flask
 - manage.py - создание экземпляра приложения, консольные команды
@@ -13,27 +17,20 @@
 
 - Перейти в папку auth `cd ./auth`
 - Переименовать env.local.example в .env.local `cp .env.local.example .env.local`
-- Зпустить контейнеры при необходимости
-  - постгрес без volume `docker run --env-file .env.local --name postgres_auth -p 25432:5432 -d postgres:15.1-alpine`
-  - редис без volume `docker run --name redis_auth -p 26379:6379 -d redis:7.0.5-alpine`
-- перейти в папку src `cd ./src`
-- экспортировать `export FLASK_APP='manage.py'` для более удобного запуска консольных команд
-- создать и применить миграции `flask db init` `flask db migrate` `flask db upgrade`
-- создать роли и несколько юзеров для примера `flask insert-roles` `flask insert-users`
-- запустить manage.py
+- Запустить контейнеры postgres и redis при необходимости `make run-db`
+- Применить миграции `make upgrade` (если миграций нет - то создать и применить `make init`)
+- Запустить сервис `make run`
+- По завершении работы удалить контейнеры `make stop-db` (контейнеры без volume - все данные удалятся)
 
-### Ручные проверки пост-запросов
-
-- http :5000/auth/register email=example password=password
-- http :5000/auth/login email=example1 password=password
-- http :5000/auth/me Authorization:"Bearer $ACCESS_TOKEN"
-- http :5000/auth/refresh Authorization:"Bearer $REFRESH_TOKEN"
+Для создания новой миграции `make migrate msg='migration description here`
 
 ### Тесты
 
-Локальный запуск тестов
-Контейнеры (номер порта на 20000 больше, чтобы не было конфликта с не тестовыми контейнерами)
-- `docker run --env POSTGRES_USER=app --env POSTGRES_PASSWORD=123qwe --env POSTGRES_DB=test_users_database --name postgres_auth_test -p 25432:5432 -d postgres:15.1-alpine`
-- `docker run --name redis_auth_test -p 26379:6379 -d redis:7.0.5-alpine`
+- Переименовать env.test.example в .env.test `cp .env.test.local.example .env.test.local`
+- Запустить контейнеры для тестов `make run-test-db`
+- Запустить тесты `make test`
+- По завершении тестирования удалить контейнеры `make stop-test-db`
 
-Выполнение тестов `pytest auth` из корневой папки
+### Использование
+Описание API (Swagger) можно получить по адресу (при запущенном сервисе локально) http://localhost:5000/auth/openapi/  
+Файл описания API находится в /docs/openapi.yaml
