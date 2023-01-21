@@ -11,14 +11,29 @@
 
 ### Локальный запуск
 
-Переименовать env.example в .env Запустить src/manage.py
-
-### Миграции
-- Перейти в папку src `cd ./auth/src`
-- Запуск контейнера постгрес без volume `docker run --env-file .env --name postgres_auth -p 5432:5432 -d postgres:15.1-alpine`
-- Выполнить `flask db init` `flask db migrate` `flask db upgrade`
+- Перейти в папку auth `cd ./auth`
+- Переименовать env.local.example в .env.local `cp .env.local.example .env.local`
+- Зпустить контейнеры при необходимости
+  - постгрес без volume `docker run --env-file .env --name postgres_auth -p 5432:5432 -d postgres:15.1-alpine`
+  - редис без volume `docker run --name redis_auth -p 6379:6379 -d redis:7.0.5-alpine`
+- перейти в папку src `cd ./src`
+- экспортировать `export FLASK_APP='manage.py'` для более удобного запуска консольных команд
+- создать и применить миграции `flask db init` `flask db migrate` `flask db upgrade`
+- создать роли и несколько юзеров для примера `flask insert-roles` `flask insert-users`
+- запустить manage.py
 
 ### Ручные проверки пост-запросов
 
-- curl -X POST http://127.0.0.1:5000/auth/login -H "Content-Type: application/json" -d '{"email": "example", "password": "password"}'
-- curl -X POST http://127.0.0.1:5000/auth/login -H "Content-Type: application/x-www-form-urlencoded" -d "email=example1&password=password"
+- http :5000/auth/register email=example password=password
+- http :5000/auth/login email=example1 password=password
+- http :5000/auth/me Authorization:"Bearer $ACCESS_TOKEN"
+- http :5000/auth/refresh Authorization:"Bearer $REFRESH_TOKEN"
+
+### Тесты
+
+Локальный запуск тестов
+Контейнеры (номер порта на 20000 больше, чтобы не было конфликта с не тестовыми контейнерами)
+- `docker run --env POSTGRES_USER=app --env POSTGRES_PASSWORD=123qwe --env POSTGRES_DB=test_users_database --name postgres_auth_test -p 25432:5432 -d postgres:15.1-alpine`
+- `docker run --name redis_auth_test -p 26379:6379 -d redis:7.0.5-alpine`
+
+Выполнение тестов `pytest auth` из корневой папки

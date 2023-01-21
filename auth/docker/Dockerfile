@@ -42,8 +42,8 @@ WORKDIR /opt/app
 COPY requirements.dev.txt .
 RUN pip install -r requirements.dev.txt
 
-COPY ./docker/entrypoint.sh ./docker/wait-for /opt/
-RUN chmod +x /opt/entrypoint.sh /opt/wait-for
+COPY ./docker/entrypoint.sh ./docker/wait_for_services.py /opt/
+RUN chmod +x /opt/entrypoint.sh
 
 WORKDIR /opt/app
 COPY ./src .
@@ -58,8 +58,8 @@ FROM python-base as production
 COPY --from=builder-base /opt/venv/ /opt/venv/
 ENV PATH="/opt/venv/bin:${PATH}"
 
-COPY ./docker/entrypoint.sh ./docker/wait-for /opt/
-RUN chmod +x /opt/entrypoint.sh /opt/wait-for
+COPY ./docker/entrypoint.sh ./docker/wait_for_services.py /opt/
+RUN chmod +x /opt/entrypoint.sh
 
 RUN mkdir -p /opt/app/var/log
 
@@ -71,4 +71,4 @@ RUN groupadd -r app && useradd -d /opt/app -r -g app app \
 USER app
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
-CMD ["gunicorn", "app:create_app()", "--bind", "0.0.0.0:5000"]
+CMD ["gunicorn", "gevent_app:app", "--bind", "0.0.0.0:5000"]

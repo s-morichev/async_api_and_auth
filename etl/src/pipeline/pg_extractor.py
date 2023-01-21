@@ -17,6 +17,8 @@ from core.constants import (
     GENRES_UPDATE_KEY,
     PERSON_SQL,
     PERSONS_UPDATE_KEY,
+    MARK_SQL,
+    MARKS_UPDATE_KEY,
 )
 from pipeline.data_classes import PGData
 from pipeline.etl_pipeline import ETLData, ETLPipelineError, Extractor
@@ -153,12 +155,27 @@ class GenresExtractorWorker(BaseExtractorWorker):
         super()._mark_state_no_data(connection, sql)
 
 
+class MarksExtractorWorker(BaseExtractorWorker):
+    STATE_KEY = MARKS_UPDATE_KEY
+    NAME = "MARK 2M2 Extractor"
+
+    def _get_sql_string(self):
+        m_date = self._get_state_date()
+        fw_date = self._get_state_date(FW_UPDATE_KEY)
+        return MARK_SQL.format(m_date, fw_date)
+
+    def _mark_state_no_data(self, connection: PGConnection, sql: str = ""):
+        sql = "Select m.id, m.modified from content.mark m order by m.modified desc, m.id desc limit 1;"
+        super()._mark_state_no_data(connection, sql)
+
+
 class FWExtractor(Extractor):
     def __init__(self, dsn: str, batch_size: int = 100):
         self.dsn: str = dsn
         self.batch_size: int = batch_size
         self.connection: PGConnection | None = None
-        self.workers = [PersonsExtractorWorker(), GenresExtractorWorker(), FWExtractorWorker()]
+        # Workers - собирают записи которые надо будет записать в базу
+        self.workers = [PersonsExtractorWorker(), GenresExtractorWorker(), MarksExtractorWorker(), FWExtractorWorker()]
 
     def _get_connection(self) -> PGConnection:
         if self.connection and not self.connection.closed:

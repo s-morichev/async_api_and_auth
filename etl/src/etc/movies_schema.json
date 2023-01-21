@@ -57,6 +57,9 @@
       "genre": {
         "type": "keyword"
       },
+      "mark": {
+        "type": "keyword"
+      },
       "genres": {
         "type": "nested",
         "dynamic": "strict",

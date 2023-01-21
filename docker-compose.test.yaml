@@ -1,0 +1,70 @@
+services:
+  backend:
+    image: "backend"
+    container_name: backend_api_test
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.test
+    depends_on:
+      - elasticsearch_movies
+      - redis_backend
+
+  test_backend:
+    build:
+      context: ./tests/functional
+      dockerfile: ./docker/Dockerfile
+    container_name: test_backend
+    env_file:
+      - .env.test
+    depends_on:
+      - backend
+
+  test_auth:
+    build:
+      context: ./auth
+      dockerfile: ./docker/Dockerfile_tests
+    container_name: test_auth
+    env_file:
+      - .env.test
+    depends_on:
+      - redis_auth
+      - postgres_auth
+
+  redis_backend:
+    image: redis:7.0.5
+    container_name: redis_backend_test
+    command: redis-server --requirepass ${REDIS_BACKEND_PASSWORD} --maxmemory 100mb --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_BACKEND_PORT}:6379"
+
+  redis_auth:
+    image: redis:7.0.5
+    container_name: redis_auth_test
+    command: redis-server --requirepass ${REDIS_AUTH_PASSWORD}
+    ports:
+      - "${REDIS_AUTH_PORT}:6379"
+
+  elasticsearch_movies:
+    image: elasticsearch:8.5.1
+    container_name: elasticsearch_backend_test
+    ports:
+      - "${ELK_MOVIES_PORT}:9200"
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  postgres_auth:
+    image: postgres:15.1-alpine
+    container_name: postgres_auth_test
+    ports:
+      - "${PG_AUTH_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${PG_AUTH_USER}
+      - POSTGRES_PASSWORD=${PG_AUTH_PASSWORD}
+      - POSTGRES_DB=${PG_AUTH_DB_NAME}

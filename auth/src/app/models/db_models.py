@@ -1,50 +1,44 @@
-import enum
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import backref, relationship
 
-from app import db
+from app.flask_db import db
 
 
 def now_with_tz_info():
     return datetime.now(tz=timezone.utc)
 
 
-@enum.unique
-class Permissions(enum.Enum):
-    # TODO добавить разрешения при необходимости
-    VIEW_FREE_FILMS = (1,)
-    VIEW_PAID_FILMS = (2,)
-    COMMENT = 3
-    # CRUD_FILMS = 4,
-    # CRUD_USERS = 5,
-    # CRUD_ROLES = 6,
-
-
-class Permission(db.Model):
-    # все разрешения должны автоматически записываться в базу, если их там нет
-    __tablename__ = "permissions"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    name = Column(Enum(Permissions), unique=True, nullable=False)
-
-
 class Role(db.Model):
-    # root, anonymous, registered, paid
+    # root, admin, subscriber, user, reviewer, etc
     __tablename__ = "roles"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
+
+    def __repr__(self):
+        return self.name
+
+    @classmethod
+    def find_by_name(cls, name):
+        query = cls.query.filter_by(name=name).first()
+        return query
+
+    @classmethod
+    def find_by_id(cls, role_id):
+        query = cls.query.filter_by(id=role_id).first()
+        return query
 
 
-class RolePermissions(db.Model):
-    __tablename__ = "role_permissions"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    role_id = Column(UUID(as_uuid=True), ForeignKey("roles.id"))
-    permission_id = Column(UUID(as_uuid=True), ForeignKey("permissions.id"))
+user_roles = db.Table(
+    "user_roles",
+    Column("id", UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False),
+    Column("role_id", UUID(as_uuid=True), ForeignKey("roles.id", ondelete="CASCADE")),
+    Column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE")),
+)
 
 
 class User(db.Model):
@@ -53,49 +47,55 @@ class User(db.Model):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
-    username = Column(String, unique=True, nullable=False)
+    username = Column(String)
     registered_on = Column(DateTime(timezone=True), default=now_with_tz_info, nullable=False)
     # subscribe_expiration
-    role_id = Column(UUID(as_uuid=True), ForeignKey("roles.id"))
+    is_confirmed = Column(Boolean, default=False)
+    is_root = Column(Boolean, default=False)
+    roles = relationship("Role", secondary=user_roles, lazy="subquery", backref=backref("roles", lazy=True))
+
+    @classmethod
+    def find_by_email(cls, email):
+        query = cls.query.filter_by(email=email).first()
+        return query
+
+    @classmethod
+    def find_by_id(cls, user_id):
+        query = cls.query.filter_by(id=user_id).first()
+        return query
 
 
-class Device(db.Model):
-    # TODO как идентифицировать, UserAgent, fingerprint?
-    __tablename__ = "devices"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    # user_agent
-    usable = Column(Boolean, nullable=False)
-
-
-class UserDevices(db.Model):
-    __tablename__ = "user_devices"
+class UserAction(db.Model):
+    __tablename__ = "user_actions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    device_id = Column(UUID(as_uuid=True), ForeignKey("devices.id"))
+    device_name = Column(String)
+    action_type = Column(String)
+    action_time = Column(DateTime(timezone=True), default=now_with_tz_info)
+
+    @classmethod
+    def by_user_id(cls, user_id):
+        query = cls.query.filter_by(user_id=user_id)
+        return query
 
 
-class ActionLog(db.Model):
-    __tablename__ = "action_logs"
-
+# !!!! its for future usage
+class UserSession(db.Model):
+    __tablename__ = "user_sessions"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    action_time = Column(DateTime(timezone=True), nullable=False)
-    user_device_id = Column(UUID(as_uuid=True), ForeignKey("user_devices.id"))
-    action_id = Column(UUID(as_uuid=True), ForeignKey("actions.id"))
-
-
-class Action(db.Model):
-    __tablename__ = "actions"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    name = Column(String, nullable=False)
-
-
-class RefreshToken(db.Model):
-    __tablename__ = "refresh_tokens"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    token = Column(String, nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    # user_device?
+    device_id = Column(String)  # hash sha256
+    device_name = Column(String)  # user_agent or another device name
+    remote_ip = Column(String)  # client ip
+    login_at = Column(DateTime(timezone=True), default=now_with_tz_info)  # first sign
+    active_at = Column(DateTime(timezone=True), default=now_with_tz_info)  # every refresh updated
+    logout_at = Column(DateTime(timezone=True), default=None)  # when logout
+    # life time of refresh token, active_at+JWT_REFRESH_TOKEN_EXPIRES
+    active_till = Column(DateTime(timezone=True), default=None)
+
+    @classmethod
+    def by_user_id(cls, user_id, active=True):
+        # TODO return active sessions
+        query = cls.query.filter_by(user_id=user_id)
+        return query

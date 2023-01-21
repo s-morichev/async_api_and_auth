@@ -43,7 +43,7 @@ services:
     container_name: postgres_movies
     volumes:
       - postgres_movies_data:/var/lib/postgresql/data/
-      - ./docker/postgres/dump.gz:/docker-entrypoint-initdb.d/dump.sql.gz
+      - ./docker/postgres/dump_with_marks.gz:/docker-entrypoint-initdb.d/dump.sql.gz
     environment:
       - POSTGRES_USER=${PG_MOVIES_USER}
       - POSTGRES_PASSWORD=${PG_MOVIES_PASSWORD}
