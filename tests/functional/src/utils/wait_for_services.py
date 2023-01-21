@@ -65,7 +65,7 @@ def wait():
     check_elasticsearch(es_client)
 
     cut_off = len("http://")
-    connection = HTTPConnection(settings.API_URI[cut_off:])
+    connection = HTTPConnection(settings.BACKEND_URI[cut_off:])
     check_backend(connection)
 
 

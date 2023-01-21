@@ -2,6 +2,6 @@
 set -e
 
 echo "Waiting for PostgresSQL and Elasticsearch"
-/opt/wait-for postgres:5432 http://elasticsearch:9200  --timeout=0 -- echo "PostgresSQL and Elasticsearch is up"
+python3 /opt/wait_for_services.py
 
 exec "$@"

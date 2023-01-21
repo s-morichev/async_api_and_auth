@@ -42,8 +42,8 @@ WORKDIR /opt/app
 COPY requirements.dev.txt .
 RUN pip install -r requirements.dev.txt
 
-COPY ./docker/entrypoint.sh ./docker/wait-for /opt/
-RUN chmod +x /opt/entrypoint.sh /opt/wait-for
+COPY ./docker/entrypoint.sh ./docker/wait_for_services.py /opt/
+RUN chmod +x /opt/entrypoint.sh
 
 WORKDIR /opt/app
 COPY ./src .
@@ -58,8 +58,8 @@ FROM python-base as production
 COPY --from=builder-base /opt/venv/ /opt/venv/
 ENV PATH="/opt/venv/bin:${PATH}"
 
-COPY ./docker/entrypoint.sh ./docker/wait-for /opt/
-RUN chmod +x /opt/entrypoint.sh /opt/wait-for
+COPY ./docker/entrypoint.sh ./docker/wait_for_services.py /opt/
+RUN chmod +x /opt/entrypoint.sh
 
 RUN mkdir -p /opt/app/var/log
 

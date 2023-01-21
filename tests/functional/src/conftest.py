@@ -109,7 +109,7 @@ def es_write_data(es_client):
 @pytest.fixture(scope="session")
 def make_get_request(aiohttp_session):
     async def inner(path: str, query_data: dict | None = None):
-        url = settings.API_URI + path
+        url = settings.BACKEND_URI + path
         async with aiohttp_session.get(url, params=query_data) as response:
             body = await response.json()
             headers = response.headers

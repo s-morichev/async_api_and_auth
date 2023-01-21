@@ -14,7 +14,7 @@ logger = etl_logger.get_logger(__name__)
 
 
 class ESLoader(Loader):
-    def __init__(self, url: str, index_name: str, batch_size: int = 1000, exclude={"modified"}):
+    def __init__(self, url: str, index_name: str, batch_size: int = 1000, exclude={"modified", "marks"}):
         self.url = url
         self.index_name = index_name
         self.batch_size = batch_size
