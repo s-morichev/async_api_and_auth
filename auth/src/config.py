@@ -1,6 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
-
+from dotenv import load_dotenv
 from pydantic import BaseSettings, Field
 
 BASE_DIR = Path(__file__).parent
@@ -27,4 +27,5 @@ class Config(BaseSettings):
     SWAGGER: dict = SWAGGER_CONFIG
 
 
+load_dotenv(ENV_FILE)
 flask_config = Config(_env_file=ENV_FILE)

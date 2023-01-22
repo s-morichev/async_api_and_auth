@@ -1,6 +1,7 @@
 from app import create_app
 from config import flask_config
 
+#print(flask_config)
 app = create_app(flask_config)
 
 if __name__ == "__main__":

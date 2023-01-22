@@ -17,6 +17,7 @@ from app.views.auth_routes import auth_bp
 from app.views.me_routes import me_bp
 from app.views.role_routes import role_bp
 from app.views.user_routes import user_bp
+from app.views.default_routes import default_bp
 
 
 def create_app(config):
@@ -47,6 +48,7 @@ def create_app(config):
 
     init_jwt(app, token_srv, database)
 
+    app.register_blueprint(default_bp, url_prefix="")
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(me_bp, url_prefix="/auth/users/me")
     app.register_blueprint(role_bp, url_prefix="/auth")
