@@ -1,14 +1,16 @@
 from flasgger import Swagger
 from flask import Flask
+from flask_limiter import RateLimitExceeded
 from flask_migrate import Migrate
 from flask_restful import Api
 
-from app.core.exceptions import AuthServiceError, http_error_handler
+from app.core.exceptions import AuthServiceError, http_error_handler, ratelimit_error_handler
 from app.db.database import Database
 from app.db.storage import Storage
 from app.flask_cli import init_cli
 from app.flask_db import init_db
 from app.flask_jwt import init_jwt
+from app.flask_limits import init_limiter
 from app.services import auth_service as auth_srv
 from app.services import role_service as role_srv
 from app.services import token_service as token_srv
@@ -37,6 +39,8 @@ def create_app(config):
     migrate = Migrate(app, db)
     init_cli(app)
 
+    init_limiter(app)
+
     # внедряем зависимости в модули
     auth_srv.database = database
     auth_srv.storage = storage
@@ -53,4 +57,5 @@ def create_app(config):
     app.register_blueprint(user_bp, url_prefix="/auth")
 
     app.register_error_handler(AuthServiceError, http_error_handler)
+    app.register_error_handler(RateLimitExceeded, ratelimit_error_handler)
     return app

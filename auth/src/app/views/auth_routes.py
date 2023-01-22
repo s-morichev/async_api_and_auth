@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt, jwt_required, set_refresh_cookies, unset_jwt_cookies
 
 from app.core.utils import error
+from app.flask_limits import limit_by_ip, limit_by_user_id
 from app.services import auth_service, token_service
 
 auth_bp = Blueprint("auth", __name__)
@@ -11,6 +12,7 @@ auth_bp = Blueprint("auth", __name__)
 
 # ------------------------------------------------------------------------------ #
 @auth_bp.post("/login")
+@limit_by_ip
 def login():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
@@ -42,6 +44,7 @@ def login():
 # ------------------------------------------------------------------------------ #
 @auth_bp.post("/logout")
 @jwt_required()
+@limit_by_user_id
 def logout():
     token = get_jwt()
     user_id = token["sub"]
@@ -61,6 +64,7 @@ def logout():
 # ------------------------------------------------------------------------------ #
 @auth_bp.route("/refresh", methods=["GET", "POST"])
 @jwt_required(refresh=True)
+@limit_by_user_id
 def refresh():
     payload = get_jwt()
 
