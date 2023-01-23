@@ -13,7 +13,7 @@ def _error_role_not_found(role_id: UUID):
 
 
 def _error_user_not_found(user_id: UUID):
-    """DRY error msg for ROLE NOT FOUND"""
+    """DRY error msg for USER NOT FOUND"""
     error(f"Role id {user_id} not found", HTTPStatus.NOT_FOUND)
 
 
