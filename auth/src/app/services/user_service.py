@@ -16,7 +16,7 @@ def add_user(email: str, password: str, name: str) -> dict:
     user = users.add_user(email, password, name)
     # TODO отправить ссылку подтверждения на почту
     # можно давать пользователю роль NEW_USER, выдавать короткий токен и ждать подтверждения почты
-    # mailer.send_notification(email)
+    # примерно так: mailer.send_notification(email)
     return user.dict(exclude={"password_hash"})
 
 

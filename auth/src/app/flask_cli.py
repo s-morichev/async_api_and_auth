@@ -5,7 +5,7 @@ from flask import Flask
 
 from app.core.constants import ROOT_ROLE
 from app.core.exceptions import AuthServiceError
-from app.db.database import Users, Roles
+from app.db.database import Roles, Users
 from app.services import role_service, user_service
 
 STANDARD_ROLES = "admin", "subscriber", "user"
@@ -29,7 +29,6 @@ def init_cli(app: Flask):
                 continue
 
         try:
-            # TODO mark as superuser
             root_user = user_service.add_user(email, password, email)
         except AuthServiceError as err:
             click.echo(err.detail)

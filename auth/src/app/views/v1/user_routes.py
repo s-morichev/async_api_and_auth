@@ -6,7 +6,6 @@ from flask_restful import Api, Resource, reqparse
 from app.core.utils import error, jwt_accept_roles, validate_uuids
 from app.services import auth_service, user_service
 
-
 parser = reqparse.RequestParser()
 parser.add_argument("name")
 parser.add_argument("email")

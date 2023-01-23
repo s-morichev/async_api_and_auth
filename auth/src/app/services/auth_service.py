@@ -3,10 +3,9 @@ from http import HTTPStatus
 from uuid import UUID
 
 from app.core.utils import device_id_from_name, error
-from app.db.database import AbstractUsers, AbstractActions, User
+from app.db.database import AbstractActions, AbstractUsers, User
 from app.db.storage import AbstractStorage
 from app.services.token_service import get_devices, refresh_devices, remove_token
-
 
 storage: AbstractStorage
 users: AbstractUsers
@@ -49,7 +48,6 @@ def refresh_session(user_id: UUID, device_name: str, remote_ip: str, ttl: int):
 
 
 def close_session(user_id: UUID, device_name: str, remote_ip: str):
-    # data = {'remote_ip': remote_ip}
     device_id = device_id_from_name(device_name)
     storage.delete_info(user_id, device_id)
     remove_token(user_id, device_id)

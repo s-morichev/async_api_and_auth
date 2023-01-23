@@ -1,10 +1,9 @@
 from flasgger import Swagger
 from flask import Flask
 from flask_migrate import Migrate
-from flask_restful import Api
 
 from app.core.exceptions import AuthServiceError, http_error_handler
-from app.db.database import Users, Roles, Actions
+from app.db.database import Actions, Roles, Users
 from app.db.storage import Storage
 from app.flask_cli import init_cli
 from app.flask_db import init_db
@@ -24,7 +23,6 @@ def create_app(config):
     db = init_db(app)
     # это для  UUID->JSON
     app.config["RESTFUL_JSON"] = {"default": str}
-    api = Api(app)
     # обертка редис
     storage = Storage(config.REDIS_URI)
     # обертка DB
@@ -32,8 +30,8 @@ def create_app(config):
     roles = Roles()
     actions = Actions()
 
-    swagger = Swagger(app, template_file=config.OPENAPI_YAML)
-    migrate = Migrate(app, db)
+    Swagger(app, template_file=config.OPENAPI_YAML)
+    Migrate(app, db)
     init_cli(app)
 
     # внедряем зависимости в модули

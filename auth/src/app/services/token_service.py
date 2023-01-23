@@ -94,10 +94,6 @@ def remove_token(user_id: UUID, device_id: str):
     storage.remove_token(user_id, device_id)
     storage.remove_device(user_id, device_id)
 
-    # # если устройств не осталось - удаляем payload
-    # if not storage.get_devices(user_id):
-    #     storage.remove_payload(user_id)
-
 
 def refresh_devices(user_id: UUID) -> list[str]:
     """

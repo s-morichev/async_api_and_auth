@@ -26,12 +26,6 @@ def login():
     ttl = token_service.get_refresh_token_expires()
     auth_service.new_session(user.id, device_name, remote_ip, ttl)
 
-    # TODO csrf is needed????
-    # access_csrf_token = get_csrf_token(access_token)
-    # refresh_csrf_token = get_csrf_token(refresh_token)
-    # response = jsonify(access_token=access_token, refresh_token=refresh_token,
-    #                    access_csrf=access_csrf_token, refresh_csrf=refresh_csrf_token)
-
     response = jsonify(access_token=access_token, refresh_token=refresh_token)
     set_refresh_cookies(response, refresh_token)
 
