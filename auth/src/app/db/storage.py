@@ -47,10 +47,6 @@ class AbstractStorage(ABC):
     def remove_device(self, user_id: UUID, device_id: str):
         pass
 
-    # @abstractmethod
-    # def clear_devices(self, user_id: UUID):
-    #     """Удаляем записи об устройствах"""
-
     @abstractmethod
     def set_info(self, user_id: UUID, device_id: str, data: dict, ttl: int):
         """сохраняем информацию о сессии"""
@@ -134,10 +130,6 @@ class Storage(AbstractStorage):
     def remove_device(self, user_id: UUID, device_id: str):
         key = self.devices_key(user_id)
         self.redis.srem(key, device_id)
-
-    # def clear_devices(self, user_id: UUID):
-    #     key = self.devices_key(user_id)
-    #     self.redis.delete(key)
 
     def set_info(self, user_id: UUID, device_id: str, data: dict, ttl: int):
         key = self.info_key(user_id, device_id)

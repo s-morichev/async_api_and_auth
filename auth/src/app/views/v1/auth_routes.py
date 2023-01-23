@@ -9,7 +9,6 @@ from app.services import auth_service, token_service
 auth_bp = Blueprint("auth", __name__)
 
 
-# ------------------------------------------------------------------------------ #
 @auth_bp.post("/login")
 def login():
     email = request.json.get("email", None)
@@ -27,12 +26,6 @@ def login():
     ttl = token_service.get_refresh_token_expires()
     auth_service.new_session(user.id, device_name, remote_ip, ttl)
 
-    # TODO csrf is needed????
-    # access_csrf_token = get_csrf_token(access_token)
-    # refresh_csrf_token = get_csrf_token(refresh_token)
-    # response = jsonify(access_token=access_token, refresh_token=refresh_token,
-    #                    access_csrf=access_csrf_token, refresh_csrf=refresh_csrf_token)
-
     response = jsonify(access_token=access_token, refresh_token=refresh_token)
     set_refresh_cookies(response, refresh_token)
     set_access_cookies(response, access_token)
@@ -40,7 +33,6 @@ def login():
     return response
 
 
-# ------------------------------------------------------------------------------ #
 @auth_bp.route("/logout", methods=["GET", "POST"])
 @jwt_required()
 def logout():
@@ -62,7 +54,6 @@ def logout():
     return response
 
 
-# ------------------------------------------------------------------------------ #
 @auth_bp.route("/refresh", methods=["GET", "POST"])
 @jwt_required(refresh=True)
 def refresh():
@@ -86,6 +77,3 @@ def refresh():
     set_refresh_cookies(response, refresh_token)
 
     return response
-
-
-# ------------------------------------------------------------------------------ #

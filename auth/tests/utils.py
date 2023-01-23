@@ -28,7 +28,7 @@ def create_roles_and_users():
 
 def create_access_token_for_user(email):
     """Cоздать access токен. Должен быть активен app_context."""
-    user = role_service.database.user_by_login(email)
+    user = user_service.users.user_by_login(email)
     device_id = device_id_from_name("device_auth")
     ext_claims = {"name": user.name, "roles": user.roles_list(), "device_id": device_id}
     access_token = create_access_token(identity=user.id, additional_claims=ext_claims, fresh=True)
@@ -36,8 +36,8 @@ def create_access_token_for_user(email):
 
 
 def get_tokens_by_login_reqest(client, email, password, device):
-    """Получить токены путем отправки запроса на /auth/login"""
-    response = client.post("/auth/login", json={"email": email, "password": password}, headers={"User-Agent": device})
+    """Получить токены путем отправки запроса на auth/v1/login"""
+    response = client.post("auth/v1/login", json={"email": email, "password": password}, headers={"User-Agent": device})
     cookies = {cookie.name: cookie.value for cookie in client.cookie_jar}
     access_token = response.json["access_token"]
     refresh_token = cookies.get("refresh_token_cookie")
