@@ -8,7 +8,7 @@ from app.services import auth_service
 from app.services.role_service import get_user_roles
 from app.services.user_service import add_user, change_user, get_user_by_id, get_user_sessions, logout_all
 
-me_bp = Blueprint("me", __name__)
+me_bp = Blueprint("me", __name__, url_prefix='/users/me')
 
 
 @me_bp.get("/")

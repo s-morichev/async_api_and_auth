@@ -36,8 +36,8 @@ def create_access_token_for_user(email):
 
 
 def get_tokens_by_login_reqest(client, email, password, device):
-    """Получить токены путем отправки запроса на /auth/login"""
-    response = client.post("/auth/login", json={"email": email, "password": password}, headers={"User-Agent": device})
+    """Получить токены путем отправки запроса на auth/v1/login"""
+    response = client.post("auth/v1/login", json={"email": email, "password": password}, headers={"User-Agent": device})
     cookies = {cookie.name: cookie.value for cookie in client.cookie_jar}
     access_token = response.json["access_token"]
     refresh_token = cookies.get("refresh_token_cookie")

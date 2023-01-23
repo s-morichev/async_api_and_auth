@@ -13,17 +13,14 @@ from app.services import auth_service as auth_srv
 from app.services import role_service as role_srv
 from app.services import token_service as token_srv
 from app.services import user_service as user_srv
-from app.views.auth_routes import auth_bp
-from app.views.me_routes import me_bp
-from app.views.role_routes import role_bp
-from app.views.user_routes import user_bp
+from app.views import auth_bp
 
 
 def create_app(config):
     app = Flask(__name__)
     app.config.from_object(config)
     app.config["JWT_TOKEN_LOCATION"] = ["headers", "json", "cookies"]  # - так не требует csrf?
-    app.config["JWT_REFRESH_COOKIE_PATH"] = "/auth/refresh"
+    app.config["JWT_REFRESH_COOKIE_PATH"] = "/auth/v1/refresh"
     db = init_db(app)
     # это для  UUID->JSON
     app.config["RESTFUL_JSON"] = {"default": str}
@@ -54,10 +51,7 @@ def create_app(config):
 
     init_jwt(app, token_srv, users)
 
-    app.register_blueprint(auth_bp, url_prefix="/auth")
-    app.register_blueprint(me_bp, url_prefix="/auth/users/me")
-    app.register_blueprint(role_bp, url_prefix="/auth")
-    app.register_blueprint(user_bp, url_prefix="/auth")
+    app.register_blueprint(auth_bp)
 
     app.register_error_handler(AuthServiceError, http_error_handler)
     return app

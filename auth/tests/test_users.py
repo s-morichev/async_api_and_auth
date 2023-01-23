@@ -5,7 +5,7 @@ import pytest
 
 def test_add_user_with_name(client, auth_as_admin):
     response = client.post(
-        "/auth/users", json={"email": "email", "password": "password", "name": "name"}, headers=auth_as_admin
+        "auth/v1/users", json={"email": "email", "password": "password", "name": "name"}, headers=auth_as_admin
     )
     assert response.status_code == HTTPStatus.CREATED
     assert response.json.get("login") == "email"
@@ -13,7 +13,7 @@ def test_add_user_with_name(client, auth_as_admin):
 
 
 def test_add_user_without_name(client, auth_as_admin):
-    response = client.post("/auth/users", json={"email": "email", "password": "password"}, headers=auth_as_admin)
+    response = client.post("auth/v1/users", json={"email": "email", "password": "password"}, headers=auth_as_admin)
     assert response.status_code == HTTPStatus.CREATED
     assert response.json.get("login") == "email"
     assert response.json.get("name") == "email"
@@ -30,12 +30,12 @@ def test_add_user_without_name(client, auth_as_admin):
     ],
 )
 def test_add_user_errors(query, status_code, client, auth_as_admin):
-    response = client.post("/auth/users", json=query, headers=auth_as_admin)
+    response = client.post("auth/v1/users", json=query, headers=auth_as_admin)
     assert response.status_code == status_code
 
 
 def test_get_user(client, example_user_id, auth_as_admin):
-    response = client.get(f"/auth/users/{example_user_id}", headers=auth_as_admin)
+    response = client.get(f"auth/v1/users/{example_user_id}", headers=auth_as_admin)
     assert response.status_code == HTTPStatus.OK
     assert response.json.get("login") == "example"
     assert response.json.get("name") == "example"
@@ -49,7 +49,7 @@ def test_get_user(client, example_user_id, auth_as_admin):
     ],
 )
 def test_get_user_errors(user_id, status_code, client, auth_as_admin):
-    response = client.get(f"/auth/users/{user_id}", headers=auth_as_admin)
+    response = client.get(f"auth/v1/users/{user_id}", headers=auth_as_admin)
     assert response.status_code == status_code
 
 
@@ -62,14 +62,14 @@ def test_get_user_errors(user_id, status_code, client, auth_as_admin):
     ],
 )
 def test_patch_user(query, result, client, example_user_id, auth_as_admin):
-    response = client.patch(f"/auth/users/{example_user_id}", json=query, headers=auth_as_admin)
+    response = client.patch(f"auth/v1/users/{example_user_id}", json=query, headers=auth_as_admin)
     assert response.status_code == HTTPStatus.OK
 
-    response = client.get(f"/auth/users/{example_user_id}", headers=auth_as_admin)
+    response = client.get(f"auth/v1/users/{example_user_id}", headers=auth_as_admin)
     assert response.status_code == HTTPStatus.OK
     assert response.json.get("name") == result["name"]
 
-    response = client.post("/auth/login", json={"email": "example", "password": result["password"]})
+    response = client.post("auth/v1/login", json={"email": "example", "password": result["password"]})
     assert response.status_code == HTTPStatus.OK
 
 
@@ -81,22 +81,22 @@ def test_patch_user(query, result, client, example_user_id, auth_as_admin):
     ],
 )
 def test_patch_user_errors(user_id, query, status_code, client, auth_as_admin):
-    response = client.patch(f"/auth/users/{user_id}", json=query, headers=auth_as_admin)
+    response = client.patch(f"auth/v1/users/{user_id}", json=query, headers=auth_as_admin)
     assert response.status_code == status_code
 
 
 def test_get_empty_user_history(client, example_user_id, auth_as_admin):
-    response = client.get(f"/auth/users/{example_user_id}/history", headers=auth_as_admin)
+    response = client.get(f"auth/v1/users/{example_user_id}/history", headers=auth_as_admin)
     assert response.status_code == HTTPStatus.OK
     assert response.json == []
 
 
 def test_get_user_history(client, example_user_id, auth_as_admin):
-    client.post("/auth/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_1"})
-    client.post("/auth/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_1"})
-    client.post("/auth/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_2"})
+    client.post("auth/v1/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_1"})
+    client.post("auth/v1/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_1"})
+    client.post("auth/v1/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_2"})
 
-    response = client.get(f"/auth/users/{example_user_id}/history", headers=auth_as_admin)
+    response = client.get(f"auth/v1/users/{example_user_id}/history", headers=auth_as_admin)
     assert response.status_code == HTTPStatus.OK
     assert len(response.json) == 3
     for i, device in enumerate(("device_1", "device_1", "device_2")):
@@ -108,27 +108,27 @@ def test_get_user_history(client, example_user_id, auth_as_admin):
     [("not_uuid", HTTPStatus.UNPROCESSABLE_ENTITY), ("7f32cd4a-7981-436d-bba7-78169acbbb5d", HTTPStatus.NOT_FOUND)],
 )
 def test_get_user_history_errors(user_id, status_code, client, auth_as_admin):
-    response = client.get(f"/auth/users/{user_id}/history", headers=auth_as_admin)
+    response = client.get(f"auth/v1/users/{user_id}/history", headers=auth_as_admin)
     assert response.status_code == status_code
 
 
 def test_get_user_sessions(client, example_user_id, auth_as_admin):
-    client.post("/auth/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_1"})
-    client.post("/auth/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_1"})
+    client.post("auth/v1/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_1"})
+    client.post("auth/v1/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_1"})
     response = client.post(
-        "/auth/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_2"}
+        "auth/v1/login", json={"email": "example", "password": "example"}, headers={"User-Agent": "device_2"}
     )
     access_token = response.json.get("access_token")
 
-    response = client.get(f"/auth/users/{example_user_id}/sessions", headers=auth_as_admin)
+    response = client.get(f"auth/v1/users/{example_user_id}/sessions", headers=auth_as_admin)
     assert response.status_code == HTTPStatus.OK
     assert len(response.json) == 2
     assert set(session["device_name"] for session in response.json) == {"device_1", "device_2"}
 
     # разлогиниваемся со второго устройства
-    client.post("/auth/logout", headers={"Authorization": "Bearer " + access_token})
+    client.post("auth/v1/logout", headers={"Authorization": "Bearer " + access_token})
 
-    response = client.get(f"/auth/users/{example_user_id}/sessions", headers=auth_as_admin)
+    response = client.get(f"auth/v1/users/{example_user_id}/sessions", headers=auth_as_admin)
     assert response.status_code == HTTPStatus.OK
     assert len(response.json) == 1
     assert set(session["device_name"] for session in response.json) == {"device_1"}
@@ -139,5 +139,5 @@ def test_get_user_sessions(client, example_user_id, auth_as_admin):
     [("not_uuid", HTTPStatus.UNPROCESSABLE_ENTITY), ("7f32cd4a-7981-436d-bba7-78169acbbb5d", HTTPStatus.NOT_FOUND)],
 )
 def test_get_user_sessions_errors(user_id, status_code, client, auth_as_admin):
-    response = client.get(f"/auth/users/{user_id}/sessions", headers=auth_as_admin)
+    response = client.get(f"auth/v1/users/{user_id}/sessions", headers=auth_as_admin)
     assert response.status_code == status_code

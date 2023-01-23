@@ -67,7 +67,6 @@ class UserRoles(Resource):
 role_bp = Blueprint("role", __name__)
 # only users with admin role accepted (and superuser)
 api = Api(app=role_bp, decorators=[jwt_accept_roles("admin")])
-# api = Api(role_bp)
 api.add_resource(RolesList, "/roles")
 api.add_resource(Roles, "/roles/<role_id>")
 api.add_resource(UserRoles, "/users/<user_id>/roles", "/users/<user_id>/roles/<role_id>")
