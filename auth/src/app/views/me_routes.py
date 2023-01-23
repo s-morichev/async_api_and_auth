@@ -25,7 +25,6 @@ def get_info():
 @jwt_required(optional=True)
 def new_user():
     """new user create or return exist user if logined"""
-    user = None
     token = get_jwt()
     # если токен есть - значит пользователь залогинен, возвращаем его же
     if token:
