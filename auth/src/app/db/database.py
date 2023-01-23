@@ -84,7 +84,6 @@ class UserSession(BaseModel):
 
 class UserAction(BaseModel):
     id: UUID
-    user_id: UUID
     device_name: str
     timestamp: datetime
     action: str
@@ -93,7 +92,6 @@ class UserAction(BaseModel):
     def from_db(cls, db_user_action: data.UserAction):
         return cls(
             id=db_user_action.id,
-            user_id=db_user_action.user_id,
             device_name=db_user_action.device_name,
             timestamp=db_user_action.action_time,
             action=db_user_action.action_type,
@@ -183,7 +181,7 @@ class AbstractDatabase(ABC):
         pass
 
     @abstractmethod
-    def get_user_actions(self, user_id: UserID) -> list[UserAction | None]:
+    def get_user_actions(self, user_id: UserID, days_limit=30) -> list[UserAction | None]:
         pass
 
 
@@ -344,7 +342,7 @@ class Database(AbstractDatabase):
         data.db.session.commit()
         return UserAction.from_db(db_user_action)
 
-    def get_user_actions(self, user_id: UserID) -> list[UserAction | None]:
-        actions = data.UserAction.by_user_id(user_id)
+    def get_user_actions(self, user_id: UserID, days_limit=30) -> list[UserAction | None]:
+        actions = data.UserAction.by_user_id(user_id, days_limit=30)
         result = [UserAction.from_db(db_action) for db_action in actions]
         return result

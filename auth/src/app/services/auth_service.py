@@ -25,10 +25,10 @@ def add_history(user_id: UUID, device_name: str, action: str):
     database.add_user_action(user_id, device_name, action)
 
 
-def get_user_history(user_id: UUID) -> list[dict]:
+def get_user_history(user_id: UUID, days_limit=30) -> list[dict]:
     if database.user_by_id(user_id) is None:
         error("User not found", HTTPStatus.NOT_FOUND)
-    actions = database.get_user_actions(user_id)
+    actions = database.get_user_actions(user_id, days_limit)
     return [action.dict() for action in actions]
 
 

@@ -40,8 +40,8 @@ def get_user_sessions(user_id: UUID) -> list[dict]:
     return auth_srv.get_user_sessions(user_id)
 
 
-def get_user_history(user_id: UUID) -> list[dict]:
-    return auth_srv.get_user_history(user_id)
+def get_user_history(user_id: UUID, days_limit=30) -> list[dict]:
+    return auth_srv.get_user_history(user_id, days_limit)
 
 
 def logout_all(user_id: UUID):
