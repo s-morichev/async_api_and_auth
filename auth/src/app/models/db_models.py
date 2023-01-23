@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
 
@@ -67,11 +67,29 @@ class User(db.Model):
         return query
 
 
+def create_user_actions_partitions(target, connection, **kw) -> None:
+    connection.execute(
+        """CREATE TABLE user_actions_0 PARTITION OF user_actions FOR VALUES WITH (MODULUS 3,REMAINDER 0)"""
+    )
+    connection.execute(
+        """CREATE TABLE user_actions_1 PARTITION OF user_actions FOR VALUES WITH (MODULUS 3,REMAINDER 1)"""
+    )
+    connection.execute(
+        """CREATE TABLE user_actions_2 PARTITION OF user_actions FOR VALUES WITH (MODULUS 3,REMAINDER 2)"""
+    )
+
+
 class UserAction(db.Model):
     __tablename__ = "user_actions"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    __table_args__ = (
+        UniqueConstraint("id", "user_id"),
+        {
+            "postgresql_partition_by": "HASH (user_id)",
+            "listeners": [("after_create", create_user_actions_partitions)],
+        },
+    )
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
     device_name = Column(String)
     action_type = Column(String)
     action_time = Column(DateTime(timezone=True), default=now_with_tz_info)
