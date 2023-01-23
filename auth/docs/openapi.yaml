@@ -238,7 +238,7 @@ components:
         type: string
         format: uuid
 paths:
-  /auth/login:
+  /auth/v1/login:
     post:
       tags:
         - auth
@@ -257,7 +257,7 @@ paths:
           $ref: '#/components/responses/200-JWTTokens'
         '400':
           $ref: '#/components/responses/400-BadRequest'
-  /auth/refresh:
+  /auth/v1/refresh:
     post:
       tags:
         - auth
@@ -281,7 +281,7 @@ paths:
           $ref: '#/components/responses/401-Unauthorized'
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
-  /auth/logout:
+  /auth/v1/logout:
     post:
       tags:
         - auth
@@ -298,7 +298,7 @@ paths:
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
 
-  /auth/roles:
+  /auth/v1/roles:
     get:
       tags:
         - roles
@@ -344,7 +344,7 @@ paths:
           $ref: '#/components/responses/401-Unauthorized'
         '409':
           $ref: '#/components/responses/409-Conflict'
-  /auth/roles/{role_id}:
+  /auth/v1/roles/{role_id}:
     parameters:
       - $ref: '#/components/parameters/RoleIdParam'
     get:
@@ -415,7 +415,7 @@ paths:
           $ref: '#/components/responses/404-NotFound'
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
-  /auth/users:
+  /auth/v1/users:
     post:
       tags:
         - users
@@ -440,7 +440,7 @@ paths:
           $ref: '#/components/responses/401-Unauthorized'
         '409':
           $ref: '#/components/responses/409-Conflict'
-  /auth/users/{user_id}:
+  /auth/v1/users/{user_id}:
     parameters:
       - $ref: '#/components/parameters/UserIdParam'
     get:
@@ -492,7 +492,7 @@ paths:
           $ref: '#/components/responses/404-NotFound'
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
-  /auth/users/{user_id}/roles:
+  /auth/v1/users/{user_id}/roles:
     parameters:
       - $ref: '#/components/parameters/UserIdParam'
     get:
@@ -516,7 +516,7 @@ paths:
           $ref: '#/components/responses/404-NotFound'
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
-  /auth/users/{user_id}/roles/{role_id}:
+  /auth/v1/users/{user_id}/roles/{role_id}:
     parameters:
       - $ref: '#/components/parameters/RoleIdParam'
       - $ref: '#/components/parameters/UserIdParam'
@@ -558,7 +558,7 @@ paths:
           $ref: '#/components/responses/404-NotFound'
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
-  /auth/users/{user_id}/history:
+  /auth/v1/users/{user_id}/history:
     parameters:
       - $ref: '#/components/parameters/UserIdParam'
     get:
@@ -582,7 +582,7 @@ paths:
           $ref: '#/components/responses/404-NotFound'
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
-  /auth/users/{user_id}/sessions:
+  /auth/v1/users/{user_id}/sessions:
     parameters:
       - $ref: '#/components/parameters/UserIdParam'
     get:
@@ -606,7 +606,7 @@ paths:
           $ref: '#/components/responses/404-NotFound'
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
-  /auth/users/me:
+  /auth/v1/users/me:
     get:
       tags:
         - users
@@ -680,7 +680,7 @@ paths:
           $ref: '#/components/responses/404-NotFound'
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
-  /auth/users/me/roles:
+  /auth/v1/users/me/roles:
     get:
       tags:
         - users
@@ -702,7 +702,7 @@ paths:
           $ref: '#/components/responses/404-NotFound'
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
-  /auth/users/me/history:
+  /auth/v1/users/me/history:
     get:
       tags:
         - users
@@ -724,7 +724,7 @@ paths:
           $ref: '#/components/responses/404-NotFound'
         '422':
           $ref: '#/components/responses/422-UnprocessableEntity'
-  /auth/users/me/sessions:
+  /auth/v1/users/me/sessions:
     get:
       tags:
         - users

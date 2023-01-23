@@ -10,7 +10,6 @@ parser = reqparse.RequestParser()
 parser.add_argument("name")
 
 
-# ------------------------------------------------------------------------------ #
 class RolesList(Resource):
     def get(self):
         return role_service.get_all_roles()
@@ -24,7 +23,6 @@ class RolesList(Resource):
         return result, HTTPStatus.CREATED
 
 
-# ------------------------------------------------------------------------------ #
 class Roles(Resource):
     def get(self, role_id):
         validate_uuids(role_id)
@@ -49,7 +47,6 @@ class Roles(Resource):
         return "", HTTPStatus.NO_CONTENT
 
 
-# ------------------------------------------------------------------------------ #
 class UserRoles(Resource):
     def get(self, user_id):
         validate_uuids(user_id)
@@ -67,11 +64,9 @@ class UserRoles(Resource):
         return result, HTTPStatus.CREATED
 
 
-# ------------------------------------------------------------------------------ #
 role_bp = Blueprint("role", __name__)
 # only users with admin role accepted (and superuser)
 api = Api(app=role_bp, decorators=[jwt_accept_roles("admin")])
-# api = Api(role_bp)
 api.add_resource(RolesList, "/roles")
 api.add_resource(Roles, "/roles/<role_id>")
 api.add_resource(UserRoles, "/users/<user_id>/roles", "/users/<user_id>/roles/<role_id>")

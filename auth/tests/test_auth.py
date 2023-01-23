@@ -7,7 +7,7 @@ from freezegun import freeze_time
 
 @pytest.fixture
 def example_user_login_response(client):
-    response = client.post("/auth/login", json={"email": "example", "password": "example"})
+    response = client.post("auth/v1/login", json={"email": "example", "password": "example"})
     return response
 
 
@@ -27,7 +27,7 @@ def test_login(example_user_login_response):
     assert "refresh_token" in response.json
     assert "refresh_token_cookie" in response.headers.get("Set-Cookie")
     assert "HttpOnly" in response.headers.get("Set-Cookie")
-    assert "Path=/auth/refresh" in response.headers.get("Set-Cookie")
+    assert "Path=/auth/v1/refresh" in response.headers.get("Set-Cookie")
 
 
 @pytest.mark.parametrize(
@@ -42,27 +42,27 @@ def test_login(example_user_login_response):
     ],
 )
 def test_login_errors(query, status_code, client):
-    response = client.post("/auth/login", json=query)
+    response = client.post("auth/v1/login", json=query)
     assert response.status_code == status_code
 
 
 def test_refresh(client, example_user_tokens):
     _, refresh_token, csrf_token = example_user_tokens
     client.set_cookie("localhost", "refresh_token_cookie", refresh_token)
-    response = client.post("/auth/refresh", headers={"X-CSRF-TOKEN": csrf_token})
+    response = client.post("auth/v1/refresh", headers={"X-CSRF-TOKEN": csrf_token})
     assert response.status_code == HTTPStatus.OK
     assert "access_token" in response.json
     assert "refresh_token" in response.json
     # assert "refresh_token_cookie" in response.headers.get("Set-Cookie")
     # assert "HttpOnly" in response.headers.get("Set-Cookie")
-    # assert "Path=/auth/refresh" in response.headers.get("Set-Cookie")
+    # assert "Path=auth/v1/refresh" in response.headers.get("Set-Cookie")
 
 
 def test_refresh_token_expire(client, example_user_tokens):
     _, refresh_token, csrf_token = example_user_tokens
     client.set_cookie("localhost", "refresh_token_cookie", refresh_token)
     with freeze_time(timedelta(days=30, seconds=1)):
-        response = client.post("/auth/refresh", headers={"X-CSRF-TOKEN": csrf_token})
+        response = client.post("auth/v1/refresh", headers={"X-CSRF-TOKEN": csrf_token})
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert response.json["msg"] == "Token has expired"
 
@@ -99,24 +99,24 @@ def test_refresh_errors(test_refresh, test_csrf, status_code, client, example_us
     else:
         headers = {"X-CSRF-TOKEN": test_csrf}
 
-    response = client.post("/auth/refresh", headers=headers)
+    response = client.post("auth/v1/refresh", headers=headers)
     assert response.status_code == status_code
 
 
 def test_logout(client, example_user_tokens):
     access_token, refresh_token, csrf_token = example_user_tokens
-    response = client.post("/auth/logout", headers={"Authorization": "Bearer " + access_token})
+    response = client.post("auth/v1/logout", headers={"Authorization": "Bearer " + access_token})
     assert response.status_code == HTTPStatus.OK
 
     client.set_cookie("localhost", "refresh_token_cookie", refresh_token)
-    response = client.post("/auth/refresh", headers={"X-CSRF-TOKEN": csrf_token})
+    response = client.post("auth/v1/refresh", headers={"X-CSRF-TOKEN": csrf_token})
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 
 
 def test_access_token_expire(client, example_user_tokens):
     access_token, _, _ = example_user_tokens
     with freeze_time(timedelta(hours=1, seconds=1)):
-        response = client.post("/auth/logout", headers={"Authorization": "Bearer " + access_token})
+        response = client.post("auth/v1/logout", headers={"Authorization": "Bearer " + access_token})
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert response.json["msg"] == "Token has expired"
 
@@ -134,5 +134,5 @@ def test_logout_errors(test_access, status_code, client):
     else:
         headers = {"Authorization": "Bearer " + test_access}
 
-    response = client.post("/auth/logout", headers=headers)
+    response = client.post("auth/v1/logout", headers=headers)
     assert response.status_code == status_code

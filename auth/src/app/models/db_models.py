@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
 
@@ -39,6 +39,8 @@ user_roles = db.Table(
     Column("role_id", UUID(as_uuid=True), ForeignKey("roles.id", ondelete="CASCADE")),
     Column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE")),
 )
+# set (user_id, role_id) is unique!
+Index("idx_user_role", user_roles.c.user_id, user_roles.c.role_id, unique=True)
 
 
 class User(db.Model):
@@ -75,8 +77,9 @@ class UserAction(db.Model):
     action_time = Column(DateTime(timezone=True), default=now_with_tz_info)
 
     @classmethod
-    def by_user_id(cls, user_id):
-        query = cls.query.filter_by(user_id=user_id)
+    def by_user_id(cls, user_id, days_limit=30):
+        start_time = datetime.now() - timedelta(days=days_limit)
+        query = cls.query.filter_by(user_id=user_id).filter(cls.action_time > start_time)
         return query
 
 

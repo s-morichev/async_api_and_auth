@@ -53,14 +53,14 @@ def client(app):
 @pytest.fixture
 def example_user_id(client):
     # зависит фикстуры client, должен быть активен app_context и создан пользователь
-    user = role_service.database.user_by_login("example")
+    user = role_service.users.user_by_login("example")
     return str(user.id)
 
 
 @pytest.fixture
 def example_with_roles_user_id(client):
     # зависит фикстуры client, должен быть активен app_context и создан пользователь
-    user = role_service.database.user_by_login("example_with_roles")
+    user = role_service.users.user_by_login("example_with_roles")
     return str(user.id)
 
 
