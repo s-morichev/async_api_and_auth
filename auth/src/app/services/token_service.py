@@ -13,7 +13,6 @@ storage: AbstractStorage
 database: AbstractDatabase
 
 
-# ------------------------------------------------------------------------------ #
 def is_user_active(user_id: UUID) -> bool:
     refresh_devices(user_id)
     return bool(storage.get_devices(user_id))

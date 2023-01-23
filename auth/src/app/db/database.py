@@ -9,7 +9,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import app.models.db_models as data
 from app.core.utils import error
 
-# ------------------------------------------------------------------------------ #
 UserID = UUID
 
 
@@ -101,8 +100,6 @@ class UserAction(BaseModel):
         )
 
 
-# ------------------------------------------------------------------------------ #
-
 # YAGNI
 class AbstractDatabase(ABC):
     @abstractmethod
@@ -190,7 +187,6 @@ class AbstractDatabase(ABC):
         pass
 
 
-# ------------------------------------------------------------------------------ #
 class Database(AbstractDatabase):
     def add_user(self, login, password, name, registered=datetime.now(tz=timezone.utc)) -> User:
         hash_password = generate_password_hash(password)

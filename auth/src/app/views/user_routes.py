@@ -6,14 +6,13 @@ from flask_restful import Api, Resource, reqparse
 from app.core.utils import error, jwt_accept_roles, validate_uuids
 from app.services import auth_service, user_service
 
-# ------------------------------------------------------------------------------ #
+
 parser = reqparse.RequestParser()
 parser.add_argument("name")
 parser.add_argument("email")
 parser.add_argument("password")
 
 
-# ------------------------------------------------------------------------------ #
 class Users(Resource):
     def get(self, user_id):
         validate_uuids(user_id)
@@ -52,14 +51,12 @@ class Users(Resource):
         return user
 
 
-# ------------------------------------------------------------------------------ #
 class UserHistory(Resource):
     def get(self, user_id):
         validate_uuids(user_id)
         return auth_service.get_user_history(user_id)
 
 
-# ------------------------------------------------------------------------------ #
 class UserSessions(Resource):
     def get(self, user_id):
         validate_uuids(user_id)
@@ -67,7 +64,6 @@ class UserSessions(Resource):
         return result
 
 
-# ------------------------------------------------------------------------------ #
 user_bp = Blueprint("user", __name__)
 api = Api(user_bp, decorators=[jwt_accept_roles("admin")])
 api.add_resource(Users, "/users", "/users/<user_id>")

@@ -9,7 +9,6 @@ from app.services import auth_service, token_service
 auth_bp = Blueprint("auth", __name__)
 
 
-# ------------------------------------------------------------------------------ #
 @auth_bp.post("/login")
 def login():
     email = request.json.get("email", None)
@@ -39,7 +38,6 @@ def login():
     return response
 
 
-# ------------------------------------------------------------------------------ #
 @auth_bp.post("/logout")
 @jwt_required()
 def logout():
@@ -58,7 +56,6 @@ def logout():
     return response
 
 
-# ------------------------------------------------------------------------------ #
 @auth_bp.route("/refresh", methods=["GET", "POST"])
 @jwt_required(refresh=True)
 def refresh():
@@ -82,6 +79,3 @@ def refresh():
     set_refresh_cookies(response, refresh_token)
 
     return response
-
-
-# ------------------------------------------------------------------------------ #

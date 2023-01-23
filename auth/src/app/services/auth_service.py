@@ -7,12 +7,11 @@ from app.db.database import AbstractDatabase, User
 from app.db.storage import AbstractStorage
 from app.services.token_service import get_devices, refresh_devices, remove_token
 
-# ------------------------------------------------------------------------------ #
+
 storage: AbstractStorage
 database: AbstractDatabase
 
 
-# ------------------------------------------------------------------------------ #
 def auth(email: str, password: str) -> User | None:
     """check user auth and return user if OK"""
     user = database.auth_user(email, password)
