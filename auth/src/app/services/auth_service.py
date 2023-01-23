@@ -3,19 +3,18 @@ from http import HTTPStatus
 from uuid import UUID
 
 from app.core.utils import device_id_from_name, error
-from app.db.database import AbstractDatabase, User
+from app.db.database import AbstractActions, AbstractUsers, User
 from app.db.storage import AbstractStorage
 from app.services.token_service import get_devices, refresh_devices, remove_token
 
-# ------------------------------------------------------------------------------ #
 storage: AbstractStorage
-database: AbstractDatabase
+users: AbstractUsers
+actions: AbstractActions
 
 
-# ------------------------------------------------------------------------------ #
 def auth(email: str, password: str) -> User | None:
     """check user auth and return user if OK"""
-    user = database.auth_user(email, password)
+    user = users.auth_user(email, password)
     if not user:
         error("Error login/password", HTTPStatus.UNAUTHORIZED)
 
@@ -23,14 +22,14 @@ def auth(email: str, password: str) -> User | None:
 
 
 def add_history(user_id: UUID, device_name: str, action: str):
-    database.add_user_action(user_id, device_name, action)
+    actions.add_user_action(user_id, device_name, action)
 
 
-def get_user_history(user_id: UUID) -> list[dict]:
-    if database.user_by_id(user_id) is None:
+def get_user_history(user_id: UUID, days_limit=30) -> list[dict]:
+    if users.user_by_id(user_id) is None:
         error("User not found", HTTPStatus.NOT_FOUND)
-    actions = database.get_user_actions(user_id)
-    return [action.dict() for action in actions]
+    user_actions = actions.get_user_actions(user_id, days_limit)
+    return [action.dict() for action in user_actions]
 
 
 def new_session(user_id: UUID, device_name: str, remote_ip: str, ttl: int):
@@ -49,7 +48,6 @@ def refresh_session(user_id: UUID, device_name: str, remote_ip: str, ttl: int):
 
 
 def close_session(user_id: UUID, device_name: str, remote_ip: str):
-    # data = {'remote_ip': remote_ip}
     device_id = device_id_from_name(device_name)
     storage.delete_info(user_id, device_id)
     remove_token(user_id, device_id)
