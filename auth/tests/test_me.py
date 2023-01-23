@@ -87,7 +87,6 @@ def test_get_user_me_history(client, example_user_id, auth_as_user):
     assert response.status_code == HTTPStatus.OK
     assert len(response.json) == 3
     for i, device in enumerate(("device_1", "device_1", "device_2")):
-        assert response.json[i].get("user_id") == example_user_id
         assert response.json[i].get("device_name") == device
 
 

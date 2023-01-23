@@ -1,8 +1,10 @@
 from flask import Flask
 from flask_jwt_extended import JWTManager
 
+from app.db.database import AbstractUsers
 
-def init_jwt(app: Flask, token_srv, database):
+
+def init_jwt(app: Flask, token_srv, users: AbstractUsers):
     jwt = JWTManager()
     jwt.init_app(app)
 
@@ -26,4 +28,4 @@ def init_jwt(app: Flask, token_srv, database):
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         user_id = jwt_data["sub"]
-        return database.user_by_id(user_id)
+        return users.user_by_id(user_id)

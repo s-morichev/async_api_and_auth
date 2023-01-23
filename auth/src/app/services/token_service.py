@@ -6,11 +6,11 @@ from flask_jwt_extended import create_access_token, create_refresh_token, decode
 
 import config
 from app.core.utils import device_id_from_name, error
-from app.db.database import AbstractDatabase, User
+from app.db.database import AbstractUsers, User
 from app.db.storage import AbstractStorage
 
 storage: AbstractStorage
-database: AbstractDatabase
+users: AbstractUsers
 
 
 def is_user_active(user_id: UUID) -> bool:
@@ -22,7 +22,7 @@ def set_token_payload(user: User, only_active: bool = False) -> dict | None:
     """создает загрузку токена из User, для унификации
     если only_active - то предварительно проверяет что пользователь активен
     """
-    if only_active and not is_user_active(user):
+    if only_active and not is_user_active(user.id):
         return None
     payload = token_payload_from_user(user)
     storage.set_payload(user.id, json.dumps(payload), ttl=get_auth_token_expires())
@@ -44,7 +44,7 @@ def get_token_payload_by_user_id(user_id: UUID, use_cache_first: bool = True) ->
 
     # Если их там нет - получаем из базы
     if not payload:
-        user = database.user_by_id(user_id)
+        user = users.user_by_id(user_id)
         payload = set_token_payload(user)
     return payload
 

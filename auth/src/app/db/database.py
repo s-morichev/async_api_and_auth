@@ -99,7 +99,7 @@ class UserAction(BaseModel):
 
 
 # YAGNI
-class AbstractDatabase(ABC):
+class AbstractUsers(ABC):
     @abstractmethod
     def add_user(self, login, password, name, registered=datetime.now(tz=timezone.utc)) -> User:
         pass
@@ -136,6 +136,8 @@ class AbstractDatabase(ABC):
     def user_by_id(self, user_id: UserID) -> User | None:
         pass
 
+
+class AbstractRoles(ABC):
     @abstractmethod
     def get_all_roles(self) -> list[Role]:
         pass
@@ -176,6 +178,8 @@ class AbstractDatabase(ABC):
     def delete_user_role(self, user_id: UserID, role_id: UUID):
         pass
 
+
+class AbstractActions(ABC):
     @abstractmethod
     def add_user_action(self, user_id: UserID, device_name: str, action: str) -> UserAction:
         pass
@@ -185,7 +189,7 @@ class AbstractDatabase(ABC):
         pass
 
 
-class Database(AbstractDatabase):
+class Users(AbstractUsers):
     def add_user(self, login, password, name, registered=datetime.now(tz=timezone.utc)) -> User:
         hash_password = generate_password_hash(password)
 
@@ -268,6 +272,8 @@ class Database(AbstractDatabase):
 
         return User.from_db(db_user)
 
+
+class Roles(AbstractRoles):
     def get_all_roles(self) -> list[Role]:
         query = data.Role.query.all()
         roles = [Role.from_db(db_role) for db_role in query]
@@ -336,6 +342,8 @@ class Database(AbstractDatabase):
         data.db.session.commit()
         return [Role.from_db(db_role) for db_role in user.roles]
 
+
+class Actions(AbstractActions):
     def add_user_action(self, user_id: UserID, device_name: str, action: str) -> UserAction:
         db_user_action = data.UserAction(user_id=user_id, device_name=device_name, action_type=action)
         data.db.session.add(db_user_action)

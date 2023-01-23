@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 
 from app.core.exceptions import AuthServiceError, http_error_handler
-from app.db.database import Database
+from app.db.database import Users, Roles, Actions
 from app.db.storage import Storage
 from app.flask_cli import init_cli
 from app.flask_db import init_db
@@ -31,21 +31,28 @@ def create_app(config):
     # обертка редис
     storage = Storage(config.REDIS_URI)
     # обертка DB
-    database = Database()
+    users = Users()
+    roles = Roles()
+    actions = Actions()
 
     swagger = Swagger(app, template_file=config.OPENAPI_YAML)
     migrate = Migrate(app, db)
     init_cli(app)
 
     # внедряем зависимости в модули
-    auth_srv.database = database
+    auth_srv.users = users
+    auth_srv.actions = actions
     auth_srv.storage = storage
-    token_srv.storage = storage
-    token_srv.database = database
-    role_srv.database = database
-    user_srv.database = database
 
-    init_jwt(app, token_srv, database)
+    token_srv.users = users
+    token_srv.storage = storage
+
+    role_srv.users = users
+    role_srv.roles = roles
+
+    user_srv.users = users
+
+    init_jwt(app, token_srv, users)
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(me_bp, url_prefix="/auth/users/me")
