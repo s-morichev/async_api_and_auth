@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Index
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
 
@@ -39,6 +39,8 @@ user_roles = db.Table(
     Column("role_id", UUID(as_uuid=True), ForeignKey("roles.id", ondelete="CASCADE")),
     Column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE")),
 )
+# set (user_id, role_id) is unique!
+Index("idx_user_role", user_roles.c.user_id, user_roles.c.role_id, unique=True)
 
 
 class User(db.Model):
