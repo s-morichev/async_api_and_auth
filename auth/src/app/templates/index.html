@@ -63,11 +63,11 @@
     const user = {id: "{{user_id}}", name: "{{user_name}}" };
 
     function doLogin(){
-        window.location.href = "/auth#tologin";
+        window.location.href = "/login#tologin";
     }
 
     function doLogout(){
-        window.location.href = "/auth/logout";
+        window.location.href = "/auth/v1/logout";
         //var xhr = new XMLHttpRequest();
         //xhr.open('POST','/auth/logout')
         //xhr.setRequestHeader("Content-Type", "application/json");

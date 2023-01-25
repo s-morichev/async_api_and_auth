@@ -27,7 +27,7 @@ def get_index():
     return render_template("index.html", user_name=user_name, user_id=user_id)
 
 
-@default_bp.get('/auth')
+@default_bp.get('/login')
 @jwt_required(optional=True)
 def get_auth():
     token = get_jwt()
