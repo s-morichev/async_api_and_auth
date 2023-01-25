@@ -1,4 +1,7 @@
+from http import HTTPStatus
+
 from flask import jsonify
+from flask_limiter import RateLimitExceeded
 
 
 class AuthServiceError(Exception):
@@ -10,3 +13,7 @@ class AuthServiceError(Exception):
 
 def http_error_handler(err: AuthServiceError):
     return jsonify({"msg": err.detail}), err.status_code
+
+
+def ratelimit_error_handler(err: RateLimitExceeded):
+    return jsonify({"msg": f"Ratelimit exceeded {err.description}"}), HTTPStatus.TOO_MANY_REQUESTS

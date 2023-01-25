@@ -25,6 +25,8 @@ class Config(BaseSettings):
     JWT_REFRESH_TOKEN_EXPIRES: timedelta = timedelta(days=30)
     OPENAPI_YAML: str = str(BASE_DIR / "openapi.yaml")
     SWAGGER: dict = SWAGGER_CONFIG
+    RATE_LIMIT: str = Field(..., env="AUTH_RATE_LIMIT")
+    RATELIMIT_STORAGE_URI: str = Field(..., env="REDIS_AUTH_DSN")
 
 
 flask_config = Config(_env_file=ENV_FILE)

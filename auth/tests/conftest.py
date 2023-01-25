@@ -26,6 +26,7 @@ def app():
     # в контейнере файла ENV_TEST не будет, ,будут использованы переменные окружения
     load_dotenv(ENV_TEST, override=True)
     flask_config = Config()
+    flask_config.RATE_LIMIT = "5/second"
 
     app = create_app(flask_config)
     app.config["TESTING"] = True
