@@ -25,6 +25,9 @@ class Config(BaseSettings):
     JWT_REFRESH_TOKEN_EXPIRES: timedelta = timedelta(days=30)
     OPENAPI_YAML: str = str(BASE_DIR / "openapi.yaml")
     SWAGGER: dict = SWAGGER_CONFIG
+    JAEGER_HOST_NAME: str = Field(..., env="JAEGER_HOST_NAME")
+    JAEGER_PORT: int= Field(..., env="JAEGER_PORT")
+    SERVICE_NAME: str = Field(..., env="AUTH_PROJECT_NAME")
 
 
 flask_config = Config(_env_file=ENV_FILE)
