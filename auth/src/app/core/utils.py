@@ -1,7 +1,10 @@
 import hashlib
+import string
+
 from functools import wraps
 from http import HTTPStatus
 from uuid import UUID
+from secrets import choice as secrets_choice
 
 from flask_jwt_extended import get_jwt, jwt_required
 from flask_jwt_extended.exceptions import NoAuthorizationError
@@ -64,3 +67,8 @@ def error(msg: str, code: int) -> None:
         raise HTTPError, which must be caught by Flask error handler
     """
     raise AuthServiceError(status_code=code, detail=msg)
+
+
+def generate_password(length=10) -> str:
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets_choice(alphabet) for _ in range(length))

@@ -17,7 +17,7 @@ def get_index():
     token = get_jwt()
     title = 'Sign_in'
     user_id = ''
-    user_name = 'Anonymous user'
+    user_name = 'Anon user'
     # если токен есть - значит пользователь залогинен, возвращаем его же
     if token:
         user_id = token["sub"]
@@ -31,8 +31,6 @@ def get_index():
 @jwt_required(optional=True)
 def get_auth():
     token = get_jwt()
-    user_id = ''
-    user_name = 'Anonymous user'
     # если токен есть - значит пользователь залогинен, возвращаем его же
     if token:
         user_id = token["sub"]

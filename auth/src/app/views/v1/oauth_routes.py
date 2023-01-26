@@ -1,8 +1,9 @@
 from http import HTTPStatus
 
-from flask import Blueprint, redirect, flash, url_for
-from app.services.oauth_service import OAuthSignIn
+from flask import Blueprint
+from app.services.oauth_service import OAuthSignIn, login_by_social
 from app.core.utils import error
+
 oauth_bp = Blueprint("oauth", __name__)
 
 
@@ -15,10 +16,9 @@ def oauth_callback(provider):
     social_id, username, email = oauth.callback()
     if social_id is None:
         error('Authentication failed', HTTPStatus.UNAUTHORIZED)
-        #return redirect(url_for('default.get_index'))
+    response = login_by_social(provider, social_id, username, email)
 
-    print(social_id, username, email)
-    return redirect(url_for('default.get_index'))
+    return response
 
 
 @oauth_bp.route('/authorize/<provider>')
