@@ -19,6 +19,7 @@ class Config(BaseSettings):
     SQLALCHEMY_DATABASE_URI: str = Field(..., env="PG_AUTH_DSN")
     JWT_SECRET_KEY: str = Field(..., env="AUTH_JWT_KEY")
     JWT_COOKIE_SECURE: bool = Field(..., env="AUTH_JWT_COOKIE_SECURE")
+    OAUTH_CREDENTIALS: dict = Field(..., env="AUTH_OAUTH_CREDENTIALS")
     JWT_COOKIE_CSRF_PROTECT: bool = True
     JWT_CSRF_IN_COOKIES: bool = True
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(hours=1)
@@ -26,6 +27,9 @@ class Config(BaseSettings):
     OPENAPI_YAML: str = str(BASE_DIR / "openapi.yaml")
     SWAGGER: dict = SWAGGER_CONFIG
 
+    class Config:
+        env_file = ENV_FILE
+
 
 load_dotenv(ENV_FILE)
-flask_config = Config(_env_file=ENV_FILE)
+flask_config = Config()
