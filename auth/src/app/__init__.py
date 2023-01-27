@@ -3,6 +3,7 @@ from flask import Flask, request
 from flask_migrate import Migrate
 
 from app.core.exceptions import AuthServiceError, http_error_handler
+from app.core.utils import require_header_request_id
 from app.db.database import Actions, Roles, Users
 from app.db.storage import Storage
 from app.flask_cli import init_cli
@@ -53,12 +54,7 @@ def create_app(config):
     app.register_blueprint(auth_bp)
 
     app.register_error_handler(AuthServiceError, http_error_handler)
-
-    @app.before_request
-    def before_request():
-        request_id = request.headers.get("X-Request-Id")
-        if not request_id:
-            raise RuntimeError("request id is required")
+    app.before_request(require_header_request_id)
 
     init_tracer(app)
 

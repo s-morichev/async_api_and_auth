@@ -3,6 +3,7 @@ from functools import wraps
 from http import HTTPStatus
 from uuid import UUID
 
+from flask import request
 from flask_jwt_extended import get_jwt, jwt_required
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
@@ -64,3 +65,9 @@ def error(msg: str, code: int) -> None:
         raise HTTPError, which must be caught by Flask error handler
     """
     raise AuthServiceError(status_code=code, detail=msg)
+
+
+def require_header_request_id():
+    request_id = request.headers.get("X-Request-Id")
+    if not request_id:
+        raise RuntimeError("request id is required")
