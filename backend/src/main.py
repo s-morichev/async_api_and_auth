@@ -5,10 +5,12 @@ import uvicorn as uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from api.v1 import films, genres, persons, ping
 from core.config import settings
 from core.logger import LOGGING
+from core.utils import configure_tracer, server_request_hook
 from db import elastic, redis_
 
 tags_metadata = [
@@ -34,6 +36,8 @@ async def startup():
     logger.info("service start")
     redis_.redis = await aioredis.from_url(settings.REDIS_URI)
     elastic.es = AsyncElasticsearch(hosts=[settings.ES_URI])
+    configure_tracer()
+    FastAPIInstrumentor.instrument_app(app, server_request_hook=server_request_hook)
 
 
 @app.on_event("shutdown")

@@ -1,8 +1,43 @@
 import hashlib
 
 import orjson
+from opentelemetry import trace
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider, Span
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 
 from core.constants import DEFAULT_PAGE_SIZE, ES_PAGINATION_LIMIT, KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE
+from core.config import settings
+
+import logging
+logger = logging.getLogger(__name__)
+
+
+def configure_tracer() -> None:
+    provider = TracerProvider(resource=Resource.create({"service.name": settings.PROJECT_NAME}))
+    # Sets the global default tracer provider
+    trace.set_tracer_provider(provider)
+
+    jaeger_exporter = JaegerExporter(
+        agent_host_name=settings.JAEGER_HOST_NAME, agent_port=settings.JAEGER_PORT
+    )
+    provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
+
+    if settings.DEBUG:
+        console_exporter = ConsoleSpanExporter()
+        provider.add_span_processor(BatchSpanProcessor(console_exporter))
+
+
+def server_request_hook(span: Span, scope: dict) -> None:
+    headers: list = scope["headers"]
+    try:
+        request_id = next(value for name, value in headers if name == b"x-request-id")
+    except StopIteration:
+        raise RuntimeError("request id required")
+
+    if span and span.is_recording():
+        span.set_attribute("http.request_id", request_id)
 
 
 def validate_pagination(page_number: int, page_size: int) -> str | None:

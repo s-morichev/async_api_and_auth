@@ -110,7 +110,7 @@ def es_write_data(es_client):
 def make_get_request(aiohttp_session):
     async def inner(path: str, query_data: dict | None = None):
         url = settings.BACKEND_URI + path
-        async with aiohttp_session.get(url, params=query_data) as response:
+        async with aiohttp_session.get(url, params=query_data, headers={"X-Request-Id": "test id"}) as response:
             body = await response.json()
             headers = response.headers
             status = response.status
