@@ -31,6 +31,8 @@ https://github.com/RomanBorovskiy/YP_Async_API
 
 Для оcтановки и удаления контейнеров выполните `make prod-stop` (или `docker compose -f docker-compose.prod.yaml down -v`)
 
+Jaeger UI доступен по адресу http://127.0.0.1:16686/
+
 
 ### Запуск тестов
 В корневой папке переименуйте`.env.test.example` в `.env.test`, поменяйте пути и пароли при

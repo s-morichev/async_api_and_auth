@@ -1,4 +1,11 @@
 services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.41
+    container_name: jaeger
+    ports:
+      - "${JAEGER_PORT}:6831/udp"
+      - "${JAEGER_UI_PORT}:16686"
+
   nginx:
     build:
       context: ./docker/nginx
