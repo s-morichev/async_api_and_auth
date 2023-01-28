@@ -28,7 +28,7 @@ class JWTBearer(HTTPBearer):
         try:
             decoded_token = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         except jwt.PyJWTError:
-            raise HTTPException(status_code=403, detail="Invalid token or expired token.")
+            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid token or expired token.")
 
         return AccessTokenPayload(**decoded_token)
 

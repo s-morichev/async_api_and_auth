@@ -44,6 +44,7 @@ class ExtendedFilm(Film):
     actors: list[Person]
     writers: list[Person]
     directors: list[Person]
+    mark: list[str]
 
 
 class ElasticFilm(Film):
@@ -59,3 +60,4 @@ class ElasticFilm(Film):
     actors: list[Person]
     writers: list[Person]
     directors: list[Person]
+    mark: list[str]
