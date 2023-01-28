@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     ES_MOVIES_INDEX: str = "movies"
     ES_GENRES_INDEX: str = "genres"
     ES_PERSONS_INDEX: str = "persons"
+    JWT_KEY: str = Field(..., env="AUTH_JWT_KEY")
 
     @property
     def ES_ALL_INDICES(self) -> list[str]:

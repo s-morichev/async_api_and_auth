@@ -5,8 +5,9 @@ import uvicorn as uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from fastapi.security import HTTPAuthorizationCredentials
 
-from api.v1 import films, genres, persons, ping
+from api.v1 import films, genres, persons, ping, view
 from core.config import settings
 from core.logger import LOGGING
 from db import elastic, redis_
@@ -48,6 +49,7 @@ app.include_router(ping.router, prefix="/api/v1/ping", tags=["Пинг"])
 app.include_router(films.router, prefix="/api/v1/films", tags=["Фильмы"])
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["Персоны"])
 app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])
+app.include_router(view.router, prefix="/api/v1/view", tags=["Просмотр"])
 
 if __name__ == "__main__":
     uvicorn.run(
