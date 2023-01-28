@@ -132,6 +132,7 @@ dmypy.json
 .idea/
 **/.env.local
 .env.test
+**/.env.test
 auth/.env.test.local
 /tests/functional/allure-results/
 /auth/.env.test.local

@@ -24,6 +24,7 @@
 
 Для создания новой миграции `make migrate msg='migration description here`
 
+
 ### Тесты
 
 - Переименовать env.test.example в .env.test `cp .env.test.local.example .env.test.local`
@@ -34,3 +35,4 @@
 ### Использование
 Описание API (Swagger) можно получить по адресу (при запущенном сервисе локально) http://localhost:5000/auth/openapi/  
 Файл описания API находится в /docs/openapi.yaml
+Jaeger UI доступен по адресу http://127.0.0.1:16686/ 

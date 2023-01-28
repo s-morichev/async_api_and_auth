@@ -113,7 +113,7 @@ def make_get_request(aiohttp_session):
         headers = {}
         if access_token:
             headers["Authorization"] = f"Bearer {access_token}"
-        async with aiohttp_session.get(url, params=query_data, headers=headers) as response:
+        async with aiohttp_session.get(url, params=query_data, headers={"X-Request-Id": "test id"}) as response:
             body = await response.json()
             headers = response.headers
             status = response.status

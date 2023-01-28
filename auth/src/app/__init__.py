@@ -1,15 +1,19 @@
 from flasgger import Swagger
 from flask import Flask
 from flask_limiter import RateLimitExceeded
+from flask import Flask, request
 from flask_migrate import Migrate
 
 from app.core.exceptions import AuthServiceError, http_error_handler, ratelimit_error_handler
+from app.core.exceptions import AuthServiceError, http_error_handler
+from app.core.utils import require_header_request_id
 from app.db.database import Actions, Roles, Users
 from app.db.storage import Storage
 from app.flask_cli import init_cli
 from app.flask_db import init_db
 from app.flask_jwt import init_jwt
 from app.flask_limits import init_limiter
+from app.flask_tracing import init_tracer
 from app.services import auth_service as auth_srv
 from app.services import role_service as role_srv
 from app.services import token_service as token_srv
@@ -57,4 +61,8 @@ def create_app(config):
 
     app.register_error_handler(AuthServiceError, http_error_handler)
     app.register_error_handler(RateLimitExceeded, ratelimit_error_handler)
+    app.before_request(require_header_request_id)
+
+    init_tracer(app)
+
     return app

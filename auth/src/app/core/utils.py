@@ -76,3 +76,9 @@ def limit_by_ip_key() -> str:
     if (ip := request.headers.get("X-Real-IP")) is None:  # check if request proxied by nginx
         ip = request.remote_addr
     return f"limit:{ip}"
+
+
+def require_header_request_id():
+    request_id = request.headers.get("X-Request-Id")
+    if not request_id:
+        raise RuntimeError("request id is required")
