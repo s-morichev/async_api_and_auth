@@ -2,7 +2,7 @@ import hashlib
 
 import orjson
 
-from core.constants import DEFAULT_PAGE_SIZE, ES_PAGINATION_LIMIT, KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE
+from core.constants import DEFAULT_PAGE_SIZE, ES_PAGINATION_LIMIT, KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE, ROOT_ROLE
 
 
 def validate_pagination(page_number: int, page_size: int) -> str | None:
@@ -46,3 +46,10 @@ class classproperty(object):
 
     def __get__(self, obj, owner):
         return self.f(owner)
+
+
+def can_view_film(roles: list[str], marks: list[str]) -> bool:
+    if ROOT_ROLE in roles:
+        return True
+
+    return bool(set(roles) & set(marks))

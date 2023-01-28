@@ -86,6 +86,7 @@ class ESDatabaseService(BaseDatabaseService):
     async def _process_single_doc_query(self, model: type[ModelT], es_query_params: dict) -> ModelT | None:
         try:
             response = await self.elastic.get(**es_query_params)
+            logger.debug("RESPONSE SOURCE %s", response["_source"])
         except NotFoundError:
             return None
         except ConnectionError as err:
