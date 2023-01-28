@@ -81,6 +81,11 @@ def del_user_social(user_id: UUID, social_id: UUID) -> list[dict]:
 
 
 class OAuthSignIn(object):
+    """
+    Parent OAuth class
+    Subclasses must implement authorize() and callback()
+    get_provider(provider_name) return subclass for provider (if exists)
+    """
     providers = None
 
     def __init__(self, provider_name: str):
@@ -111,6 +116,7 @@ class OAuthSignIn(object):
 
 
 class YandexSignIn(OAuthSignIn):
+    """ oauth with Yandex"""
     def __init__(self):
         super().__init__('yandex')
         self.service = OAuth2Service(
@@ -125,7 +131,6 @@ class YandexSignIn(OAuthSignIn):
     def authorize(self):
         return redirect(self.service.get_authorize_url(
             response_type='code',
-            #scope='login:email',
             force_confirm=1,
             redirect_uri=self.get_callback_url())
         )
@@ -151,6 +156,7 @@ class YandexSignIn(OAuthSignIn):
 
 
 class VKSignIn(OAuthSignIn):
+    """ oauth with VK"""
     def __init__(self):
         super().__init__('vk')
         self.service = None
@@ -173,13 +179,11 @@ class VKSignIn(OAuthSignIn):
             redirect_uri=self.get_callback_url()))
 
     def callback(self):
-        def decode_json(payload):
-            print(payload)
-            return json.loads(payload.decode('utf-8'))
 
         if 'code' not in request.args:
             return None, None, None
 
+        # VK return email (if exists) with token:(
         raw_token = self.service.get_raw_access_token(data={'code': request.args['code'],
                                                             'redirect_uri': self.get_callback_url()}).json()
 
@@ -191,6 +195,7 @@ class VKSignIn(OAuthSignIn):
         email = str(raw_token.get('email', '')).lower()
 
         oauth_session = self.service.get_session(token=access_token)
+        # get user info
         info = oauth_session.get('users.get', params={'v': '5.131'}).json()
 
         if 'response' not in info:
