@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
-from flask import Blueprint, jsonify, request
-from flask_jwt_extended import get_jwt, jwt_required, set_refresh_cookies, unset_jwt_cookies
+from flask import Blueprint, jsonify, request, redirect
+from flask_jwt_extended import get_jwt, jwt_required, set_refresh_cookies, set_access_cookies, unset_jwt_cookies
 
 from app.core.utils import error
 from app.flask_limits import limit_by_ip, limit_by_user_id
@@ -30,11 +30,12 @@ def login():
 
     response = jsonify(access_token=access_token, refresh_token=refresh_token)
     set_refresh_cookies(response, refresh_token)
+    set_access_cookies(response, access_token)
 
     return response
 
 
-@auth_bp.post("/logout")
+@auth_bp.route("/logout", methods=["GET", "POST"])
 @jwt_required()
 @limit_by_user_id
 def logout():
@@ -46,8 +47,11 @@ def logout():
 
     token_service.remove_token(user_id, device_id)
     auth_service.close_session(user_id, device_name, remote_ip)
+    if request.method == 'POST':
+        response = jsonify({"msg": "logout"})
+    else:
+        response = redirect('/')
 
-    response = jsonify({"msg": "logout"})
     unset_jwt_cookies(response)
 
     return response
@@ -75,5 +79,6 @@ def refresh():
 
     response = jsonify(access_token=access_token, refresh_token=refresh_token)
     set_refresh_cookies(response, refresh_token)
+    set_access_cookies(response, access_token)
 
     return response

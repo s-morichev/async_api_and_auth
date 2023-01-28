@@ -40,7 +40,8 @@ def get_token_payload_by_user_id(user_id: UUID, use_cache_first: bool = True) ->
     payload = {}
     # пытаемся получить данные из хранилища
     if use_cache_first:
-        payload = json.loads(storage.get_payload(user_id))
+        if data := storage.get_payload(user_id):
+            payload = json.loads(data)
 
     # Если их там нет - получаем из базы
     if not payload:

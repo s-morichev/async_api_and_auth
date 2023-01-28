@@ -32,12 +32,15 @@ def get_user_history(user_id: UUID, days_limit=30) -> list[dict]:
     return [action.dict() for action in user_actions]
 
 
-def new_session(user_id: UUID, device_name: str, remote_ip: str, ttl: int):
+def new_session(user_id: UUID, device_name: str, remote_ip: str, ttl: int, social_net: str = ''):
     login_at = str(datetime.datetime.now())
     data = {"device_name": device_name, "remote_ip": remote_ip, "login_at": login_at}
     device_id = device_id_from_name(device_name)
     storage.set_info(user_id, device_id, data, ttl)
-    add_history(user_id, device_name, "login")
+    if social_net:
+        add_history(user_id, device_name, f"login with {social_net}")
+    else:
+        add_history(user_id, device_name, "login")
 
 
 def refresh_session(user_id: UUID, device_name: str, remote_ip: str, ttl: int):

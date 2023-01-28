@@ -66,6 +66,24 @@ def client(app):
         auth_service.storage.redis.flushall()
 
 
+@pytest.fixture(scope="module")
+def module_client(app):
+    with app.app_context():
+        db.drop_all()
+        auth_service.storage.redis.flushall()
+
+        db.create_all()
+        db.session.commit()
+
+        utils.create_roles_and_users()
+
+        yield app.test_client()
+
+        db.session.remove()
+        db.drop_all()
+        auth_service.storage.redis.flushall()
+
+
 @pytest.fixture
 def example_user_id(client):
     # зависит фикстуры client, должен быть активен app_context и создан пользователь

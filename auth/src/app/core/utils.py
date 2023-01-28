@@ -1,7 +1,10 @@
 import hashlib
+import string
+
 from functools import wraps
 from http import HTTPStatus
 from uuid import UUID
+from secrets import choice as secrets_choice
 
 from flask import request
 from flask_jwt_extended import get_jwt, jwt_required
@@ -82,3 +85,7 @@ def require_header_request_id():
     request_id = request.headers.get("X-Request-Id")
     if not request_id:
         raise RuntimeError("request id is required")
+
+def generate_password(length=10) -> str:
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets_choice(alphabet) for _ in range(length))

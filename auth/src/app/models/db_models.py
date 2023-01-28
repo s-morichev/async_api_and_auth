@@ -54,7 +54,7 @@ class User(db.Model):
     # subscribe_expiration
     is_confirmed = Column(Boolean, default=False)
     is_root = Column(Boolean, default=False)
-    roles = relationship("Role", secondary=user_roles, lazy="subquery", backref=backref("roles", lazy=True))
+    roles = relationship("Role", secondary=user_roles, lazy="subquery", backref=backref("users", lazy=True))
 
     @classmethod
     def find_by_email(cls, email):
@@ -120,3 +120,26 @@ class UserSession(db.Model):
         # TODO return active sessions
         query = cls.query.filter_by(user_id=user_id)
         return query
+
+
+class UserSocial(db.Model):
+    __tablename__ = 'social_account'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    social_net_user_id = db.Column(db.Text, nullable=False)
+    social_net_name = db.Column(db.Text, nullable=False)
+
+    user = db.relationship("User", backref=backref('social_accounts', lazy='select'), uselist=False)
+    __table_args__ = (db.UniqueConstraint('social_net_user_id', 'social_net_name', name='social_pk'),)
+
+    @classmethod
+    def get_user_by_social(cls, social_net_user_id, social_net_name):
+        query = cls.query.filter_by(social_net_user_id=social_net_user_id, social_net_name=social_net_name).first()
+        return query
+
+    @classmethod
+    def by_user_id(cls, user_id):
+        query = cls.query.filter_by(user_id=user_id)
+        return query
+
