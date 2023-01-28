@@ -29,17 +29,6 @@ def configure_tracer() -> None:
         provider.add_span_processor(BatchSpanProcessor(console_exporter))
 
 
-def server_request_hook(span: Span, scope: dict) -> None:
-    headers: list = scope["headers"]
-    try:
-        request_id = next(value for name, value in headers if name == b"x-request-id")
-    except StopIteration:
-        raise RuntimeError("request id required")
-
-    if span and span.is_recording():
-        span.set_attribute("http.request_id", request_id)
-
-
 def validate_pagination(page_number: int, page_size: int) -> str | None:
     if page_number * page_size > ES_PAGINATION_LIMIT:
         return f"Requested window is too large, {KEY_PAGE_NUM} * {KEY_PAGE_SIZE} \

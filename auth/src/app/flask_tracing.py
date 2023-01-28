@@ -22,12 +22,6 @@ def configure_tracer(app) -> None:
         provider.add_span_processor(BatchSpanProcessor(console_exporter))
 
 
-def request_hook(span: Span, environ: "WSGIEnvironment"):
-    request_id = request.headers.get("X-Request-Id")
-    if span and span.is_recording():
-        span.set_attribute("http.request_id", request_id)
-
-
 def init_tracer(app: Flask) -> None:
     configure_tracer(app)
-    FlaskInstrumentor().instrument_app(app, request_hook=request_hook)
+    FlaskInstrumentor().instrument_app(app)

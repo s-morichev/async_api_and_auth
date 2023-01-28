@@ -1,6 +1,7 @@
 from datetime import timedelta
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic import BaseSettings, Field
 
 BASE_DIR = Path(__file__).parent
@@ -29,5 +30,8 @@ class Config(BaseSettings):
     JAEGER_PORT: int = Field(..., env="JAEGER_PORT")
     SERVICE_NAME: str = Field(..., env="AUTH_PROJECT_NAME")
 
-
-flask_config = Config(_env_file=ENV_FILE)
+# фласк по умолчанию ищет настройки в .env файле, в том числе в родительских папках
+# поэтому для локального запуска вручную загружаем нужный файл .env.local
+# в контейнере env файла не будет и настройки будут взяты из переменных окружения
+load_dotenv(ENV_FILE, override=True)
+flask_config = Config()

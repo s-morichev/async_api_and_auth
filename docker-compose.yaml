@@ -1,5 +1,6 @@
 services:
-  jaeger:
+  # название сервиса должно быть одинаковым с prod, чтобы не заводить отдельную переменную окружения
+  jaeger_agent:
     image: jaegertracing/all-in-one:1.41
     container_name: jaeger
     ports:
