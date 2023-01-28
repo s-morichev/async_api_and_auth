@@ -75,5 +75,6 @@ def refresh():
 
     response = jsonify(access_token=access_token, refresh_token=refresh_token)
     set_refresh_cookies(response, refresh_token)
+    set_access_cookies(response, access_token)
 
     return response

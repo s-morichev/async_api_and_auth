@@ -125,7 +125,7 @@ class YandexSignIn(OAuthSignIn):
     def authorize(self):
         return redirect(self.service.get_authorize_url(
             response_type='code',
-            scope='login:email',
+            #scope='login:email',
             force_confirm=1,
             redirect_uri=self.get_callback_url())
         )
@@ -143,8 +143,9 @@ class YandexSignIn(OAuthSignIn):
         info = oauth_session.get('https://login.yandex.ru/info', params={'format': 'json'}).json()
 
         user_id = info['id']
-        user_name = info['display_name']
         email = str(info['default_email']).lower()
+        # если нет имени - вернуть почту
+        user_name = info.get('display_name', email)
 
         return user_id, user_name, email
 

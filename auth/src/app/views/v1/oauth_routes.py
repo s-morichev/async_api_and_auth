@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from flask import Blueprint
+from flask import Blueprint, current_app
 from app.services.oauth_service import OAuthSignIn, login_by_social
 from app.core.utils import error
 
@@ -16,6 +16,8 @@ def oauth_callback(provider):
     social_id, username, email = oauth.callback()
     if social_id is None:
         error('Authentication failed', HTTPStatus.UNAUTHORIZED)
+    current_app.logger.debug(f'login user from social email:"{email}" '
+                             f'username:"{username}" social_net:"{provider}" social_user_id:"{social_id}"')
     response = login_by_social(provider, social_id, username, email)
 
     return response

@@ -89,7 +89,7 @@ class Storage(AbstractStorage):
         key = self.token_key(user_id, device_id)
         self.redis.set(name=key, value=token_id, exat=expires_at)
 
-    def check_token(self, user_id: UUID, device_id: str, token_id: str):
+    def check_token(self, user_id: UUID, device_id: str, token_id: str) -> bool:
         key = self.token_key(user_id, device_id)
         value = self.redis.get(key)
         result = value and (value.decode("utf-8") == token_id)
