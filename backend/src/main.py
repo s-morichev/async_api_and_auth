@@ -24,7 +24,10 @@ logger = logging.getLogger(__name__)
 
 async def require_header_request_id(x_request_id: str | None = Header(default=None)):
     if x_request_id is None:
-        raise RuntimeError("request id is required")
+        if app.debug:
+            pass
+        else:
+            raise RuntimeError("X-Request-Id header id is required")
 
 
 app = FastAPI(
