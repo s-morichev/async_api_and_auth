@@ -2,9 +2,9 @@ from flask import Blueprint
 
 from .auth_routes import auth_bp
 from .me_routes import me_bp
+from .oauth_routes import oauth_bp
 from .role_routes import role_bp
 from .user_routes import user_bp
-from .oauth_routes import oauth_bp
 
 auth_v1 = Blueprint("auth_v1", __name__, url_prefix="/v1")
 

@@ -123,15 +123,15 @@ class UserSession(db.Model):
 
 
 class UserSocial(db.Model):
-    __tablename__ = 'social_account'
+    __tablename__ = "social_account"
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
     social_net_user_id = db.Column(db.Text, nullable=False)
     social_net_name = db.Column(db.Text, nullable=False)
 
-    user = db.relationship("User", backref=backref('social_accounts', lazy='select'), uselist=False)
-    __table_args__ = (db.UniqueConstraint('social_net_user_id', 'social_net_name', name='social_pk'),)
+    user = db.relationship("User", backref=backref("social_accounts", lazy="select"), uselist=False)
+    __table_args__ = (db.UniqueConstraint("social_net_user_id", "social_net_name", name="social_pk"),)
 
     @classmethod
     def get_user_by_social(cls, social_net_user_id, social_net_name):
@@ -142,4 +142,3 @@ class UserSocial(db.Model):
     def by_user_id(cls, user_id):
         query = cls.query.filter_by(user_id=user_id)
         return query
-

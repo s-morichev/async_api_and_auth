@@ -1,16 +1,16 @@
 import hashlib
+import logging
 
 import orjson
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider, Span
+from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 
-from core.constants import DEFAULT_PAGE_SIZE, ES_PAGINATION_LIMIT, KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE, ROOT_ROLE
 from core.config import settings
+from core.constants import DEFAULT_PAGE_SIZE, ES_PAGINATION_LIMIT, KEY_PAGE_NUM, KEY_PAGE_SIZE, MAX_PAGE_SIZE, ROOT_ROLE
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -19,9 +19,7 @@ def configure_tracer() -> None:
     # Sets the global default tracer provider
     trace.set_tracer_provider(provider)
 
-    jaeger_exporter = JaegerExporter(
-        agent_host_name=settings.JAEGER_HOST_NAME, agent_port=settings.JAEGER_PORT
-    )
+    jaeger_exporter = JaegerExporter(agent_host_name=settings.JAEGER_HOST_NAME, agent_port=settings.JAEGER_PORT)
     provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
 
     if settings.DEBUG:
