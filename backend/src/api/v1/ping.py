@@ -2,10 +2,10 @@ import logging
 
 from elasticsearch import AsyncElasticsearch
 from fastapi import APIRouter, Depends
-from redis.asyncio import Redis, RedisError
 
 from db.elastic import get_es_database_service
 from db.redis_ import get_redis
+from redis.asyncio import Redis, RedisError
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

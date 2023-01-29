@@ -1,21 +1,16 @@
-import enum
 import logging
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 
-from api.v1.params import PageParams, QueryPageParams
-from api.v1.schemas import ExtendedImdbFilm, ImdbFilm, ManyResponse
-from core.constants import KEY_FILTER_GENRE, KEY_SORT
 from core.utils import can_view_film
 from models.token import AccessTokenPayload
-from services.films import FilmByIdService, PopularFilmsService, SearchFilmsService, SimilarFilmsService
+from services.films import FilmByIdService
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
 
 from core.auth_bearer import jwt_bearer
 
@@ -35,7 +30,7 @@ async def view_link(
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"film {film_id} not found")
 
     if not can_view_film(token_payload.roles, service_result.result.marks):
-        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail=f"No permission to view film")
+        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="No permission to view film")
 
     # тут должна быть генерация ссылки для просмотра фильма
     return "link to view film"

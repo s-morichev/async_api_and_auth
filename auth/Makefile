@@ -21,7 +21,7 @@ run:
 	sh -c "export FLASK_SKIP_DOTENV=1 && python3 ./src/manage.py"
 
 run-test-db:
-	docker run --env POSTGRES_USER=app --env POSTGRES_PASSWORD=123qwe --env POSTGRES_DB=users_database_test --name postgres_auth_test -p 45432:5432 -d postgres:15.1-alpine
+	docker run --env POSTGRES_USER=app --env POSTGRES_PASSWORD=123qwe --env POSTGRES_DB=auth_database_test --name postgres_auth_test -p 45432:5432 -d postgres:15.1-alpine
 	docker run --name redis_auth_test -p 46379:6379 -d redis:7.0.5-alpine
 
 test:

@@ -23,7 +23,7 @@ def test_rate_limit_by_ip_address(client):
 
 
 def test_rate_limit_by_ip_address_exceed(client, example_user_id, auth_as_user):
-#def test_rate_limit_by_ip_address_exceed(client):
+    # def test_rate_limit_by_ip_address_exceed(client):
     response = repeat_request(11, client.post, "/auth/v1/login", json={"email": "example", "password": "example"})
     assert response.status_code == HTTPStatus.TOO_MANY_REQUESTS
 

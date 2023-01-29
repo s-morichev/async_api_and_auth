@@ -5,31 +5,33 @@ Revises: f78ec4dde70c
 Create Date: 2023-01-29 13:14:43.394639
 
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'd453211656b8'
-down_revision = 'f78ec4dde70c'
+revision = "d453211656b8"
+down_revision = "f78ec4dde70c"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    op.create_table('social_account',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('social_net_user_id', sa.Text(), nullable=False),
-        sa.Column('social_net_name', sa.Text(), nullable=False),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-        sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('id'),
-        sa.UniqueConstraint('social_net_user_id', 'social_net_name', name='social_pk')
+    op.create_table(
+        "social_account",
+        sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("user_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("social_net_user_id", sa.Text(), nullable=False),
+        sa.Column("social_net_name", sa.Text(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("id"),
+        sa.UniqueConstraint("social_net_user_id", "social_net_name", name="social_pk"),
     )
 
 
-
 def downgrade():
-    op.drop_table('social_account')
-
+    op.drop_table("social_account")

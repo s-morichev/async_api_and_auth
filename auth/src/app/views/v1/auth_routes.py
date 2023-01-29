@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
-from flask import Blueprint, jsonify, request, redirect
-from flask_jwt_extended import get_jwt, jwt_required, set_refresh_cookies, set_access_cookies, unset_jwt_cookies
+from flask import Blueprint, jsonify, redirect, request
+from flask_jwt_extended import get_jwt, jwt_required, set_access_cookies, set_refresh_cookies, unset_jwt_cookies
 
 from app.core.utils import error
 from app.flask_limits import limit_by_ip, limit_by_user_id
@@ -47,10 +47,10 @@ def logout():
 
     token_service.remove_token(user_id, device_id)
     auth_service.close_session(user_id, device_name, remote_ip)
-    if request.method == 'POST':
+    if request.method == "POST":
         response = jsonify({"msg": "logout"})
     else:
-        response = redirect('/')
+        response = redirect("/")
 
     unset_jwt_cookies(response)
 

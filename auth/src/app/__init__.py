@@ -27,7 +27,6 @@ def create_app(config):
     app.config["JWT_TOKEN_LOCATION"] = ["headers", "json", "cookies"]  # - так не требует csrf?
     app.config["JWT_REFRESH_COOKIE_PATH"] = "/auth/v1/refresh"
 
-
     db = init_db(app)
     # это для  UUID->JSON
     app.config["RESTFUL_JSON"] = {"default": str}

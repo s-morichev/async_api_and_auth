@@ -1,10 +1,10 @@
-import os
 import logging.config
+import os
+
+from elasticsearch import Elasticsearch
 
 import backoff
-from elasticsearch import Elasticsearch
 from redis import Redis, RedisError
-
 
 REDIS_URI = os.getenv("REDIS_BACKEND_DSN")
 ES_URI = os.getenv("ELK_MOVIES_DSN")
