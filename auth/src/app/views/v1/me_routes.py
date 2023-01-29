@@ -1,18 +1,22 @@
 from http import HTTPStatus
+from uuid import UUID
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt, jwt_required
 
 from app.core.utils import error
+from app.flask_limits import limit_by_ip, limit_by_user_id
 from app.services import auth_service
 from app.services.role_service import get_user_roles
 from app.services.user_service import add_user, change_user, get_user_by_id, get_user_sessions, logout_all
+from app.services.oauth_service import get_user_socials, del_user_social
 
 me_bp = Blueprint("me", __name__, url_prefix="/users/me")
 
 
 @me_bp.get("/")
 @jwt_required()
+@limit_by_user_id
 def get_info():
     """get user data"""
     token = get_jwt()
@@ -23,6 +27,7 @@ def get_info():
 
 @me_bp.post("/")
 @jwt_required(optional=True)
+@limit_by_ip
 def new_user():
     """new user create or return exist user if logined"""
     token = get_jwt()
@@ -45,6 +50,7 @@ def new_user():
 
 @me_bp.patch("/")
 @jwt_required()
+@limit_by_user_id
 def change_info():
     token = get_jwt()
     user_id = token["sub"]
@@ -58,6 +64,7 @@ def change_info():
 
 @me_bp.get("/roles")
 @jwt_required()
+@limit_by_user_id
 def get_roles():
     token = get_jwt()
     user_id = token["sub"]
@@ -68,6 +75,7 @@ def get_roles():
 
 @me_bp.get("/history")
 @jwt_required()
+@limit_by_user_id
 def get_history():
     token = get_jwt()
     user_id = token["sub"]
@@ -78,6 +86,7 @@ def get_history():
 
 @me_bp.get("/sessions")
 @jwt_required()
+@limit_by_user_id
 def get_sessions():
     token = get_jwt()
     user_id = token["sub"]
@@ -88,9 +97,30 @@ def get_sessions():
 
 @me_bp.delete("/sessions")
 @jwt_required()
+@limit_by_user_id
 def close_all_sessions():
     token = get_jwt()
     user_id = token["sub"]
 
     logout_all(user_id)
     return "", HTTPStatus.NO_CONTENT
+
+
+@me_bp.get("/socials")
+@jwt_required()
+def get_socials():
+    token = get_jwt()
+    user_id = token["sub"]
+
+    socials = get_user_socials(user_id)
+    return jsonify(socials)
+
+
+@me_bp.delete("/socials/<social_id>")
+@jwt_required()
+def del_socials(social_id: UUID):
+    token = get_jwt()
+    user_id = token["sub"]
+
+    socials = del_user_social(user_id, social_id)
+    return jsonify(socials)

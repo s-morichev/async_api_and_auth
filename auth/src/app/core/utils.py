@@ -1,8 +1,12 @@
 import hashlib
+import string
+
 from functools import wraps
 from http import HTTPStatus
 from uuid import UUID
+from secrets import choice as secrets_choice
 
+from flask import request
 from flask_jwt_extended import get_jwt, jwt_required
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
@@ -64,3 +68,24 @@ def error(msg: str, code: int) -> None:
         raise HTTPError, which must be caught by Flask error handler
     """
     raise AuthServiceError(status_code=code, detail=msg)
+
+
+def limit_by_user_id_key() -> str:
+    user_id = get_jwt()["sub"]
+    return f"limit:{user_id}"
+
+
+def limit_by_ip_key() -> str:
+    if (ip := request.headers.get("X-Real-IP")) is None:  # check if request proxied by nginx
+        ip = request.remote_addr
+    return f"limit:{ip}"
+
+
+def require_header_request_id():
+    request_id = request.headers.get("X-Request-Id")
+    if not request_id:
+        raise RuntimeError("request id is required")
+
+def generate_password(length=10) -> str:
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets_choice(alphabet) for _ in range(length))

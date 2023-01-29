@@ -1,10 +1,12 @@
 run-db:
 	docker run --env-file .env.local --name postgres_auth -p 25432:5432 -d postgres:15.1-alpine
 	docker run --name redis_auth -p 26379:6379 -d redis:7.0.5-alpine
+	docker run --name jaeger -p 6831:6831/udp -p 16686:16686 -d  jaegertracing/all-in-one:1.41
 
 stop-db:
 	docker rm --force postgres_auth
 	docker rm --force redis_auth
+	docker rm --force jaeger
 
 init:
 	sh -c "export FLASK_SKIP_DOTENV=1 && export FLASK_APP='./src/manage.py' && flask db init --directory src/migrations && flask db migrate --directory src/migrations && flask db upgrade --directory src/migrations"

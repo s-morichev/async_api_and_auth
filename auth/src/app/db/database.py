@@ -1,3 +1,4 @@
+import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from http import HTTPStatus
@@ -98,6 +99,20 @@ class UserAction(BaseModel):
         )
 
 
+class UserSocial(BaseModel):
+    id: UUID
+    social_user_id: str
+    social_name: str
+
+    @classmethod
+    def from_db(cls, db_user_social: data.UserSocial):
+        return cls(
+            id=db_user_social.id,
+            social_user_id=db_user_social.social_net_user_id,
+            social_name=db_user_social.social_net_name
+        )
+
+
 # YAGNI
 class AbstractUsers(ABC):
     @abstractmethod
@@ -189,14 +204,51 @@ class AbstractActions(ABC):
         pass
 
 
+class AbstractSocialAccounts(ABC):
+    @abstractmethod
+    def add_social(self, user_id: UserID, social_id: str, social_name: str) -> UUID:
+        """add record to socials"""
+        pass
+
+    @abstractmethod
+    def user_by_social(self, social_id: str, social_name: str) -> UserID | None:
+        """find user by his social_id and social_name if exists"""
+        pass
+
+    @abstractmethod
+    def get_user_socials(self, user_id: UserID) -> list[UserSocial]:
+        pass
+
+    @abstractmethod
+    def delete_user_social(self, user_id: UserID, social_id: UUID) -> list[UserSocial]:
+        pass
+
+
 class Users(AbstractUsers):
     def add_user(self, login, password, name, registered=datetime.now(tz=timezone.utc)) -> User:
+        """
+            Добавляем пользователя в базу
+            Если не задано имя, но есть логин(email) используем в качестве имени email
+            Если нет ни имени, не email, то имя устанавливаем в Anonymous, логин(email) в user_id
+
+        """
         hash_password = generate_password_hash(password)
 
         if not name:
-            name = login
+            if login:
+                name = login
+            else:
+                name = 'Anonymous'
 
-        db_user = data.User(email=login, password_hash=hash_password, username=name, registered_on=registered)
+        user_id = uuid.uuid4()
+
+        if not login:
+            login = str(user_id)
+        db_user = data.User(id=user_id,
+                            email=login,
+                            password_hash=hash_password,
+                            username=name,
+                            registered_on=registered)
 
         data.db.session.add(db_user)
         data.db.session.commit()
@@ -353,4 +405,36 @@ class Actions(AbstractActions):
     def get_user_actions(self, user_id: UserID, days_limit=30) -> list[UserAction | None]:
         actions = data.UserAction.by_user_id(user_id, days_limit=30)
         result = [UserAction.from_db(db_action) for db_action in actions]
+        return result
+
+
+class SocialAccounts(AbstractSocialAccounts):
+    def user_by_social(self, social_id: str, social_name: str) -> UserID | None:
+        db_social: data.UserSocial = data.UserSocial.get_user_by_social(social_id, social_name)
+        if not db_social:
+            return None
+        user_id: UserID = db_social.user_id
+        return user_id
+
+    def add_social(self, user_id: UserID, social_id: str, social_name: str) -> UUID:
+        db_social = data.UserSocial(user_id=user_id, social_net_name=social_name, social_net_user_id=social_id)
+        data.db.session.add(db_social)
+        data.db.session.commit()
+        return db_social.id
+
+    def get_user_socials(self, user_id: UserID) -> list[UserSocial]:
+        db_socials = data.UserSocial.by_user_id(user_id)
+        result = [UserSocial.from_db(db_social) for db_social in db_socials]
+        return result
+
+    def delete_user_social(self, user_id: UserID, social_id: UUID) -> list[UserSocial] | None:
+        user: data.User = data.User.find_by_id(user_id)
+        if user is None:
+            return None
+        social: data.UserSocial = data.UserSocial.query.get(social_id)
+        if social is None:
+            return None
+        data.db.session.delete(social)
+        data.db.session.commit()
+        result = [UserSocial.from_db(db_social) for db_social in user.social_accounts]
         return result

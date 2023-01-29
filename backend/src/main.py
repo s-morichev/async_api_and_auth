@@ -3,12 +3,14 @@ import logging
 import redis.asyncio as aioredis
 import uvicorn as uvicorn
 from elasticsearch import AsyncElasticsearch
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, Depends
 from fastapi.responses import ORJSONResponse
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
-from api.v1 import films, genres, persons, ping
+from api.v1 import films, genres, persons, ping, view
 from core.config import settings
 from core.logger import LOGGING
+from core.utils import configure_tracer
 from db import elastic, redis_
 
 tags_metadata = [
@@ -19,6 +21,12 @@ tags_metadata = [
 
 logger = logging.getLogger(__name__)
 
+
+async def require_header_request_id(x_request_id: str | None = Header(default=None)):
+    if x_request_id is None:
+        raise RuntimeError("request id is required")
+
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
@@ -26,6 +34,7 @@ app = FastAPI(
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
+    dependencies=[Depends(require_header_request_id)]
 )
 
 
@@ -34,6 +43,8 @@ async def startup():
     logger.info("service start")
     redis_.redis = await aioredis.from_url(settings.REDIS_URI)
     elastic.es = AsyncElasticsearch(hosts=[settings.ES_URI])
+    configure_tracer()
+    FastAPIInstrumentor.instrument_app(app)
 
 
 @app.on_event("shutdown")
@@ -48,6 +59,7 @@ app.include_router(ping.router, prefix="/api/v1/ping", tags=["Пинг"])
 app.include_router(films.router, prefix="/api/v1/films", tags=["Фильмы"])
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["Персоны"])
 app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])
+app.include_router(view.router, prefix="/api/v1/view", tags=["Просмотр"])
 
 if __name__ == "__main__":
     uvicorn.run(

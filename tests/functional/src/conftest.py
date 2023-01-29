@@ -108,9 +108,13 @@ def es_write_data(es_client):
 
 @pytest.fixture(scope="session")
 def make_get_request(aiohttp_session):
-    async def inner(path: str, query_data: dict | None = None):
+    async def inner(path: str, query_data: dict | None = None, access_token: str | None = None):
         url = settings.BACKEND_URI + path
-        async with aiohttp_session.get(url, params=query_data) as response:
+        headers = {"X-Request-Id": "test id"}
+        if access_token:
+            headers["Authorization"] = f"Bearer {access_token}"
+
+        async with aiohttp_session.get(url, params=query_data, headers=headers) as response:
             body = await response.json()
             headers = response.headers
             status = response.status

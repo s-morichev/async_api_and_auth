@@ -43,3 +43,4 @@ class ExtendedFilm(Film):
     actors: list[Person]
     writers: list[Person]
     directors: list[Person]
+    marks: list[str] = Field(..., alias="mark")

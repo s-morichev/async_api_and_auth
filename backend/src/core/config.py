@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     REDIS_URI: str = Field(..., env="REDIS_BACKEND_DSN")
     ES_URI: str = Field(..., env="ELK_MOVIES_DSN")
     DATABASE_WAIT_TIME: float = 1.0
+    JWT_SECRET_KEY: str = Field(..., env="BACKEND_JWT_KEY")
+    JAEGER_HOST_NAME: str = Field(..., env="JAEGER_HOST_NAME")
+    JAEGER_PORT: int = Field(..., env="JAEGER_PORT")
 
 
 settings = Settings(_env_file=ENV_FILE)

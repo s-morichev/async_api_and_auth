@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import backref, relationship
 
@@ -54,7 +54,7 @@ class User(db.Model):
     # subscribe_expiration
     is_confirmed = Column(Boolean, default=False)
     is_root = Column(Boolean, default=False)
-    roles = relationship("Role", secondary=user_roles, lazy="subquery", backref=backref("roles", lazy=True))
+    roles = relationship("Role", secondary=user_roles, lazy="subquery", backref=backref("users", lazy=True))
 
     @classmethod
     def find_by_email(cls, email):
@@ -67,11 +67,29 @@ class User(db.Model):
         return query
 
 
+def create_user_actions_partitions(target, connection, **kw) -> None:
+    connection.execute(
+        """CREATE TABLE user_actions_0 PARTITION OF user_actions FOR VALUES WITH (MODULUS 3,REMAINDER 0)"""
+    )
+    connection.execute(
+        """CREATE TABLE user_actions_1 PARTITION OF user_actions FOR VALUES WITH (MODULUS 3,REMAINDER 1)"""
+    )
+    connection.execute(
+        """CREATE TABLE user_actions_2 PARTITION OF user_actions FOR VALUES WITH (MODULUS 3,REMAINDER 2)"""
+    )
+
+
 class UserAction(db.Model):
     __tablename__ = "user_actions"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+    __table_args__ = (
+        UniqueConstraint("id", "user_id"),
+        {
+            "postgresql_partition_by": "HASH (user_id)",
+            "listeners": [("after_create", create_user_actions_partitions)],
+        },
+    )
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
     device_name = Column(String)
     action_type = Column(String)
     action_time = Column(DateTime(timezone=True), default=now_with_tz_info)
@@ -102,3 +120,26 @@ class UserSession(db.Model):
         # TODO return active sessions
         query = cls.query.filter_by(user_id=user_id)
         return query
+
+
+class UserSocial(db.Model):
+    __tablename__ = 'social_account'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    social_net_user_id = db.Column(db.Text, nullable=False)
+    social_net_name = db.Column(db.Text, nullable=False)
+
+    user = db.relationship("User", backref=backref('social_accounts', lazy='select'), uselist=False)
+    __table_args__ = (db.UniqueConstraint('social_net_user_id', 'social_net_name', name='social_pk'),)
+
+    @classmethod
+    def get_user_by_social(cls, social_net_user_id, social_net_name):
+        query = cls.query.filter_by(social_net_user_id=social_net_user_id, social_net_name=social_net_name).first()
+        return query
+
+    @classmethod
+    def by_user_id(cls, user_id):
+        query = cls.query.filter_by(user_id=user_id)
+        return query
+
