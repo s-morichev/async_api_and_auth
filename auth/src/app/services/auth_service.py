@@ -32,7 +32,7 @@ def get_user_history(user_id: UUID, days_limit=30) -> list[dict]:
     return [action.dict() for action in user_actions]
 
 
-def new_session(user_id: UUID, device_name: str, remote_ip: str, ttl: int, social_net: str = ''):
+def new_session(user_id: UUID, device_name: str, remote_ip: str, ttl: int, social_net: str = ""):
     login_at = str(datetime.datetime.now())
     data = {"device_name": device_name, "remote_ip": remote_ip, "login_at": login_at}
     device_id = device_id_from_name(device_name)

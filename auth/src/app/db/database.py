@@ -109,7 +109,7 @@ class UserSocial(BaseModel):
         return cls(
             id=db_user_social.id,
             social_user_id=db_user_social.social_net_user_id,
-            social_name=db_user_social.social_net_name
+            social_name=db_user_social.social_net_name,
         )
 
 
@@ -227,9 +227,9 @@ class AbstractSocialAccounts(ABC):
 class Users(AbstractUsers):
     def add_user(self, login, password, name, registered=datetime.now(tz=timezone.utc)) -> User:
         """
-            Добавляем пользователя в базу
-            Если не задано имя, но есть логин(email) используем в качестве имени email
-            Если нет ни имени, не email, то имя устанавливаем в Anonymous, логин(email) в user_id
+        Добавляем пользователя в базу
+        Если не задано имя, но есть логин(email) используем в качестве имени email
+        Если нет ни имени, не email, то имя устанавливаем в Anonymous, логин(email) в user_id
 
         """
         hash_password = generate_password_hash(password)
@@ -238,17 +238,15 @@ class Users(AbstractUsers):
             if login:
                 name = login
             else:
-                name = 'Anonymous'
+                name = "Anonymous"
 
         user_id = uuid.uuid4()
 
         if not login:
             login = str(user_id)
-        db_user = data.User(id=user_id,
-                            email=login,
-                            password_hash=hash_password,
-                            username=name,
-                            registered_on=registered)
+        db_user = data.User(
+            id=user_id, email=login, password_hash=hash_password, username=name, registered_on=registered
+        )
 
         data.db.session.add(db_user)
         data.db.session.commit()

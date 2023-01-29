@@ -2,8 +2,8 @@ from http import HTTPStatus
 
 from flask import redirect, request
 
-from app.services.oauth_service import OAuthSignIn, get_user_socials
 import app.services.user_service as user_srv
+from app.services.oauth_service import OAuthSignIn, get_user_socials
 
 TEST_LOGIN = "test@test.test"
 

@@ -7,9 +7,9 @@ from flask_jwt_extended import get_jwt, jwt_required
 from app.core.utils import error
 from app.flask_limits import limit_by_ip, limit_by_user_id
 from app.services import auth_service
+from app.services.oauth_service import del_user_social, get_user_socials
 from app.services.role_service import get_user_roles
 from app.services.user_service import add_user, change_user, get_user_by_id, get_user_sessions, logout_all
-from app.services.oauth_service import get_user_socials, del_user_social
 
 me_bp = Blueprint("me", __name__, url_prefix="/users/me")
 

@@ -33,6 +33,7 @@ class Config(BaseSettings):
     JAEGER_PORT: int = Field(..., env="JAEGER_PORT")
     SERVICE_NAME: str = Field(..., env="AUTH_PROJECT_NAME")
 
+
 # фласк по умолчанию ищет настройки в .env файле, в том числе в родительских папках
 # поэтому для локального запуска вручную загружаем нужный файл .env.local
 # в контейнере env файла не будет и настройки будут взяты из переменных окружения

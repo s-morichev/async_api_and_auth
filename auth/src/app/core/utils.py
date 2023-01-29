@@ -1,12 +1,11 @@
 import hashlib
 import string
-
 from functools import wraps
 from http import HTTPStatus
-from uuid import UUID
 from secrets import choice as secrets_choice
+from uuid import UUID
 
-from flask import request
+from flask import current_app, request
 from flask_jwt_extended import get_jwt, jwt_required
 from flask_jwt_extended.exceptions import NoAuthorizationError
 
@@ -84,8 +83,14 @@ def limit_by_ip_key() -> str:
 def require_header_request_id():
     request_id = request.headers.get("X-Request-Id")
     if not request_id:
-        raise RuntimeError("request id is required")
+        # если режим debug и Request-Id нет, разрешаем так заходить
+        if current_app.debug:
+            pass
+
+        else:
+            error("X-Request-Id header id is required", HTTPStatus.BAD_REQUEST)
+
 
 def generate_password(length=10) -> str:
     alphabet = string.ascii_letters + string.digits
-    return ''.join(secrets_choice(alphabet) for _ in range(length))
+    return "".join(secrets_choice(alphabet) for _ in range(length))

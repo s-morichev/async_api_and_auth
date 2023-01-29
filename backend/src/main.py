@@ -1,12 +1,12 @@
 import logging
 
-import redis.asyncio as aioredis
 import uvicorn as uvicorn
 from elasticsearch import AsyncElasticsearch
-from fastapi import FastAPI, Header, Depends
+from fastapi import Depends, FastAPI, Header
 from fastapi.responses import ORJSONResponse
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
+import redis.asyncio as aioredis
 from api.v1 import films, genres, persons, ping, view
 from core.config import settings
 from core.logger import LOGGING
@@ -24,7 +24,10 @@ logger = logging.getLogger(__name__)
 
 async def require_header_request_id(x_request_id: str | None = Header(default=None)):
     if x_request_id is None:
-        raise RuntimeError("request id is required")
+        if app.debug:
+            pass
+        else:
+            raise RuntimeError("X-Request-Id header id is required")
 
 
 app = FastAPI(
@@ -34,7 +37,7 @@ app = FastAPI(
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
-    dependencies=[Depends(require_header_request_id)]
+    dependencies=[Depends(require_header_request_id)],
 )
 
 
