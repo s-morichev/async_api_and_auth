@@ -1,9 +1,14 @@
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic import BaseSettings, Field
 
 BASE_DIR = Path(__file__).parent
 ENV_FILE = BASE_DIR.parent / ".env.local"
+
+# pytest видимо сам прогружает .env где найдет, а находит в корне...
+# поэтому явно загружаем нужный файл для локального запуска
+load_dotenv(ENV_FILE, override=True)
 
 
 class Settings(BaseSettings):
@@ -20,4 +25,4 @@ class Settings(BaseSettings):
         return [self.ES_MOVIES_INDEX, self.ES_PERSONS_INDEX, self.ES_GENRES_INDEX]
 
 
-settings = Settings(_env_file=ENV_FILE)
+settings = Settings()
