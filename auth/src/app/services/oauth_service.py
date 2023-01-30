@@ -1,19 +1,33 @@
 import json
 from uuid import UUID
+from enum import Enum
 
-from flask import current_app, jsonify, redirect, request, url_for
+from flask import current_app, jsonify, redirect, request, url_for, Response
 from flask_jwt_extended import set_access_cookies, set_refresh_cookies
 from rauth import OAuth2Service
 
 from app.core.utils import generate_password
-from app.db.database import AbstractSocialAccounts, AbstractUsers
+from app.db.database import AbstractSocialAccounts, AbstractUsers, User
 from app.services import auth_service, token_service
 
 social_accounts: AbstractSocialAccounts
 users: AbstractUsers
 
 
-def login_by_social(social_name: str, social_user_id: str, user_name: str, email: str | None):
+class OAuthProvider(str, Enum):
+    def __new__(cls, value, auth_name, doc=""):
+        obj = str.__new__(cls, value)
+        obj._value_ = value
+
+        obj.auth_name = auth_name
+        obj.doc = doc
+        return obj
+
+    YANDEX = "yandex", "Yandex", "https://yandex.ru/dev/id/doc/dg/oauth/reference/auto-code-client.html"
+    VK = "vk", "VKontakte", "https://vk.com/dev/authcode_flow_user"
+
+
+def login_by_social(social_name: str, social_user_id: str, user_name: str, email: str | None) -> Response:
     """
     Осуществляет вход через соц сеть. Если аккаунта соц сети нет - создает его
     и привязывает по email к пользователю с таким же email
@@ -24,7 +38,12 @@ def login_by_social(social_name: str, social_user_id: str, user_name: str, email
 
     """
 
-    def add_new_user(email, user_name, social_name, social_user_id):
+    def add_new_user(email: str, user_name: str, social_name: str, social_user_id: str) -> tuple[User, dict[str, str]]:
+        """Добавляет нового пользователя и его аккаунт в соц сети,
+        генерирует ему пароль,
+        возвращает объект database.User и словарь {"login": user.login, "password": password}
+        словарь можно показать пользователю для того чтобы он сохранил данные для входа
+        """
         current_app.logger.debug(
             f'add new user from social email:"{email}" '
             f'username:"{user_name}" social_net:"{social_name}" social_user_id:"{social_user_id}"'
@@ -120,15 +139,20 @@ class OAuthSignIn(object):
 class YandexSignIn(OAuthSignIn):
     """oauth with Yandex"""
 
+    AUTH_URL = "https://oauth.yandex.ru/authorize"
+    TOKEN_URL = "https://oauth.yandex.ru/token"
+    BASE_URL = "https://oauth.yandex.ru"
+    INFO_URL = "https://login.yandex.ru/info"
+
     def __init__(self):
-        super().__init__("yandex")
+        super().__init__(OAuthProvider.YANDEX)
         self.service = OAuth2Service(
-            name="yandex",
+            name=OAuthProvider.YANDEX.auth_name,
             client_id=self.consumer_id,
             client_secret=self.consumer_secret,
-            authorize_url="https://oauth.yandex.ru/authorize",
-            access_token_url="https://oauth.yandex.ru/token",
-            base_url="https://oauth.yandex.ru",
+            authorize_url=self.AUTH_URL,
+            access_token_url=self.TOKEN_URL,
+            base_url=self.BASE_URL,
         )
 
     def authorize(self):
@@ -147,7 +171,7 @@ class YandexSignIn(OAuthSignIn):
             data={"code": request.args["code"], "grant_type": "authorization_code"}, decoder=decode_json
         )
 
-        info = oauth_session.get("https://login.yandex.ru/info", params={"format": "json"}).json()
+        info = oauth_session.get(self.INFO_URL, params={"format": "json"}).json()
 
         user_id = info["id"]
         email = str(info["default_email"]).lower()
@@ -160,17 +184,23 @@ class YandexSignIn(OAuthSignIn):
 class VKSignIn(OAuthSignIn):
     """oauth with VK"""
 
+    API_VERSION = "5.131"
+    AUTH_URL = "https://oauth.vk.com/authorize"
+    TOKEN_URL = "https://oauth.vk.com/access_token"
+    BASE_URL = "https://api.vk.com/method/"
+    INFO_URL = "users.get"
+
     def __init__(self):
-        super().__init__("vk")
+        super().__init__(OAuthProvider.VK)
         self.service = None
 
         self.service = OAuth2Service(
-            name="vk",
+            name=OAuthProvider.VK.auth_name,
             client_id=self.consumer_id,
             client_secret=self.consumer_secret,
-            authorize_url="https://oauth.vk.com/authorize",
-            access_token_url="https://oauth.vk.com/access_token",
-            base_url="https://api.vk.com/method/",
+            authorize_url=self.AUTH_URL,
+            access_token_url=self.TOKEN_URL,
+            base_url=self.BASE_URL,
         )
 
     def authorize(self):
@@ -203,7 +233,7 @@ class VKSignIn(OAuthSignIn):
 
         oauth_session = self.service.get_session(token=access_token)
         # get user info
-        info = oauth_session.get("users.get", params={"v": "5.131"}).json()
+        info = oauth_session.get(self.INFO_URL, params={"v": self.API_VERSION}).json()
 
         if "response" not in info:
             return None, None, None
