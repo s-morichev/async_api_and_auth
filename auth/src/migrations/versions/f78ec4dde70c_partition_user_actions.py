@@ -21,7 +21,7 @@ def upgrade():
         """
         CREATE TABLE IF NOT EXISTS user_actions_new (
             id uuid NOT NULL,
-            user_id uuid NOT NULL REFERENCES users (id),
+            user_id uuid NOT NULL REFERENCES users (id) ON DELETE CASCADE,
             device_name VARCHAR,
             action_type VARCHAR,
             action_time timestamp with time zone,
@@ -45,10 +45,7 @@ def downgrade():
         sa.Column("device_name", sa.String(), nullable=True),
         sa.Column("action_type", sa.String(), nullable=True),
         sa.Column("action_time", sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("id"),
     )

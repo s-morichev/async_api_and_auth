@@ -23,10 +23,7 @@ def upgrade():
         sa.Column("user_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("social_net_user_id", sa.Text(), nullable=False),
         sa.Column("social_net_name", sa.Text(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("id"),
         sa.UniqueConstraint("social_net_user_id", "social_net_name", name="social_pk"),

@@ -46,10 +46,7 @@ def upgrade():
         sa.Column("device_name", sa.String(), nullable=True),
         sa.Column("action_type", sa.String(), nullable=True),
         sa.Column("action_time", sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("id"),
     )
@@ -74,10 +71,7 @@ def upgrade():
         sa.Column("active_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("logout_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("active_till", sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("id"),
     )
