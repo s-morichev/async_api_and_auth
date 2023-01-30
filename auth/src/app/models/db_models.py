@@ -17,7 +17,7 @@ class Role(db.Model):
     __tablename__ = "roles"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    name = Column(String, nullable=False, unique=True)
+    name = Column(String(255), nullable=False, unique=True)
 
     def __repr__(self):
         return self.name
@@ -47,9 +47,9 @@ class User(db.Model):
     __tablename__ = "users"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    email = Column(String, unique=True, nullable=False)
-    password_hash = Column(String, nullable=False)
-    username = Column(String)
+    email = Column(String(255), unique=True, nullable=False)
+    password_hash = Column(String(128), nullable=False)
+    username = Column(String(255))
     registered_on = Column(DateTime(timezone=True), default=now_with_tz_info, nullable=False)
     # subscribe_expiration
     is_confirmed = Column(Boolean, default=False)
@@ -89,9 +89,9 @@ class UserAction(db.Model):
         },
     )
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
-    device_name = Column(String)
-    action_type = Column(String)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    device_name = Column(String(255))
+    action_type = Column(String(255))
     action_time = Column(DateTime(timezone=True), default=now_with_tz_info)
 
     @classmethod
@@ -105,10 +105,10 @@ class UserAction(db.Model):
 class UserSession(db.Model):
     __tablename__ = "user_sessions"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    device_id = Column(String)  # hash sha256
-    device_name = Column(String)  # user_agent or another device name
-    remote_ip = Column(String)  # client ip
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
+    device_id = Column(String(100))  # hash sha256
+    device_name = Column(String(255))  # user_agent or another device name
+    remote_ip = Column(String(45))  # client ip
     login_at = Column(DateTime(timezone=True), default=now_with_tz_info)  # first sign
     active_at = Column(DateTime(timezone=True), default=now_with_tz_info)  # every refresh updated
     logout_at = Column(DateTime(timezone=True), default=None)  # when logout
@@ -126,9 +126,9 @@ class UserSocial(db.Model):
     __tablename__ = "social_account"
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True)
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
-    social_net_user_id = db.Column(db.Text, nullable=False)
-    social_net_name = db.Column(db.Text, nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    social_net_user_id = db.Column(String(255), nullable=False)
+    social_net_name = db.Column(String(255), nullable=False)
 
     user = db.relationship("User", backref=backref("social_accounts", lazy="select"), uselist=False)
     __table_args__ = (db.UniqueConstraint("social_net_user_id", "social_net_name", name="social_pk"),)

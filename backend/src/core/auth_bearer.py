@@ -30,6 +30,7 @@ class JWTBearer(HTTPBearer):
         except jwt.PyJWTError:
             raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid token or expired token.")
 
+        logger.debug(f'jwt-token payload: {decoded_token}')
         return AccessTokenPayload(**decoded_token)
 
 
