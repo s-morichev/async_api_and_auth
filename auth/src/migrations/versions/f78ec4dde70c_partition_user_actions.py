@@ -21,9 +21,9 @@ def upgrade():
         """
         CREATE TABLE IF NOT EXISTS user_actions_new (
             id uuid NOT NULL,
-            user_id uuid NOT NULL REFERENCES users (id),
-            device_name VARCHAR,
-            action_type VARCHAR,
+            user_id uuid NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+            device_name VARCHAR (255),
+            action_type VARCHAR (255),
             action_time timestamp with time zone,
             PRIMARY KEY (id, user_id)
         ) PARTITION BY HASH (user_id); 
@@ -42,13 +42,10 @@ def downgrade():
         "user_actions_old",
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("user_id", postgresql.UUID(as_uuid=True), nullable=True),
-        sa.Column("device_name", sa.String(), nullable=True),
-        sa.Column("action_type", sa.String(), nullable=True),
+        sa.Column("device_name", sa.String(255), nullable=True),
+        sa.Column("action_type", sa.String(255), nullable=True),
         sa.Column("action_time", sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("id"),
     )

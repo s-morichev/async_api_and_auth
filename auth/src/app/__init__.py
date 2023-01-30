@@ -68,8 +68,9 @@ def create_app(config):
 
     app.register_error_handler(AuthServiceError, http_error_handler)
     app.register_error_handler(RateLimitExceeded, ratelimit_error_handler)
-    app.before_request(require_header_request_id)
 
-    init_tracer(app)
+    if config.ENABLE_TRACER:
+        app.before_request(require_header_request_id)
+        init_tracer(app)
 
     return app

@@ -41,8 +41,6 @@ def app():
 
     app = create_app(flask_config)
 
-    # выключаем телеметрию в тестах, но оставляем обязательный заголовок X-Request-Id
-    FlaskInstrumentor.uninstrument_app(app)
     app.config["TESTING"] = True
     return app
 
