@@ -7,12 +7,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from core.utils import can_view_film
 from models.token import AccessTokenPayload
 from services.films import FilmByIdService
+from core.auth_bearer import jwt_bearer
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-from core.auth_bearer import jwt_bearer
 
 
 @router.get("/{film_id}", summary="get link to view film")

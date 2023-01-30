@@ -21,7 +21,7 @@ class Config(BaseSettings):
     JWT_SECRET_KEY: str = Field(..., env="AUTH_JWT_KEY")
     JWT_COOKIE_SECURE: bool = Field(..., env="AUTH_JWT_COOKIE_SECURE")
     OAUTH_CREDENTIALS: dict = Field(..., env="AUTH_OAUTH_CREDENTIALS")
-    JWT_COOKIE_CSRF_PROTECT: bool = True
+    JWT_COOKIE_CSRF_PROTECT: bool = False
     JWT_CSRF_IN_COOKIES: bool = True
     JWT_ACCESS_TOKEN_EXPIRES: timedelta = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES: timedelta = timedelta(days=30)
@@ -31,7 +31,7 @@ class Config(BaseSettings):
     RATELIMIT_STORAGE_URI: str = Field(..., env="REDIS_AUTH_DSN")
     JAEGER_HOST_NAME: str = Field(..., env="JAEGER_HOST_NAME")
     JAEGER_PORT: int = Field(..., env="JAEGER_PORT")
-    ENABLE_TRACER: bool = Field(..., env="ENABLE_TRACER")
+    ENABLE_TRACER: bool = Field(False, env="ENABLE_TRACER")
     SERVICE_NAME: str = Field(..., env="AUTH_PROJECT_NAME")
 
 

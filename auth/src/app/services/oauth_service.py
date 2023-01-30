@@ -116,18 +116,18 @@ class OAuthSignIn(object):
         self.consumer_id = credentials["id"]
         self.consumer_secret = credentials["secret"]
 
-    def authorize(self):
+    def authorize(self) -> Response:
         pass
 
-    def callback(self):
+    def callback(self) -> tuple[str | None, str | None, str | None]:
         pass
 
-    def get_callback_url(self):
+    def get_callback_url(self) -> str:
         resp = url_for("auth.auth_v1.oauth.oauth_callback", provider=self.provider_name, _external=True)
         return resp
 
     @classmethod
-    def get_provider(cls, provider_name: str):
+    def get_provider(cls, provider_name: str) -> "OAuthSignIn":
         if cls.providers is None:
             cls.providers = {}
             for provider_class in cls.__subclasses__():
@@ -155,7 +155,7 @@ class YandexSignIn(OAuthSignIn):
             base_url=self.BASE_URL,
         )
 
-    def authorize(self):
+    def authorize(self) -> Response:
         return redirect(
             self.service.get_authorize_url(response_type="code", force_confirm=1, redirect_uri=self.get_callback_url())
         )
@@ -203,7 +203,7 @@ class VKSignIn(OAuthSignIn):
             base_url=self.BASE_URL,
         )
 
-    def authorize(self):
+    def authorize(self) -> Response:
         return redirect(
             self.service.get_authorize_url(
                 response_type="code",
@@ -214,7 +214,7 @@ class VKSignIn(OAuthSignIn):
             )
         )
 
-    def callback(self):
+    def callback(self) -> tuple[str | None, str | None, str | None]:
 
         if "code" not in request.args:
             return None, None, None
