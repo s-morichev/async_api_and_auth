@@ -1,8 +1,9 @@
+from http import HTTPStatus
 import logging
 
 import uvicorn as uvicorn
 from elasticsearch import AsyncElasticsearch
-from fastapi import Depends, FastAPI, Header
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import ORJSONResponse
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
@@ -27,8 +28,12 @@ async def require_header_request_id(x_request_id: str | None = Header(default=No
         if app.debug:
             pass
         else:
-            raise RuntimeError("X-Request-Id header id is required")
+            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="X-Request-Id header id is required")
 
+
+deps = None
+if settings.ENABLE_TRACER:
+    deps = [Depends(require_header_request_id)]
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -37,7 +42,7 @@ app = FastAPI(
     docs_url="/api/openapi",
     openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
-    dependencies=[Depends(require_header_request_id)],
+    dependencies=deps,
 )
 
 
@@ -46,8 +51,9 @@ async def startup():
     logger.info("service start")
     redis_.redis = await aioredis.from_url(settings.REDIS_URI)
     elastic.es = AsyncElasticsearch(hosts=[settings.ES_URI])
-    configure_tracer()
-    FastAPIInstrumentor.instrument_app(app)
+    if settings.ENABLE_TRACER:
+        configure_tracer()
+        FastAPIInstrumentor.instrument_app(app)
 
 
 @app.on_event("shutdown")

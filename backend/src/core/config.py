@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = Field(..., env="BACKEND_JWT_KEY")
     JAEGER_HOST_NAME: str = Field(..., env="JAEGER_HOST_NAME")
     JAEGER_PORT: int = Field(..., env="JAEGER_PORT")
+    ENABLE_TRACER: bool = Field(..., env="ENABLE_TRACER")
 
 
 settings = Settings(_env_file=ENV_FILE)

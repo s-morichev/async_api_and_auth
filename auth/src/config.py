@@ -31,6 +31,7 @@ class Config(BaseSettings):
     RATELIMIT_STORAGE_URI: str = Field(..., env="REDIS_AUTH_DSN")
     JAEGER_HOST_NAME: str = Field(..., env="JAEGER_HOST_NAME")
     JAEGER_PORT: int = Field(..., env="JAEGER_PORT")
+    ENABLE_TRACER: bool = Field(..., env="ENABLE_TRACER")
     SERVICE_NAME: str = Field(..., env="AUTH_PROJECT_NAME")
 
 

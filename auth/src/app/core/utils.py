@@ -86,7 +86,6 @@ def require_header_request_id():
         # если режим debug и Request-Id нет, разрешаем так заходить
         if current_app.debug:
             pass
-
         else:
             error("X-Request-Id header id is required", HTTPStatus.BAD_REQUEST)
 
